@@ -1,4 +1,4 @@
-import "package:frontend/constants/validinput.dart";
+import "package:frontend/constants/input_constant.dart";
 class SignUpValidator{
 
   static String? validator({required String value,required String type}){

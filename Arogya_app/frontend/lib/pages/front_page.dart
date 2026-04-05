@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/bottomnavigator.dart';
+import 'package:frontend/widgets/bottom_navigator.dart';
 import 'package:frontend/widgets/appbar.dart';
 import 'package:frontend/widgets/drawer.dart';
 import 'package:frontend/pages/graph_page.dart';
@@ -38,7 +38,7 @@ class _FrontPageState extends State<FrontPage> {
         },
       ),
       drawer:ArogyaDrawer(),
-    );
+  );
     
 
   }

@@ -4,6 +4,8 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:frontend/pages/homepage.dart';
 import 'package:frontend/pages/login_page.dart';
 import 'package:frontend/pages/signup_page.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 
 
 
@@ -29,7 +31,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> intialization() async{
-    await Future.delayed(Duration(seconds:5));
+
+
+    await Hive.initFlutter();
+    await Hive.openBox("authBox");
+
+
+    await Future.delayed(Duration(seconds:3));
     FlutterNativeSplash.remove();
   }
 
@@ -47,6 +55,7 @@ class _MyAppState extends State<MyApp> {
         '/signup' : (context)=>SignUpPage(),
         '/frontpage': (context)=>FrontPage(),
         '/homepage' :(context)=>HomePage(),
+        '/loginpage' :(context)=>LoginPage(),
       }
     );
   }
