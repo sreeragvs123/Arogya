@@ -3,10 +3,9 @@ package com.Grp._8.backend.services;
 import com.Grp._8.backend.dto.LoginRequestDTO;
 import com.Grp._8.backend.dto.LoginResponseDTO;
 import com.Grp._8.backend.dto.UserSignUpDTO;
-import com.Grp._8.backend.entities.UserEntity;
+import com.Grp._8.backend.entities.User;
 import com.Grp._8.backend.entities.enums.Role;
 import com.Grp._8.backend.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
@@ -48,15 +47,15 @@ public class AuthService implements UserDetailsService {
 
     public UserSignUpDTO signUp(UserSignUpDTO user) {
 
-        Optional<UserEntity> existingPaitent = userRepository.findByUsernameAndRole(user.getUsername(), user.getRole());
+        Optional<User> existingPaitent = userRepository.findByUsernameAndRole(user.getUsername(), user.getRole());
         if (existingPaitent.isPresent()) {
             throw new BadCredentialsException("Username already exists: " + user.getUsername());
         }
 
 
-        UserEntity newUser = modelMapper.map(user, UserEntity.class);
+        User newUser = modelMapper.map(user, User.class);
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        UserEntity savedUser = userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
         return modelMapper.map(savedUser, UserSignUpDTO.class);
 
     }
@@ -67,7 +66,7 @@ public class AuthService implements UserDetailsService {
                 new UsernamePasswordAuthenticationToken(compositeKey, request.getPassword())
         );
 
-        UserEntity validUser = (UserEntity) authentication.getPrincipal();
+        User validUser = (User) authentication.getPrincipal();
 
         String accessToken = jwtService.generateAccessToken(validUser);
         String refreshToken = jwtService.generateRefreshToken(validUser);

@@ -1,6 +1,6 @@
 package com.Grp._8.backend.services;
 
-import com.Grp._8.backend.entities.UserEntity;
+import com.Grp._8.backend.entities.User;
 import com.Grp._8.backend.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,7 +18,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -27,18 +27,19 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(UserEntity user){
+    public String generateAccessToken(User user){
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("username",user.getUsername())
                 .claim("role",user.getRole())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis()+1000*60))
+                .expiration(new Date(System.currentTimeMillis()+1000*60*15))
+                .signWith(getSigningKey())
                 .compact();
 
     }
 
-    public String generateRefreshToken(UserEntity user){
+    public String generateRefreshToken(User user){
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .issuedAt(new Date())
@@ -63,7 +64,7 @@ public class JwtService {
     public String generateAcessTokenFromRefreshToken(String refreshToken){
 
         Long userId = getUserIdFromToken(refreshToken);
-        UserEntity validUser = userRepository.findById(userId).orElseThrow();
+        User validUser = userRepository.findById(userId).orElseThrow();
         String accessToken = generateAccessToken(validUser);
 
         return accessToken;

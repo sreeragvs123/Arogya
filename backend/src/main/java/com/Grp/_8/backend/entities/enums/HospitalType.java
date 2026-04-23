@@ -1,0 +1,22 @@
+package com.Grp._8.backend.entities.enums;
+
+public enum HospitalType {
+    GENERAL,
+    MULTISPECIALTY,
+    SUPERSPECIALTY,
+    TEACHING,
+    CLINIC,
+    NURSING_HOME,
+    TRAUMA_CENTER,
+    REHABILITATION,
+    PSYCHIATRIC,
+    MATERNITY,
+    PEDIATRIC,
+    CANCER_CENTER,
+    CARDIAC_CENTER,
+    DENTAL,
+    EYE_HOSPITAL,
+    AYURVEDIC,
+    COMMUNITY
+
+}
