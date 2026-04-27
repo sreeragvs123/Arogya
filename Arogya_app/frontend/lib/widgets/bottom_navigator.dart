@@ -10,6 +10,8 @@ class ArogyaBottomNavigatorBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+        backgroundColor:const Color.fromARGB(255, 196, 246, 253),
+        type: BottomNavigationBarType.fixed,
         currentIndex: currIndex,
         onTap:onTap,
         items: [
@@ -20,7 +22,11 @@ class ArogyaBottomNavigatorBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.bar_chart),
           label:"Graph",
-          ),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.alarm),
+          label:"Alarm"
+        ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: "Profile"

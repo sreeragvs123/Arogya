@@ -1,11 +1,13 @@
 
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/alarm_page.dart';
 import 'package:frontend/widgets/bottom_navigator.dart';
 import 'package:frontend/widgets/appbar.dart';
 import 'package:frontend/widgets/drawer.dart';
 import 'package:frontend/pages/graph_page.dart';
 import 'package:frontend/pages/homepage.dart';
 import 'package:frontend/pages/profile_page.dart';
+import 'package:frontend/pages/notification_page.dart';
 
 class FrontPage extends StatefulWidget {
   const FrontPage({super.key});
@@ -21,13 +23,21 @@ class _FrontPageState extends State<FrontPage> {
   final List<Widget> _pages = [
     HomePage(),
     GraphPage(),
+    AlarmPage(),
     ProfilePage()
+  ];
+
+  final List<String> titles =[
+    "Arogya",
+    "Graph",
+    "Alarm",
+    "Profile"
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ArogyaAppBar(),
+      appBar: ArogyaAppBar(title: titles[_isSelectedIndex],index:_isSelectedIndex),
       body: _pages[_isSelectedIndex],
       bottomNavigationBar: ArogyaBottomNavigatorBar(
         currIndex: _isSelectedIndex,
@@ -37,7 +47,6 @@ class _FrontPageState extends State<FrontPage> {
           });
         },
       ),
-      drawer:ArogyaDrawer(),
   );
     
 

@@ -19,13 +19,16 @@ class Config{
 
     return InterceptorsWrapper(
         
-        onRequest: (options, handler) {
-          final token = Hive.box('authBox').get('accessToken') as String?;
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
-          return handler.next(options);
-        },
+          onRequest: (options, handler) {
+            final isAuthRoute = options.path.contains('/auth/');//to avoid sending token for signup and login request
+            if (!isAuthRoute) { //Only attach token for non-auth routes
+              final token = Hive.box('authBox').get('accessToken') as String?;
+              if (token != null) {
+                options.headers['Authorization'] = 'Bearer $token';
+              }
+            }
+            return handler.next(options);
+          },
 
         onError: (DioException error, handler) async {
           if (error.response?.statusCode != 401) {
@@ -33,11 +36,11 @@ class Config{
           }
           final box = Hive.box('authBox');
           final refreshToken = box.get('refreshToken') as String?;
-          if (refreshToken == null || refreshToken.isEmpty) {
+          if (refreshToken == null || refreshToken.isEmpty){
             await AuthApi.signOut(box);
             return handler.next(error);
           }
-
+    
           try{
             final refreshResponse = await Dio().post(
               '${ApiConstants.baseUrl}/auth/refresh',
@@ -63,14 +66,7 @@ class Config{
             await AuthApi.signOut(box);
             return handler.next(error);
           }
-
         }
-      );
-
-
-
-
-
-
+    );
   }
 }

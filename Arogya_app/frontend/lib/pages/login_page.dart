@@ -186,6 +186,20 @@ class _LoginPageState extends State<LoginPage> {
                                   )
                                   
                                 )
+                              ),
+                              const SizedBox(height:25),
+                              InkWell(
+                                onTap:(){
+                                  Navigator.pushNamed(context,'/frontpage');
+                                },
+                                child:Text(
+                                  "Developer Entry",
+                                  style:TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    color:Color.fromARGB(255, 255, 68, 16)
+                                  )
+                                  
+                                )
                               )
                             ]
                           ),

@@ -28,9 +28,6 @@ class AuthApi{
   static Future<LoginResponse> login(LoginRequest request) async{
     try{
       dynamic resp = await ApiClient.dio.post(ApiConstants.login,data : request.toJson());
-      print('Status Code : ${resp.statusCode}');
-      print('resp.data   : ${resp.data}');
-      print('data type   : ${resp.data.runtimeType}');
       final loginResp = LoginResponse.fromJson(resp.data);
       return loginResp;
     }on DioException catch(e){

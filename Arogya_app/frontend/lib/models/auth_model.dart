@@ -57,7 +57,7 @@ class LoginResponse{
   });
 
 factory LoginResponse.fromJson(Map<String, dynamic> json) {
-  final data = json['data'] as Map<String, dynamic>; // ✅ unwrap the 'data' key first
+  final data = json['data'] as Map<String, dynamic>;
   return LoginResponse(
     accessToken: data['accessToken'] as String,
     refreshToken: data['refreshToken'] as String,
@@ -65,4 +65,3 @@ factory LoginResponse.fromJson(Map<String, dynamic> json) {
 }
 }
 
-  
