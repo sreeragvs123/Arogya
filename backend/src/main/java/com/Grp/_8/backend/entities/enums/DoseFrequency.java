@@ -1,6 +1,6 @@
 package com.Grp._8.backend.entities.enums;
 
-public enum DayOfWeek {
+public enum DoseFrequency {
     DAILY,
     ON_DEMAND,
     ALTERNATE_DAYS,

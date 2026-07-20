@@ -1,4 +1,4 @@
-package com.Grp._8.backend.dto;
+package com.Grp._8.backend.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,8 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginResponseDTO {
-
-    private Long id;
-    private String refreshToken;
     private String accessToken;
 }

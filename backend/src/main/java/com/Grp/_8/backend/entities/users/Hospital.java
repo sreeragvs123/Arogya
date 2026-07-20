@@ -1,4 +1,4 @@
-package com.Grp._8.backend.entities;
+package com.Grp._8.backend.entities.users;
 
 
 import com.Grp._8.backend.entities.enums.HospitalType;
@@ -21,13 +21,13 @@ public class Hospital{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private User userData;
+    private Users userData;
 
     private String place;
 
     private HospitalType hospitalType;
 
-    @OneToMany(mappedBy = "doctor",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hospital",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<DoctorHospital> doctorList;
 
 }

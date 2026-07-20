@@ -1,7 +1,8 @@
-package com.Grp._8.backend.services;
+package com.Grp._8.backend.services.auth;
 
-import com.Grp._8.backend.entities.User;
-import com.Grp._8.backend.repositories.UserRepository;
+import com.Grp._8.backend.entities.users.Users;
+import com.Grp._8.backend.exceptions.ResourceNotFoundException;
+import com.Grp._8.backend.repositories.users.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -27,7 +28,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(User user){
+    public String generateAccessToken(Users user){
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("username",user.getUsername())
@@ -39,7 +40,7 @@ public class JwtService {
 
     }
 
-    public String generateRefreshToken(User user){
+    public String generateRefreshToken(Users user){
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .issuedAt(new Date())
@@ -64,7 +65,7 @@ public class JwtService {
     public String generateAcessTokenFromRefreshToken(String refreshToken){
 
         Long userId = getUserIdFromToken(refreshToken);
-        User validUser = userRepository.findById(userId).orElseThrow();
+        Users validUser = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User with id : "+userId+" not Found."));
         String accessToken = generateAccessToken(validUser);
 
         return accessToken;

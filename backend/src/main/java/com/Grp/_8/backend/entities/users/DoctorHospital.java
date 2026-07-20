@@ -1,4 +1,4 @@
-package com.Grp._8.backend.entities;
+package com.Grp._8.backend.entities.users;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -12,11 +12,11 @@ public class DoctorHospital {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Doctor doctor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Hospital hospital;
 
     @CreationTimestamp

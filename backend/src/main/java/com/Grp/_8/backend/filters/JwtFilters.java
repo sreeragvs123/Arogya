@@ -1,8 +1,8 @@
 package com.Grp._8.backend.filters;
 
-import com.Grp._8.backend.entities.User;
-import com.Grp._8.backend.repositories.UserRepository;
-import com.Grp._8.backend.services.JwtService;
+import com.Grp._8.backend.entities.users.Users;
+import com.Grp._8.backend.repositories.users.UserRepository;
+import com.Grp._8.backend.services.auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,7 +45,7 @@ public class JwtFilters extends OncePerRequestFilter {
             Long userId = jwtService.getUserIdFromToken(jwtToken);//Decodes and validates JWT, extracts the user ID from claims
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                Optional<User> user = userRepository.findById(userId);
+                Optional<Users> user = userRepository.findById(userId);
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(user.get(), null, null);
                 authenticationToken.setDetails(

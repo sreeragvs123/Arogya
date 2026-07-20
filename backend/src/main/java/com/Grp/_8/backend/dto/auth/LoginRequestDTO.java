@@ -1,5 +1,4 @@
-package com.Grp._8.backend.dto;
-
+package com.Grp._8.backend.dto.auth;
 
 import com.Grp._8.backend.entities.enums.Role;
 import lombok.AllArgsConstructor;
@@ -9,11 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserSignUpDTO {
-    private Long id;
-    private String name;
+public class LoginRequestDTO {
+
     private String username;
-    private String email;
     private String password;
     private Role role;
+
 }

@@ -1,4 +1,4 @@
-package com.Grp._8.backend.entities;
+package com.Grp._8.backend.entities.users;
 
 
 import com.Grp._8.backend.entities.enums.Role;
@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements UserDetails {
+public class Users implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +27,15 @@ public class User implements UserDetails {
 
     private String name;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(unique = true, nullable = false)
     private String username;
 
     private String password;
+
+    private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
     private Role role;

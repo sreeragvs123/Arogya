@@ -1,5 +1,5 @@
-package com.Grp._8.backend.entities;
-import com.Grp._8.backend.entities.enums.BloodType;
+package com.Grp._8.backend.entities.users;
+
 import com.Grp._8.backend.entities.enums.Sex;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,39 +12,36 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
-
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class Patient{
+public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Users userData;
+
+    @Enumerated(EnumType.STRING)
     private Sex sex;
 
-    private String phoneNumber;
-
-    private String address;
+    private String specialization;
 
     private LocalDate dateOfBirth;
 
-    private Boolean isActive;
+    private Boolean isAvailable;
 
-    private BloodType bloodType;
+    @OneToMany(mappedBy = "doctor",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<DoctorHospital> hospitalAssignments;
 
-    private User userData;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @Column(unique = true)
-    private String qrCode;
-
-    @OneToMany
-    private List<Prescription> perscriptionsList;
-
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
 }

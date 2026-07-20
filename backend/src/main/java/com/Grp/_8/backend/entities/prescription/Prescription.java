@@ -1,5 +1,8 @@
-package com.Grp._8.backend.entities;
+package com.Grp._8.backend.entities.prescription;
 
+import com.Grp._8.backend.entities.users.Doctor;
+import com.Grp._8.backend.entities.users.Hospital;
+import com.Grp._8.backend.entities.users.Patient;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -22,7 +25,7 @@ public class Prescription {
     private Hospital hospital;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<PerscriptionItem> prescriptionItems;
+    private List<PrescriptionItem> prescriptionItems;
 
 
 }

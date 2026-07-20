@@ -1,6 +1,8 @@
 package com.Grp._8.backend.entities;
 
 import com.Grp._8.backend.entities.enums.RecordType;
+import com.Grp._8.backend.entities.users.Doctor;
+import com.Grp._8.backend.entities.users.Patient;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +20,7 @@ import java.util.List;
 public class MedicalHistory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
