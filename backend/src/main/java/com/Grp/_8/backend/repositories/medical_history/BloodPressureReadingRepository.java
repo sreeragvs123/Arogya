@@ -1,7 +1,7 @@
 package com.Grp._8.backend.repositories.medical_history;
 
 
-import com.Grp._8.backend.entities.vital_history.BloodPressureReading;
+import com.Grp._8.backend.entities.histories.BloodPressureReading;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

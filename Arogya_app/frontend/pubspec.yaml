@@ -40,6 +40,15 @@ dependencies:
   timezone: ^0.10.1
   flutter_timezone: ^5.0.2
   flutter_slidable: ^4.0.3
+  google_fonts: ^6.2.1
+  shared_preferences: ^2.0.0
+  bloc: ^9.2.1
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
+  fl_chart: ^1.2.0
+  firebase_core: ^3.0.0
+  image_picker: ^1.1.2
+  firebase_messaging: ^15.0.0
 
 flutter_native_splash:
   color: "#ffffff"
@@ -76,6 +85,57 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/logo.png
+    - assets/images/sreerag.jpg
+
+
+
+  fonts:
+    - family: Avenir
+      fonts:
+        - asset: assets/fonts/AvenirLTStd-Roman.otf
+          weight: 400
+        - asset: assets/fonts/AvenirLTStd-Black.otf
+          weight: 900
+
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-Bold.ttf
+          weight: 700
+
+    - family: Inconsolata
+      fonts:
+        - asset: assets/fonts/Inconsolata-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inconsolata-Bold.ttf
+          weight: 700
+
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+
+    - family: Metropolis
+      fonts:
+        - asset: assets/fonts/Metropolis-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Metropolis-Bold.otf
+          weight: 700
+
+    - family: RobotoCondensed
+      fonts:
+        - asset: assets/fonts/RobotoCondensed-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/RobotoCondensed-Bold.ttf
+          weight: 700
+
+    - family: ArialBlack
+      fonts:
+        - asset: assets/fonts/arial-black.ttf
+          weight: 900
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
