@@ -3,11 +3,11 @@ package com.Grp._8.backend.entities.users;
 
 import com.Grp._8.backend.entities.enums.HospitalType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,13 +21,25 @@ public class Hospital{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
     private Users userData;
 
-    private String place;
 
+    @Enumerated(EnumType.STRING)
     private HospitalType hospitalType;
 
-    @OneToMany(mappedBy = "hospital",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    private List<DoctorHospital> doctorList;
+    private String hosptialDirector;
+
+    private String phoneNumber;
+
+    @OneToMany(mappedBy = "hospital", fetch = FetchType.LAZY)
+    private List<Doctor> doctors;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
 }

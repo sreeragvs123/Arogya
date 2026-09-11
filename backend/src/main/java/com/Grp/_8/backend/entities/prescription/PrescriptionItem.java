@@ -1,9 +1,8 @@
 package com.Grp._8.backend.entities.prescription;
 
-import com.Grp._8.backend.entities.medicine.Medicine;
 import com.Grp._8.backend.entities.enums.DoseFrequency;
 import com.Grp._8.backend.entities.enums.DoseTiming;
-import com.Grp._8.backend.entities.enums.TimeOfDay;
+import com.Grp._8.backend.entities.medicine.Drug;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,16 +11,13 @@ import lombok.Setter;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter @Setter
+@AllArgsConstructor @NoArgsConstructor
 public class PrescriptionItem {
 
     @Id
@@ -29,30 +25,22 @@ public class PrescriptionItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(    nullable = false)
-    private Prescription perscription;
+    @JoinColumn(nullable = false)
+    private Prescription prescription;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medicine_id", nullable = false)
-    private Medicine medicine;
+    @JoinColumn(name = "drug_id", nullable = false)
+    private Drug medicine;
 
     @Column(nullable = false)
     private String dosage;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "prescription_item_time_of_day",
-            joinColumns = @JoinColumn(name = "item_id")
-    )
-    @Enumerated(EnumType.STRING)
-    @Column(name = "time_of_day", nullable = false)
-    private List<TimeOfDay> timeOfDay = new ArrayList<>();
+    private Boolean morning;
+    private Boolean afternoon;
+    private Boolean evening;
 
     @ElementCollection
-    @CollectionTable(
-            name = "prescription_item_weekly_days",
-            joinColumns = @JoinColumn(name = "item_id")
-    )
+    @CollectionTable(name = "prescription_item_weekly_days", joinColumns = @JoinColumn(name = "item_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "day_of_week")
     private Set<DayOfWeek> weeklyDays = new HashSet<>();

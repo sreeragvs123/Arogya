@@ -1,6 +1,7 @@
 package com.Grp._8.backend.advices;
 
 
+import com.Grp._8.backend.exceptions.HospitalAlreadyExistsException;
 import com.Grp._8.backend.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,16 @@ public class GlobalExceptionHandler {
         ApiError apiError = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST)
                 .message(ex.getMessage())
+                .build();
+
+        return buildErrorResponse(apiError);
+    }
+
+    @ExceptionHandler(HospitalAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<?>> handleHospitalExists(HospitalAlreadyExistsException e) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.CONFLICT)
+                .message("An unexpected error occurred: " + e.getMessage())
                 .build();
 
         return buildErrorResponse(apiError);

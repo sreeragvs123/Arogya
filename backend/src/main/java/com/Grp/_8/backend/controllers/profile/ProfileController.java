@@ -4,7 +4,7 @@ package com.Grp._8.backend.controllers.profile;
 import com.Grp._8.backend.dto.profile.PatientProfileDto;
 import com.Grp._8.backend.dto.profile.ProfileUpdateRequestDto;
 import com.Grp._8.backend.services.files.ProfileImageService;
-import com.Grp._8.backend.services.users.PaitentProfileService;
+import com.Grp._8.backend.services.profile.PaitentProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
