@@ -7,9 +7,9 @@ class AppColors {
   AppColors._();
 
   // Brand
-  static const Color primary = Color(0xFF0E6B5C); // deep teal-green
-  static const Color primaryDark = Color(0xFF0A4F44);
-  static const Color accent = Color(0xFF10A37F); // scan frame / active states
+  static const Color primary =  Color(0xFF00695C);// deep teal-green
+  static const Color primaryDark = Color.fromARGB(255, 2, 91, 81);
+  static const Color accent = Color.fromARGB(255, 16, 146, 131);// scan frame / active states
 
   // Backgrounds
   static const Color scaffoldBackground = Color(0xFFF5F6FB);
@@ -34,4 +34,8 @@ class AppColors {
   // Step badges (pro tips)
   static const Color stepBadgeBackground = Color(0xFFDCEFE9);
   static const Color stepBadgeText = Color(0xFF0E6B5C);
+
+    static const Color errorBackground = Color(0xFF7A1F2B);
+  static const Color errorAccent = Color(0xFFE0475A);
+  static const Color errorIcon = Color(0xFFFF6B7A);
 }

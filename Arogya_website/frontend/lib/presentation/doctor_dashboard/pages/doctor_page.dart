@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/routing/app_routes.dart';
-import '../../../common/app_sidebar.dart';
-import '../../../common/app_top_bar.dart';
+import '../../../common/patient_dashboard_sidebar.dart';
+import '../../../common/patient_dashboard_topbar.dart';
 import '../widgets/activity_timeline_item.dart';
 import '../widgets/consultation_card.dart';
 import '../widgets/morning_overview_card.dart';
@@ -10,8 +10,8 @@ import '../widgets/stat_alert_card.dart';
 import '../widgets/weekly_summary_card.dart';
 import '../../../core/theme/app_colors.dart';
 
-class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+class DoctorDashBoardPage extends StatelessWidget {
+  const DoctorDashBoardPage({super.key});
 
   static const List<ConsultationData> _consultations = [
     ConsultationData(

@@ -60,8 +60,7 @@ class AppSidebar extends StatelessWidget {
                         isSelected: item.routeName == currentRoute,
                         onTap: () {
                           if (item.routeName == currentRoute) return;
-                          // TODO: hook up real navigation logic, e.g.
-                          // Navigator.pushReplacementNamed(context, item.routeName);
+                            Navigator.pushReplacementNamed(context, item.routeName);
                         },
                       ),
                     )

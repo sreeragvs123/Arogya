@@ -1,76 +1,154 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
+
+import '../pages/auth_page.dart';
 
 class AuthHeroPanel extends StatelessWidget {
-  const AuthHeroPanel({super.key});
+  final AuthTab type;
+
+  const AuthHeroPanel({
+    super.key,
+    required this.type,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.horizontal(left: Radius.circular(24)),
+    switch (type) {
+      case AuthTab.doctorSignIn:
+        return _HeroContent(
+          title: 'Empowering Clinical Excellence.',
+          description:
+              'Join a network of elite practitioners dedicated '
+              'to data-driven patient care and seamless hospital management.',
+          bottomText: 'Trusted by 4,000+ specialized doctors',
+        );
+
+      case AuthTab.hospitalSignIn:
+        return _HeroContent(
+          title: 'Empowering Clinical Excellence.',
+          description:
+              'Unifying healthcare networks, real-time hospital '
+              'administration, and connected doctor workspaces.',
+          bottomText:
+              'Trusted by 120+ accredited medical centers',
+        );
+
+      case AuthTab.registerHospital:
+        return _HeroContent(
+          title: 'Empowering Clinical Excellence.',
+          description:
+              'Register your hospital or clinic network to digitize '
+              'clinical workflows, coordinate multidisciplinary doctor '
+              'teams, and connect patient health records securely.',
+          bottomText:
+              'Trusted by 650+ verified medical centers',
+          showFeatureList: true,
+        );
+    }
+  }
+}
+
+class _HeroContent extends StatelessWidget {
+  final String title;
+  final String description;
+  final String bottomText;
+  final bool showFeatureList;
+
+  const _HeroContent({
+    required this.title,
+    required this.description,
+    required this.bottomText,
+    this.showFeatureList = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF00574B),
+      ),
       child: Stack(
-        fit: StackFit.expand,
         children: [
-          // TODO: replace with real clinic imagery (Image.asset/Image.network)
-          Container(color: const Color(0xFF0E6B5C)),
-          Container(color: AppColors.primary.withOpacity(0.55)),
+
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xCC00574F),
+              ),
+            ),
+          ),
+
           Padding(
-            padding: const EdgeInsets.fromLTRB(32, 36, 32, 32),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 40,
+              vertical: 42,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.medical_services_outlined,
-                          color: AppColors.primary, size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Arogya Portal',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+                _Logo(),
+
                 const Spacer(),
-                const Text(
-                  'Empowering Clinical Excellence.',
-                  style: TextStyle(
-                    fontFamily: 'Georgia',
+
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 30,
+                    height: 1.1,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Join a network of elite practitioners dedicated to '
-                  'data-driven patient care and seamless hospital management.',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14.5,
-                    height: 1.5,
+
+                const SizedBox(height: 18),
+
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.55,
+                    color: Color(0xFFD1E9E6),
                   ),
                 ),
-                const Spacer(flex: 2),
+
+                if (showFeatureList) ...[
+                  const SizedBox(height: 24),
+                  const _Feature(
+                    text:
+                        'Centralized departmental & ward doctor account provisioning',
+                  ),
+                  const _Feature(
+                    text:
+                        'Real-time OPD, IPD, and laboratory EHR synchronization',
+                  ),
+                  const _Feature(
+                    text:
+                        'Granular HIPAA & ABDM compliant role-based data isolation',
+                  ),
+                ],
+
+                const Spacer(),
+
+                Container(
+                  height: 1,
+                  color: Colors.white.withOpacity(0.18),
+                ),
+
+                const SizedBox(height: 20),
+
                 Row(
                   children: [
-                    const _AvatarStack(),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Trusted by 4,000+ specialized doctors',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    _AvatarStack(),
+                    const SizedBox(width: 13),
+                    Expanded(
+                      child: Text(
+                        bottomText,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -83,42 +161,137 @@ class AuthHeroPanel extends StatelessWidget {
   }
 }
 
-class _AvatarStack extends StatelessWidget {
-  const _AvatarStack();
+class _Logo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Icon(
+            Icons.local_hospital_outlined,
+            color: Color(0xFF00796B),
+            size: 27,
+          ),
+        ),
+
+        const SizedBox(width: 12),
+
+        const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Arogya',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              'CLINICAL PORTAL',
+              style: TextStyle(
+                color: Color(0xFFB5DDD8),
+                fontSize: 10,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _Feature extends StatelessWidget {
+  final String text;
+
+  const _Feature({
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const size = 34.0;
-    return SizedBox(
-      width: size * 2.4,
-      height: size,
-      child: Stack(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (int i = 0; i < 3; i++)
-            Positioned(
-              left: i * (size * 0.6),
-              child: CircleAvatar(
-                radius: size / 2,
-                backgroundColor: Colors.white,
-                child: CircleAvatar(
-                  radius: size / 2 - 2,
-                  backgroundColor: AppColors.softPanel,
-                ),
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF35B9A8),
               ),
             ),
-          Positioned(
-            left: 3 * (size * 0.6),
-            child: CircleAvatar(
-              radius: size / 2,
-              backgroundColor: Colors.white,
-              child: const CircleAvatar(
-                radius: size / 2 - 2,
-                backgroundColor: AppColors.softPanel,
-                child: Text('+4k',
-                    style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700)),
+            child: const Icon(
+              Icons.check,
+              size: 13,
+              color: Color(0xFF5FD3C3),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                height: 1.4,
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AvatarStack extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 90,
+      height: 38,
+      child: Stack(
+        children: [
+          for (int i = 0; i < 4; i++)
+            Positioned(
+              left: i * 19,
+              child: Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: i == 3
+                      ? const Color(0xFF0AA58D)
+                      : const Color(0xFFD9E8E5),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2,
+                  ),
+                ),
+                child: i == 3
+                    ? const Center(
+                        child: Text(
+                          '+4k',
+                          style: TextStyle(
+                            fontSize: 9,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    : null,
+              ),
+            ),
         ],
       ),
     );

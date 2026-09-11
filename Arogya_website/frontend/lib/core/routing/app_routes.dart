@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/presentation/patients/pages/patients_page.dart';
 import '../../presentation/qr_sync/pages/patient_qr_sync_page.dart';
-import '../../presentation/dashboard/pages/dashboard_page.dart';
+import '../../presentation/doctor_dashboard/pages/doctor_page.dart';
 import '../../presentation/auth/pages/auth_page.dart';
 import '../../presentation/patient_detail/pages/patient_detail_page.dart';
 
 class AppRoutes {
-  AppRoutes._();
+  // AppRoutes._();
 
   static const String auth = '/auth';
   static const String dashboard = '/dashboard';
+  static const String hospitalDashboard = '/hospital-dashboard';
   static const String myPatients = '/patients';
   static const String scanPatientQr = '/scan-qr';
   static const String notifications = '/notifications';
   static const String patientDetail = '/patients/detail';
+  static const String hospitalOverview = '/hospital-overview';
+  static const String doctorsDirectory = '/doctors-directory';
+  static const String departments = '/departments';
+  static const String patientRecords = '/patient-records';
+  static const String facilitySettings = '/facility-settings';
+  static const String auditCompliance = '/audit-compliance';
+  static const String doctorDetail = '/doctor-detail';
 }
 
 class AppRouter {
@@ -28,7 +37,7 @@ class AppRouter {
 
       case AppRoutes.dashboard:
         return MaterialPageRoute(
-          builder: (_) => const DashboardPage(),
+          builder: (_) => const DoctorDashBoardPage(),
           settings: settings,
         );
 
@@ -45,6 +54,10 @@ class AppRouter {
         );
 
       case AppRoutes.myPatients:
+        return MaterialPageRoute(
+          builder: (_) => const PatientsPage(),
+          settings: settings,
+        );
       case AppRoutes.notifications:
         return MaterialPageRoute(
           builder: (_) => _NotImplementedPage(routeName: settings.name ?? ''),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/routing/app_routes.dart';
-import '../../../common/app_sidebar.dart';
-import '../../../common/app_top_bar.dart';
+import '../../../common/patient_dashboard_sidebar.dart';
+import '../../../common/patient_dashboard_topbar.dart';
 import '../widgets/backup_method/backup_method_card.dart';
 import '../widgets/camera_preview_panel.dart';
 import '../widgets/encryption_footer.dart';
@@ -18,7 +18,7 @@ class PatientQrSyncPage extends StatefulWidget {
 class _PatientQrSyncPageState extends State<PatientQrSyncPage> {
   final TextEditingController _patientIdController = TextEditingController();
   bool _isFlashOn = false;
-  bool _isCameraActive = true;
+  final bool _isCameraActive = true;
 
   @override
   void dispose() {

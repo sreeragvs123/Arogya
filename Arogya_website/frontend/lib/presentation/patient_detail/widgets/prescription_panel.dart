@@ -128,6 +128,7 @@ class _PrescriptionPanelState extends State<PrescriptionPanel> {
                               const Text('Timing', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                               const SizedBox(height: 8),
                               DropdownButtonFormField<String>(
+                                isExpanded: true,
                                 initialValue: _timing,
                                 decoration: const InputDecoration(),
                                 items: const [

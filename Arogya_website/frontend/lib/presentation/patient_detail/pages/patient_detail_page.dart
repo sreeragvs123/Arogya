@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../common/app_sidebar.dart';
-import '../../../common/app_top_bar.dart';
+import '../../../common/patient_dashboard_sidebar.dart';
+import '../../../common/patient_dashboard_topbar.dart';
 import '../widgets/clinical_report_panel.dart';
+import '../widgets/observations_panel.dart';
 import '../widgets/patient_header.dart';
 import '../widgets/prescription_panel.dart';
 import '../widgets/recent_observations_card.dart';
@@ -20,6 +21,13 @@ class PatientDetailPage extends StatefulWidget {
 class _PatientDetailPageState extends State<PatientDetailPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  final TextEditingController _clinicalNoteController = TextEditingController();
+  final List<String> _symptoms = [];
+
+  static const String _baseObservationsText =
+      'Patient presents with mild insomnia and occasional dizziness. '
+      'Blood sugar levels slightly elevated (142 mg/dL). Vitals remain '
+      'stable with heart rate at 72 BPM and BP at 118/79 mmHg.';
 
   static const List<ObservationData> _observations = [
     ObservationData(
@@ -35,13 +43,43 @@ class _PatientDetailPageState extends State<PatientDetailPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _clinicalNoteController.dispose();
     super.dispose();
+  }
+
+  void _handleAddSymptom(String symptom) {
+    if (_symptoms.contains(symptom)) return;
+    setState(() => _symptoms.add(symptom));
+  }
+
+  void _handleRemoveSymptom(String symptom) {
+    setState(() => _symptoms.remove(symptom));
+  }
+
+  String get _observationsTextWithNote {
+    final buffer = StringBuffer(_baseObservationsText);
+    if (_symptoms.isNotEmpty) {
+      buffer.write('\n\nReported Symptoms: ${_symptoms.join(', ')}');
+    }
+    final note = _clinicalNoteController.text.trim();
+    if (note.isNotEmpty) {
+      buffer.write('\n\nDoctor\'s Notes: $note');
+    }
+    return buffer.toString();
+  }
+
+  void _handleSaveClinicalNote() {
+    // TODO: persist note via repository call once available.
+    setState(() {}); // rebuild so the Clinical Report tab reflects the note immediately
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Note saved to clinical report.')),
+    );
   }
 
   @override
@@ -107,6 +145,7 @@ class _PatientDetailPageState extends State<PatientDetailPage>
                                       labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5),
                                       tabs: const [
                                         Tab(text: 'Vitals'),
+                                        Tab(text: 'Observations'),
                                         Tab(text: 'Prescription'),
                                         Tab(text: 'Clinical Report'),
                                       ],
@@ -120,14 +159,18 @@ class _PatientDetailPageState extends State<PatientDetailPage>
                                           index: _tabController.index,
                                           children: [
                                             const VitalsPanel(),
+                                            ObservationsPanel(
+                                              symptoms: _symptoms,
+                                              onAddSymptom: _handleAddSymptom,
+                                              onRemoveSymptom: _handleRemoveSymptom,
+                                              clinicalNoteController: _clinicalNoteController,
+                                              onSaveClinicalNote: _handleSaveClinicalNote,
+                                            ),
                                             const PrescriptionPanel(),
                                             ClinicalReportPanel(
                                               patientName: 'Vikram Malhotra',
                                               patientId: 'AR-9920-X',
-                                              observationsText:
-                                                  'Patient presents with mild insomnia and occasional dizziness. '
-                                                  'Blood sugar levels slightly elevated (142 mg/dL). Vitals remain '
-                                                  'stable with heart rate at 72 BPM and BP at 118/79 mmHg.',
+                                              observationsText: _observationsTextWithNote,
                                               medicineName: 'Atorvastatin',
                                               medicineSchedule: '10mg - Once Daily',
                                               instructions:
