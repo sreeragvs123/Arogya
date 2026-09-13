@@ -57,10 +57,10 @@ The system is built as a **website** (for Hospitals & Doctors) and a **mobile ap
 | Website | Flutter (Web) |
 | Mobile App | Flutter |
 | Backend | Spring Boot |
-| Database | *(add your DB, e.g. PostgreSQL / MySQL)* |
+| Database |  MySQL   |
 | Notifications | Firebase Cloud Messaging (medication reminders) |
-| Authentication | Spring Security *(add JWT/OAuth2 if applicable)* |
-| PDF Generation | *(add library used, e.g. iText / OpenPDF)* |
+| Authentication | Spring Security + JWT + Oauth |
+| PDF Generation |  |
 
 ---
 
@@ -119,9 +119,7 @@ arogya/
 └── README.md
 ```
 
-*(Update this section to match your actual repo/folder layout.)*
 
----
 
 ## ⚙️ Getting Started
 
