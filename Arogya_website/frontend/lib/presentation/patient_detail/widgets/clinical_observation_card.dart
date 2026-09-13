@@ -4,11 +4,13 @@ import '../../../core/theme/app_colors.dart';
 class ClinicalObservationCard extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSave;
+  final bool isSaving;
 
   const ClinicalObservationCard({
     super.key,
     required this.controller,
     required this.onSave,
+    this.isSaving = false,
   });
 
   @override
@@ -54,11 +56,17 @@ class ClinicalObservationCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton.icon(
-              onPressed: onSave,
-              icon: const Icon(Icons.note_add_outlined, size: 18, color: Colors.white),
-              label: const Text(
-                'Save Note',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+              onPressed: isSaving ? null : onSave,
+              icon: isSaving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.note_add_outlined, size: 18, color: Colors.white),
+              label: Text(
+                isSaving ? 'Saving...' : 'Save Note',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,

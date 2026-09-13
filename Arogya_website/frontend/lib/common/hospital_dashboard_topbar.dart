@@ -1,17 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/domain/entities/auth/auth_session.dart';
 
 class AppTopBar extends StatelessWidget {
   final bool isSidebarCollapsed;
   final VoidCallback onToggleSidebar;
+  final AuthSession? session;
 
   const AppTopBar({
     super.key,
     required this.isSidebarCollapsed,
     required this.onToggleSidebar,
+    this.session,
   });
+
+  String _initialsFrom(String name) {
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return 'HA';
+    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
+    return (parts.first.substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final hospitalName = session?.hospitalName ?? 'Hospital';
+    final hospitalId = session?.hospitalId;
+
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -35,9 +48,9 @@ class AppTopBar extends StatelessWidget {
           const SizedBox(width: 8),
           const Text('|', style: TextStyle(color: Color(0xFFCBD5E1))),
           const SizedBox(width: 8),
-          const Text(
-            'Apollo Health City',
-            style: TextStyle(
+          Text(
+            hospitalName,
+            style: const TextStyle(
               fontSize: 14,
               color: Color(0xFF475569),
             ),
@@ -50,9 +63,12 @@ class AppTopBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
               border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
-            child: const Text(
-              'HOSP-BLR-0192',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
+            child: Text(
+              session?.hospitalCode ??
+                  (hospitalId != null
+                      ? 'HOSP-${hospitalId.toString().padLeft(4, '0')}'
+                      : '—'),
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
             ),
           ),
           const Spacer(),
@@ -89,21 +105,21 @@ class AppTopBar extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           const VerticalDivider(width: 24, indent: 16, endIndent: 16),
-          const Column(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Dr. Arvind Rao',
-                style: TextStyle(
+                session?.adminName ?? 'Hospital Admin',
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF0F172A),
                 ),
               ),
               Text(
-                'Chief Medical Admin',
-                style: TextStyle(
+                session?.adminDesignation ?? 'Facility Administrator',
+                style: const TextStyle(
                   fontSize: 11,
                   color: Color(0xFF64748B),
                 ),
@@ -111,12 +127,12 @@ class AppTopBar extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 10),
-          const CircleAvatar(
+          CircleAvatar(
             radius: 18,
-            backgroundColor: Color(0xFF2563EB),
+            backgroundColor: const Color(0xFF2563EB),
             child: Text(
-              'AR',
-              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              _initialsFrom(session?.adminName ?? hospitalName),
+              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ),
         ],

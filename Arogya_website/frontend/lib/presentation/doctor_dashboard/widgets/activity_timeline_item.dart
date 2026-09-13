@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-
-class ActivityData {
-  final String title;
-  final String description;
-  final String timeAgo;
-  final bool isHighlighted;
-
-  const ActivityData({
-    required this.title,
-    required this.description,
-    required this.timeAgo,
-    this.isHighlighted = false,
-  });
-}
+import '../../../domain/entities/doctor_dashboard/activity_entity.dart';
 
 class ActivityTimelineItem extends StatelessWidget {
-  final ActivityData data;
+  final ActivityEntity data;
   final bool isLast;
 
   const ActivityTimelineItem({super.key, required this.data, this.isLast = false});

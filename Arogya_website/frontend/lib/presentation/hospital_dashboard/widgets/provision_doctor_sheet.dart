@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend/core/utils/service_locator.dart';
+import 'package:frontend/domain/usecases/hospital_dashboard/create_doctor_usecase.dart';
 
 /// Arogya Hospital Administration - Doctor Credential Provisioning Drawer / Sheet
 ///
@@ -8,9 +10,14 @@ import 'package:flutter/services.dart';
 /// verify state medical council registrations, configure department & room allocations,
 /// issue encrypted temporary PINs, and grant delegated clinical authorities.
 class ProvisionDoctorSheet extends StatefulWidget {
+  final int hospitalId;
   final ValueChanged<String> onSaved;
 
-  const ProvisionDoctorSheet({super.key, required this.onSaved});
+  const ProvisionDoctorSheet({
+    super.key,
+    required this.hospitalId,
+    required this.onSaved,
+  });
 
   @override
   State<ProvisionDoctorSheet> createState() => _ProvisionDoctorSheetState();
@@ -26,6 +33,8 @@ class _ProvisionDoctorSheetState extends State<ProvisionDoctorSheet> {
   final _emailController = TextEditingController();
   final _mobileController = TextEditingController();
 
+  bool _isSaving = false;
+
   // Selectable Clinical Options
   String _department = 'GENERAL_PHYSICIAN';
   String _rank = 'HOD';
@@ -37,40 +46,46 @@ class _ProvisionDoctorSheetState extends State<ProvisionDoctorSheet> {
   bool _labOrdering = true;
   bool _dischargeSignoff = false;
 
-final List<Map<String, String>> _departmentOptions = [
-  {'value': 'GENERAL_PHYSICIAN', 'label': 'General Physician'},
-  {'value': 'PEDIATRICIAN', 'label': 'Pediatrician'},
-  {'value': 'GYNECOLOGIST_OBSTETRICIAN', 'label': 'Gynecologist / Obstetrician (OB-GYN)'},
-  {'value': 'GENERAL_SURGEON', 'label': 'General Surgeon'},
-  {'value': 'ORTHOPEDIC_SURGEON', 'label': 'Orthopedic Surgeon'},
-  {'value': 'CARDIOLOGIST', 'label': 'Cardiologist'},
-  {'value': 'NEUROLOGIST', 'label': 'Neurologist'},
-  {'value': 'GASTROENTEROLOGIST', 'label': 'Gastroenterologist'},
-  {'value': 'NEPHROLOGIST', 'label': 'Nephrologist'},
-  {'value': 'PULMONOLOGIST', 'label': 'Pulmonologist'},
-  {'value': 'ENDOCRINOLOGIST', 'label': 'Endocrinologist'},
-  {'value': 'ONCOLOGIST', 'label': 'Oncologist'},
-  {'value': 'RADIOLOGIST', 'label': 'Radiologist'},
-  {'value': 'ANESTHESIOLOGIST', 'label': 'Anesthesiologist'},
-  {'value': 'PATHOLOGIST', 'label': 'Pathologist'},
-  {'value': 'EMERGENCY_MEDICINE_PHYSICIAN', 'label': 'Emergency Medicine Physician'},
-  {'value': 'DERMATOLOGIST', 'label': 'Dermatologist'},
-  {'value': 'PSYCHIATRIST', 'label': 'Psychiatrist'},
-  {'value': 'ENT_SURGEON', 'label': 'ENT Surgeon'},
-  {'value': 'UROLOGIST', 'label': 'Urologist'},
-  {'value': 'OPHTHALMOLOGIST', 'label': 'Ophthalmologist'},
-];
+  final List<Map<String, String>> _departmentOptions = [
+    {'value': 'GENERAL_PHYSICIAN', 'label': 'General Physician'},
+    {'value': 'PEDIATRICIAN', 'label': 'Pediatrician'},
+    {
+      'value': 'GYNECOLOGIST_OBSTETRICIAN',
+      'label': 'Gynecologist / Obstetrician (OB-GYN)',
+    },
+    {'value': 'GENERAL_SURGEON', 'label': 'General Surgeon'},
+    {'value': 'ORTHOPEDIC_SURGEON', 'label': 'Orthopedic Surgeon'},
+    {'value': 'CARDIOLOGIST', 'label': 'Cardiologist'},
+    {'value': 'NEUROLOGIST', 'label': 'Neurologist'},
+    {'value': 'GASTROENTEROLOGIST', 'label': 'Gastroenterologist'},
+    {'value': 'NEPHROLOGIST', 'label': 'Nephrologist'},
+    {'value': 'PULMONOLOGIST', 'label': 'Pulmonologist'},
+    {'value': 'ENDOCRINOLOGIST', 'label': 'Endocrinologist'},
+    {'value': 'ONCOLOGIST', 'label': 'Oncologist'},
+    {'value': 'RADIOLOGIST', 'label': 'Radiologist'},
+    {'value': 'ANESTHESIOLOGIST', 'label': 'Anesthesiologist'},
+    {'value': 'PATHOLOGIST', 'label': 'Pathologist'},
+    {
+      'value': 'EMERGENCY_MEDICINE_PHYSICIAN',
+      'label': 'Emergency Medicine Physician',
+    },
+    {'value': 'DERMATOLOGIST', 'label': 'Dermatologist'},
+    {'value': 'PSYCHIATRIST', 'label': 'Psychiatrist'},
+    {'value': 'ENT_SURGEON', 'label': 'ENT Surgeon'},
+    {'value': 'UROLOGIST', 'label': 'Urologist'},
+    {'value': 'OPHTHALMOLOGIST', 'label': 'Ophthalmologist'},
+  ];
 
-final List<Map<String, String>> _designationOptions = [
-  {'value': 'HOD', 'label': 'Head of Department (HOD)'},
-  {'value': 'SENIOR_CONSULTANT', 'label': 'Senior Consultant'},
-  {'value': 'CONSULTANT', 'label': 'Consultant'},
-  {'value': 'ATTENDING_PHYSICIAN', 'label': 'Attending Physician'},
-  {'value': 'RESIDENT_DOCTOR', 'label': 'Resident Doctor'},
-  {'value': 'CLINICAL_FELLOW', 'label': 'Clinical Fellow'},
-  {'value': 'JUNIOR_DOCTOR', 'label': 'Junior Doctor'},
-  {'value': 'INTERN', 'label': 'Intern'},
-];
+  final List<Map<String, String>> _designationOptions = [
+    {'value': 'HOD', 'label': 'Head of Department (HOD)'},
+    {'value': 'SENIOR_CONSULTANT', 'label': 'Senior Consultant'},
+    {'value': 'CONSULTANT', 'label': 'Consultant'},
+    {'value': 'ATTENDING_PHYSICIAN', 'label': 'Attending Physician'},
+    {'value': 'RESIDENT_DOCTOR', 'label': 'Resident Doctor'},
+    {'value': 'CLINICAL_FELLOW', 'label': 'Clinical Fellow'},
+    {'value': 'JUNIOR_DOCTOR', 'label': 'Junior Doctor'},
+    {'value': 'INTERN', 'label': 'Intern'},
+  ];
   @override
   void initState() {
     super.initState();
@@ -112,11 +127,36 @@ final List<Map<String, String>> _designationOptions = [
     );
   }
 
-void _handleSave() {
-  if (_formKey.currentState?.validate() ?? false) {
-    widget.onSaved(_nameController.text.trim());
+  Future<void> _handleSave() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    setState(() => _isSaving = true);
+
+    final params = CreateDoctorParams(
+      hospitalId: widget.hospitalId,
+      fullName: _nameController.text.trim(),
+      licenseNumber: _licenseController.text.trim(),
+      department: _department,
+      designation: _rank,
+      email: _emailController.text.trim(),
+      phoneNumber: _mobileController.text.trim(),
+      temporaryPin: _pin,
+      prescriptionAuthority: _prescriptionAuth,
+      labImagingOrdering: _labOrdering,
+      dischargeSignoffAuthority: _dischargeSignoff,
+    );
+
+    final result = await sl<CreateDoctorUsecase>().call(params: params);
+
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    result.fold((failure) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(failure.message), backgroundColor: Colors.red),
+      );
+    }, (_) => widget.onSaved(_nameController.text.trim()));
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -151,11 +191,16 @@ void _handleSave() {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFEFF6FF),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFDBEAFE)),
+                              border: Border.all(
+                                color: const Color(0xFFDBEAFE),
+                              ),
                             ),
                             child: const Text(
                               'APOLLO HEALTH CITY',
@@ -285,7 +330,9 @@ void _handleSave() {
                   const SizedBox(height: 28),
 
                   // Section 3: Work Communication & Temporary Security PIN
-                  _buildSectionHeader('3. WORK COMMUNICATION & TEMPORARY ACCESS'),
+                  _buildSectionHeader(
+                    '3. WORK COMMUNICATION & TEMPORARY ACCESS',
+                  ),
                   const SizedBox(height: 14),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,7 +410,11 @@ void _handleSave() {
                             ),
                             TextButton.icon(
                               onPressed: _generatePin,
-                              icon: const Icon(Icons.refresh_rounded, size: 15, color: Color(0xFF2563EB)),
+                              icon: const Icon(
+                                Icons.refresh_rounded,
+                                size: 15,
+                                color: Color(0xFF2563EB),
+                              ),
                               label: const Text(
                                 'Regenerate',
                                 style: TextStyle(
@@ -377,7 +428,10 @@ void _handleSave() {
                         ),
                         const SizedBox(height: 12),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
@@ -408,9 +462,13 @@ void _handleSave() {
                                   const SizedBox(width: 8),
                                   IconButton(
                                     icon: Icon(
-                                      _isCopied ? Icons.check_circle : Icons.copy_rounded,
+                                      _isCopied
+                                          ? Icons.check_circle
+                                          : Icons.copy_rounded,
                                       size: 16,
-                                      color: _isCopied ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                                      color: _isCopied
+                                          ? const Color(0xFF10B981)
+                                          : const Color(0xFF64748B),
                                     ),
                                     tooltip: 'Copy PIN',
                                     onPressed: _copyPin,
@@ -430,7 +488,8 @@ void _handleSave() {
                   const SizedBox(height: 14),
                   _buildPrivilegeCard(
                     title: 'EHR Prescription Authority',
-                    subtitle: 'Authorize digital signing for Schedule H & general pharmaceuticals',
+                    subtitle:
+                        'Authorize digital signing for Schedule H & general pharmaceuticals',
                     icon: Icons.assignment_turned_in_outlined,
                     value: _prescriptionAuth,
                     onChanged: (val) => setState(() => _prescriptionAuth = val),
@@ -438,7 +497,8 @@ void _handleSave() {
                   const SizedBox(height: 10),
                   _buildPrivilegeCard(
                     title: 'Lab & Imaging Test Ordering',
-                    subtitle: 'Permit direct radiology, MRI, and specialized pathology orders',
+                    subtitle:
+                        'Permit direct radiology, MRI, and specialized pathology orders',
                     icon: Icons.science_outlined,
                     value: _labOrdering,
                     onChanged: (val) => setState(() => _labOrdering = val),
@@ -446,7 +506,8 @@ void _handleSave() {
                   const SizedBox(height: 10),
                   _buildPrivilegeCard(
                     title: 'Direct Discharge Sign-off',
-                    subtitle: 'Final inpatient medical clearance authority without secondary review',
+                    subtitle:
+                        'Final inpatient medical clearance authority without secondary review',
                     icon: Icons.exit_to_app_rounded,
                     value: _dischargeSignoff,
                     onChanged: (val) => setState(() => _dischargeSignoff = val),
@@ -469,9 +530,14 @@ void _handleSave() {
                 OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                     side: const BorderSide(color: Color(0xFFCBD5E1)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text(
                     'Cancel',
@@ -484,18 +550,34 @@ void _handleSave() {
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton.icon(
-                  onPressed: _handleSave,
+                  onPressed: _isSaving ? null : _handleSave,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2563EB),
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  icon: const Icon(Icons.verified_user_rounded, size: 18),
-                  label: const Text(
-                    'Save & Issue Doctor Credentials',
-                    style: TextStyle(
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.verified_user_rounded, size: 18),
+                  label: Text(
+                    _isSaving
+                        ? 'Issuing Credentials...'
+                        : 'Save & Issue Doctor Credentials',
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.2,
@@ -557,7 +639,10 @@ void _handleSave() {
             isDense: true,
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -568,7 +653,10 @@ void _handleSave() {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFF2563EB),
+                width: 1.5,
+              ),
             ),
           ),
           validator: validator,
@@ -606,13 +694,16 @@ void _handleSave() {
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF64748B)),
+              icon: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: Color(0xFF64748B),
+              ),
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF0F172A),
               ),
-              items: items.map((itemPair){
+              items: items.map((itemPair) {
                 return DropdownMenuItem<String>(
                   value: itemPair["value"],
                   child: Text(itemPair["label"]!),

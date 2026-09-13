@@ -21,9 +21,12 @@ final class AuthLoadingState extends AuthState{
   const AuthLoadingState(super.tab);
 }
 
-final class AuthSuccessState extends AuthState{
+final class AuthSuccessState extends AuthState {
   final String message;
-  const AuthSuccessState(super.tab,this.message);
+  final AuthSession? session;
+  const AuthSuccessState(super.tab, this.message, {this.session});
+  @override
+  List<Object?> get props => [message, tab, session];
 }
 
 final class AuthFailureState extends AuthState{

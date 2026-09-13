@@ -6,8 +6,12 @@ import 'package:frontend/data/models/hospital_dashboard/doctor_summary_model.dar
 import 'package:frontend/data/models/hospital_dashboard/hospital_metrics_model.dart';
 
 import 'package:frontend/domain/entities/hosptial_dashboard/doctor_staff_section.dart';
+import 'package:frontend/domain/usecases/hospital_dashboard/create_doctor_usecase.dart';
 
 abstract class HospitalDashboardRemoteDataSource {
+  // abstract class HospitalDashboardRemoteDataSource
+  Future<void> createDoctor({required CreateDoctorParams params});
+
   Future<PaginatedResultModel<DoctorSummaryModel>> getDoctorsBySection({
     required int hospitalId,
     required DoctorStaffSection section,
@@ -23,7 +27,8 @@ abstract class HospitalDashboardRemoteDataSource {
     required int size,
   });
 
-  Future<PaginatedResultModel<DoctorSummaryModel>> filterDoctorsBySpecialization({
+  Future<PaginatedResultModel<DoctorSummaryModel>>
+  filterDoctorsBySpecialization({
     required int hospitalId,
     required DoctorStaffSection section,
     required String specialization,
@@ -36,7 +41,8 @@ abstract class HospitalDashboardRemoteDataSource {
   Future<HospitalMetricsModel> getMetrics({required int hospitalId});
 }
 
-class HospitalDashboardRemoteDataSourceImpl implements HospitalDashboardRemoteDataSource {
+class HospitalDashboardRemoteDataSourceImpl
+    implements HospitalDashboardRemoteDataSource {
   final Dio dio;
   HospitalDashboardRemoteDataSourceImpl({required this.dio});
 
@@ -98,7 +104,8 @@ class HospitalDashboardRemoteDataSourceImpl implements HospitalDashboardRemoteDa
   }
 
   @override
-  Future<PaginatedResultModel<DoctorSummaryModel>> filterDoctorsBySpecialization({
+  Future<PaginatedResultModel<DoctorSummaryModel>>
+  filterDoctorsBySpecialization({
     required int hospitalId,
     required DoctorStaffSection section,
     required String specialization,
@@ -122,7 +129,9 @@ class HospitalDashboardRemoteDataSourceImpl implements HospitalDashboardRemoteDa
 
   @override
   Future<List<String>> getSpecializations({required int hospitalId}) async {
-    final response = await dio.get(ApiRoutes.hospitalDoctorsSpecializations(hospitalId));
+    final response = await dio.get(
+      ApiRoutes.hospitalDoctorsSpecializations(hospitalId),
+    );
     final envelope = response.data as Map<String, dynamic>;
     if (envelope['error'] != null) {
       final error = envelope['error'] as Map<String, dynamic>;
@@ -136,5 +145,32 @@ class HospitalDashboardRemoteDataSourceImpl implements HospitalDashboardRemoteDa
   Future<HospitalMetricsModel> getMetrics({required int hospitalId}) async {
     final response = await dio.get(ApiRoutes.hospitalMetrics(hospitalId));
     return HospitalMetricsModel.fromJson(_unwrap(response.data));
+  }
+
+  // impl
+  @override
+  Future<void> createDoctor({required CreateDoctorParams params}) async {
+    final response = await dio.post(
+      ApiRoutes.doctorCreate(params.hospitalId),
+      data: {
+        'fullName': params.fullName,
+        'licenseNumber': params.licenseNumber,
+        'specialization': params.department,
+        'designation': params.designation,
+        'email': params.email,
+        'phoneNumber': params.phoneNumber,
+        'temporaryPin': params.temporaryPin,
+        'prescriptionAuthority': params.prescriptionAuthority,
+        'labImagingOrdering': params.labImagingOrdering,
+        'dischargeSignoffAuthority': params.dischargeSignoffAuthority,
+      },
+    );
+
+    final envelope = response.data as Map<String, dynamic>;
+    if (envelope['error'] != null) {
+      final error = envelope['error'] as Map<String, dynamic>;
+      throw Exception(error['message'] as String? ?? 'Request failed');
+    }
+    // data (DoctorCreateResponseDto) not needed by the caller — discarded.
   }
 }

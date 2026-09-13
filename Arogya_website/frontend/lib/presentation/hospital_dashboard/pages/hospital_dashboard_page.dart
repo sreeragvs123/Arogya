@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/common/hospital_dashboard_sidebar.dart';
 import 'package:frontend/common/hospital_dashboard_topbar.dart';
 import 'package:frontend/core/utils/service_locator.dart';
+import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/presentation/hospital_dashboard/bloc/hospital_dashboard_bloc.dart';
 import 'package:frontend/presentation/hospital_dashboard/widgets/hospital_table_section.dart';
 import '../../../core/routing/app_routes.dart';
@@ -14,8 +15,13 @@ import '../widgets/hospital_provision_doctor_sheet.dart';
 
 class HospitalDashboardPage extends StatefulWidget {
   final int hospitalId;
+  final AuthSession? session;
 
-  const HospitalDashboardPage({super.key, required this.hospitalId});
+  const HospitalDashboardPage({
+    super.key,
+    required this.hospitalId,
+    this.session,
+  });
 
   @override
   State<HospitalDashboardPage> createState() => _HospitalDashboardPageState();
@@ -69,6 +75,7 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                   );
                   _bloc.add(HospitalDashboardStarted(widget.hospitalId));
                 },
+                hospitalId: widget.hospitalId,
               ),
             ),
           ),
@@ -98,6 +105,7 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
               isCollapsed: _isSidebarCollapsed,
               currentRoute: AppRoutes.hospitalDashboard,
               onToggleCollapse: _toggleSidebar,
+              session: widget.session,
             ),
             Expanded(
               child: Column(
@@ -105,6 +113,7 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                   AppTopBar(
                     isSidebarCollapsed: _isSidebarCollapsed,
                     onToggleSidebar: _toggleSidebar,
+                    session: widget.session,
                   ),
                   const Divider(height: 1, color: Color(0xFFE2E8F0)),
                   Expanded(

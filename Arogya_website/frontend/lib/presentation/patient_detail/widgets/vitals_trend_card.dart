@@ -3,15 +3,19 @@ import '../../../core/theme/app_colors.dart';
 
 class VitalsTrendCard extends StatelessWidget {
   final int heartRateBpm;
+  final String heartRateStatus;
   final List<double> heartRateBars; // 0.0 - 1.0, for the little bar chart
   final String bloodPressure;
+  final String bloodPressureStatus;
   final double bodyTempF;
 
   const VitalsTrendCard({
     super.key,
     this.heartRateBpm = 72,
+    this.heartRateStatus = 'STABLE',
     this.heartRateBars = const [0.4, 0.55, 0.5, 0.75, 0.6, 0.5],
     this.bloodPressure = '118/79',
+    this.bloodPressureStatus = 'OK',
     this.bodyTempF = 98.4,
   });
 
@@ -57,8 +61,8 @@ class VitalsTrendCard extends StatelessWidget {
                   color: AppColors.softPanel,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text('STABLE',
-                    style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                child: Text(heartRateStatus,
+                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary)),
               ),
             ],
           ),
@@ -119,7 +123,7 @@ class VitalsTrendCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.primary, width: 1.5),
                 ),
-                child: const Text('OK', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                child: Text(bloodPressureStatus, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
               ),
             ],
           ),

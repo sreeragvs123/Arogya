@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../common/section_card.dart';
+import '../../../domain/entities/doctor_dashboard/activity_entity.dart';
 import 'activity_timeline_item.dart';
 
 class RecentActivityCard extends StatelessWidget {
-  final List<ActivityData> activities;
+  final List<ActivityEntity> activities;
   final VoidCallback onViewFullLog;
 
   const RecentActivityCard({
@@ -29,13 +30,20 @@ class RecentActivityCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-          for (int i = 0; i < activities.length; i++)
-            ActivityTimelineItem(data: activities[i], isLast: i == activities.length - 1),
+          if (activities.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Text('No recent activity yet.',
+                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            )
+          else
+            for (int i = 0; i < activities.length; i++)
+              ActivityTimelineItem(data: activities[i], isLast: i == activities.length - 1),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: onViewFullLog, // TODO: navigate to full activity log
+              onPressed: onViewFullLog,
               style: OutlinedButton.styleFrom(
                 backgroundColor: Colors.white,
                 side: const BorderSide(color: AppColors.border),

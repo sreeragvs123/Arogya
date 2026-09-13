@@ -17,15 +17,15 @@ class AuthSessionModel extends AuthSession {
     );
   }
 
-  static UserRole _roleFromString(String value) {
-    switch (value.toUpperCase()) {
-      case 'DOCTOR':
-        return UserRole.doctor;
-      case 'HOSPITAL_ADMIN':
-        return UserRole.hospitalAdmin;
-      default:
-        throw FormatException('Unknown role: $value');
-    }
+static UserRole _roleFromString(String value) {
+  switch (value.toUpperCase()) {
+    case 'DOCTOR':
+      return UserRole.doctor;
+    case 'HOSPITAL':          // ← now matches backend's Role.HOSPITAL
+      return UserRole.hospitalAdmin;
+    default:
+      throw FormatException('Unknown role: $value');
   }
+}
 
 }

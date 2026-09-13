@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/domain/entities/auth/auth_session.dart';
 import '../core/routing/app_routes.dart';
 
 /// Animated Collapsible Sidebar supporting both Expanded (260px) and Collapsed (72px) states
@@ -6,17 +7,22 @@ class AppSidebar extends StatelessWidget {
   final bool isCollapsed;
   final String currentRoute;
   final VoidCallback onToggleCollapse;
+  final AuthSession? session;
 
   const AppSidebar({
     super.key,
     required this.isCollapsed,
     required this.currentRoute,
     required this.onToggleCollapse,
+    this.session,
   });
 
   @override
   Widget build(BuildContext context) {
     final width = isCollapsed ? 72.0 : 260.0;
+    final hospitalName = session?.hospitalName ?? 'Hospital';
+    final hospitalSubtitle = session?.hospitalCode ??
+        (session?.hospitalId != null ? 'Facility ID: ${session!.hospitalId}' : '—');
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
@@ -201,27 +207,27 @@ class AppSidebar extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Apollo Health City',
+                                  hospitalName,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF0F172A),
                                   ),
                                 ),
                                 Text(
-                                  'Campus Unit A',
+                                  hospitalSubtitle,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 11,
                                     color: Color(0xFF64748B),
                                   ),
@@ -229,7 +235,7 @@ class AppSidebar extends StatelessWidget {
                               ],
                             ),
                           ),
-                          CircleAvatar(
+                          const CircleAvatar(
                             radius: 4,
                             backgroundColor: Color(0xFF10B981),
                           ),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/data/models/summary/patient_summary.dart';
+import 'package:frontend/domain/entities/patients/patient_summary_entity.dart';
 
 import '../../../core/theme/app_colors.dart';
 
 
 class PatientListSection extends StatelessWidget {
-  final List<PatientSummary> patients;
-  final ValueChanged<PatientSummary> onWorkspaceTap;
+  final List<PatientSummaryEntity> patients;
+  final ValueChanged<PatientSummaryEntity> onWorkspaceTap;
 
   const PatientListSection({
     super.key,
@@ -56,7 +56,7 @@ class _HeaderRow extends StatelessWidget {
 }
 
 class _PatientRow extends StatelessWidget {
-  final PatientSummary patient;
+  final PatientSummaryEntity patient;
   final VoidCallback onWorkspaceTap;
 
   const _PatientRow({required this.patient, required this.onWorkspaceTap});

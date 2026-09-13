@@ -215,13 +215,13 @@ class _BottomInstructionRow extends StatelessWidget {
             _OutlinedIconButton(
               icon: isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
               label: 'Flash',
-              onTap: onToggleFlash, // TODO: hook up camera flash toggle
+              onTap: onToggleFlash,
             ),
             const SizedBox(width: 12),
             _OutlinedIconButton(
               icon: Icons.cameraswitch_outlined,
               label: 'Switch',
-              onTap: onSwitchCamera, // TODO: hook up front/back camera switch
+              onTap: onSwitchCamera,
             ),
           ],
         );

@@ -6,24 +6,34 @@ class ClinicalReportPanel extends StatelessWidget {
   final String sessionDuration;
   final String reportDate;
   final String reportRef;
+  final bool signaturePending;
   final String patientName;
   final String patientId;
   final String observationsText;
-  final String medicineName;
-  final String medicineSchedule;
+  final List<String> medicineLines; // one "Name — freq • timing" string per item
   final String instructions;
+  final bool isGenerating;
+  final bool hasBeenGenerated;
+  final VoidCallback onReviewDocument;
+  final VoidCallback onAddSignature;
+  final VoidCallback onGenerateAndSend;
 
   const ClinicalReportPanel({
     super.key,
-    this.sessionDuration = '04:15',
-    this.reportDate = 'Oct 24, 2023',
-    this.reportRef = 'CSR-2023-0892',
+    this.sessionDuration = '00:00',
+    this.reportDate = '',
+    this.reportRef = 'Not generated yet',
+    this.signaturePending = true,
     required this.patientName,
     required this.patientId,
     required this.observationsText,
-    required this.medicineName,
-    required this.medicineSchedule,
+    required this.medicineLines,
     required this.instructions,
+    required this.onReviewDocument,
+    required this.onAddSignature,
+    required this.onGenerateAndSend,
+    this.isGenerating = false,
+    this.hasBeenGenerated = false,
   });
 
   @override
@@ -82,8 +92,10 @@ class ClinicalReportPanel extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('Date: $reportDate', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                            Text('Ref: $reportRef', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                            Text(hasBeenGenerated ? 'Date: $reportDate' : 'Not generated yet',
+                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                            if (hasBeenGenerated)
+                              Text('Ref: $reportRef', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                           ],
                         ),
                       ],
@@ -98,7 +110,12 @@ class ClinicalReportPanel extends StatelessWidget {
                     const Text('CLINICAL OBSERVATIONS',
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: AppColors.primary)),
                     const SizedBox(height: 10),
-                    Text(observationsText, style: const TextStyle(fontSize: 14.5, height: 1.6, color: AppColors.textPrimary)),
+                    Text(
+                      observationsText.isEmpty
+                          ? 'No observations logged yet for this visit.'
+                          : observationsText,
+                      style: const TextStyle(fontSize: 14.5, height: 1.6, color: AppColors.textPrimary),
+                    ),
                     const SizedBox(height: 20),
                     const Text('PRESCRIBED REGIMEN',
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: AppColors.primary)),
@@ -113,26 +130,44 @@ class ClinicalReportPanel extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(medicineName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5)),
-                              Text(medicineSchedule, style: const TextStyle(fontSize: 13.5, color: AppColors.textSecondary)),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Text('Instructions: $instructions',
-                              style: const TextStyle(fontSize: 13.5, color: AppColors.textSecondary, height: 1.5)),
+                          if (medicineLines.isEmpty)
+                            const Text('No medicines added yet.',
+                                style: TextStyle(fontSize: 13.5, color: AppColors.textSecondary))
+                          else
+                            for (final line in medicineLines)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(line,
+                                    style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimary)),
+                              ),
+                          if (instructions.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text('Instructions: $instructions',
+                                style: const TextStyle(fontSize: 13.5, color: AppColors.textSecondary, height: 1.5)),
+                          ],
                         ],
                       ),
                     ),
                     const SizedBox(height: 40),
                     const Divider(color: AppColors.divider),
                     const SizedBox(height: 8),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerRight,
-                      child: Text('Digital Signature Pending',
-                          style: TextStyle(fontSize: 12.5, color: AppColors.textMuted, fontStyle: FontStyle.italic)),
+                      child: Text(
+                        !hasBeenGenerated
+                            ? 'Not generated yet'
+                            : (signaturePending ? 'Digital Signature Pending' : 'Digitally Signed'),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: (!hasBeenGenerated || signaturePending)
+                              ? AppColors.textMuted
+                              : AppColors.primary,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: (!hasBeenGenerated || signaturePending)
+                              ? FontWeight.normal
+                              : FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -146,17 +181,33 @@ class ClinicalReportPanel extends StatelessWidget {
                 children: [
                   const Text('Report Actions', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                   const SizedBox(height: 14),
-                  ReportActionButton(icon: Icons.visibility_outlined, label: 'Review Document', onTap: () {}), // TODO
+                  ReportActionButton(
+                    icon: Icons.visibility_outlined,
+                    label: 'Review Document',
+                    onTap: onReviewDocument,
+                  ),
                   const SizedBox(height: 12),
-                  ReportActionButton(icon: Icons.draw_outlined, label: 'Add Digital Signature', onTap: () {}), // TODO
+                  ReportActionButton(
+                    icon: Icons.draw_outlined,
+                    label: hasBeenGenerated && !signaturePending
+                        ? 'Signature Added'
+                        : 'Add Digital Signature',
+                    onTap: (hasBeenGenerated && signaturePending) ? onAddSignature : () {},
+                  ),
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {}, // TODO: generate report + send to hospital ERP / patient app
-                      icon: const Icon(Icons.send_outlined, size: 18, color: Colors.white),
-                      label: const Text('Generate & Send',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                      onPressed: isGenerating ? null : onGenerateAndSend,
+                      icon: isGenerating
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.send_outlined, size: 18, color: Colors.white),
+                      label: Text(isGenerating ? 'Generating...' : 'Generate & Send',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                       style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                     ),
                   ),

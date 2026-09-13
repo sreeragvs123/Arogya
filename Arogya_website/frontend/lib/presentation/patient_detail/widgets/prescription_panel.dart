@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../domain/entities/patient_detail/patient_detail_entity.dart';
 import 'added_medicine_chip.dart';
 
 class PrescriptionPanel extends StatefulWidget {
-  const PrescriptionPanel({super.key});
+  final List<PrescriptionItemEntity> items;
+  final void Function(String name, String dosage, String frequency, String timing) onAddItem;
+  final ValueChanged<String> onRemoveItem;
+  final VoidCallback onDiscard;
+  final VoidCallback onSave;
+  final bool isSaving;
+
+  const PrescriptionPanel({
+    super.key,
+    required this.items,
+    required this.onAddItem,
+    required this.onRemoveItem,
+    required this.onDiscard,
+    required this.onSave,
+    this.isSaving = false,
+  });
 
   @override
   State<PrescriptionPanel> createState() => _PrescriptionPanelState();
@@ -16,10 +32,6 @@ class _PrescriptionPanelState extends State<PrescriptionPanel> {
   final TextEditingController _frequencyController = TextEditingController();
   String _timing = 'After Food';
 
-  final List<AddedMedicine> _addedMedicines = const [
-    AddedMedicine(name: 'Atorvastatin 10mg', dosageSchedule: '1-0-1 • After Food'),
-  ];
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -30,15 +42,18 @@ class _PrescriptionPanelState extends State<PrescriptionPanel> {
   }
 
   void _handleAddToPrescription() {
-    // TODO: validate fields, append to prescription draft (bloc/state), clear inputs
-  }
-
-  void _handleDiscard() {
-    // TODO: clear the current draft / navigate back
-  }
-
-  void _handleSave() {
-    // TODO: persist prescription via repository call
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a medicine name first.')),
+      );
+      return;
+    }
+    widget.onAddItem(name, _dosageController.text.trim(), _frequencyController.text.trim(), _timing);
+    _nameController.clear();
+    _dosageController.clear();
+    _frequencyController.clear();
+    setState(() => _timing = 'After Food');
   }
 
   @override
@@ -177,8 +192,16 @@ class _PrescriptionPanelState extends State<PrescriptionPanel> {
                   children: [
                     const Text('Added Medicines', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                     const SizedBox(height: 14),
-                    for (final medicine in _addedMedicines)
-                      AddedMedicineChip(medicine: medicine, onRemove: () {}), // TODO: remove from list
+                    if (widget.items.isEmpty)
+                      const Text('No medicines added yet.',
+                          style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary))
+                    else
+                      for (final medicine in widget.items)
+                        AddedMedicineChip(
+                          key: ValueKey(medicine.id),
+                          medicine: medicine,
+                          onRemove: () => widget.onRemoveItem(medicine.id),
+                        ),
                   ],
                 ),
               ),
@@ -192,14 +215,21 @@ class _PrescriptionPanelState extends State<PrescriptionPanel> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TextButton(
-              onPressed: _handleDiscard,
+              onPressed: widget.isSaving ? null : widget.onDiscard,
               child: const Text('Discard', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
             ),
             const SizedBox(width: 12),
             ElevatedButton.icon(
-              onPressed: _handleSave,
-              icon: const Icon(Icons.save_outlined, size: 18, color: Colors.white),
-              label: const Text('Save Prescription', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+              onPressed: widget.isSaving ? null : widget.onSave,
+              icon: widget.isSaving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.save_outlined, size: 18, color: Colors.white),
+              label: Text(widget.isSaving ? 'Saving...' : 'Save Prescription',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15)),
             ),
           ],

@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-
-class AddedMedicine {
-  final String name;
-  final String dosageSchedule; // e.g. "1-0-1 • After Food"
-
-  const AddedMedicine({required this.name, required this.dosageSchedule});
-}
+import '../../../domain/entities/patient_detail/patient_detail_entity.dart';
 
 class AddedMedicineChip extends StatelessWidget {
-  final AddedMedicine medicine;
+  final PrescriptionItemEntity medicine;
   final VoidCallback onRemove;
 
   const AddedMedicineChip({super.key, required this.medicine, required this.onRemove});
@@ -30,15 +24,16 @@ class AddedMedicineChip extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(medicine.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                Text(medicine.displayName,
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
                 const SizedBox(height: 2),
-                Text(medicine.dosageSchedule,
+                Text(medicine.displaySchedule,
                     style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ),
           InkWell(
-            onTap: onRemove, // TODO: remove medicine from prescription draft
+            onTap: onRemove,
             child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFFC24A2E)),
           ),
         ],

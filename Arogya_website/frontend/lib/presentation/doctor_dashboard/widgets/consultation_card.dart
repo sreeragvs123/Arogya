@@ -1,34 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-
-enum ConsultationAction { startVisit, joinCall }
-
-class ConsultationData {
-  final String patientName;
-  final String patientId;
-  final String time;
-  final String reason;
-  final IconData reasonIcon;
-  final String? avatarUrl;
-  final String initials;
-  final ConsultationAction action;
-
-  const ConsultationData({
-    required this.patientName,
-    required this.patientId,
-    required this.time,
-    required this.reason,
-    required this.reasonIcon,
-    required this.initials,
-    this.avatarUrl,
-    this.action = ConsultationAction.startVisit,
-  });
-}
+import '../../../domain/entities/doctor_dashboard/consultation_entity.dart';
 
 /// One row in the "Upcoming Consultations" list. Pulled into its own
 /// widget since the same layout repeats for every patient.
 class ConsultationCard extends StatelessWidget {
-  final ConsultationData data;
+  final ConsultationEntity data;
+  final bool isActionLoading;
   final VoidCallback onAction;
   final VoidCallback onOpenFile;
 
@@ -37,11 +15,14 @@ class ConsultationCard extends StatelessWidget {
     required this.data,
     required this.onAction,
     required this.onOpenFile,
+    this.isActionLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isJoinCall = data.action == ConsultationAction.joinCall;
+    final isJoinCall = data.action == ConsultationActionType.joinCall;
+    final isCompleted = data.status == ConsultationLifecycleStatus.completed;
+    final isInProgress = data.status == ConsultationLifecycleStatus.inProgress;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -71,7 +52,7 @@ class ConsultationCard extends StatelessWidget {
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: AppColors.liveIndicator,
+                    color: isInProgress ? AppColors.liveIndicator : AppColors.textMuted,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
@@ -98,6 +79,19 @@ class ConsultationCard extends StatelessWidget {
                       child: Text('ID: ${data.patientId}',
                           style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
                     ),
+                    if (isInProgress) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.emergencyBackground,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text('IN PROGRESS',
+                            style: TextStyle(
+                                fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -107,7 +101,7 @@ class ConsultationCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(data.time, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                     const SizedBox(width: 14),
-                    Icon(data.reasonIcon, size: 14, color: AppColors.textMuted),
+                    const Icon(Icons.medical_information_outlined, size: 14, color: AppColors.textMuted),
                     const SizedBox(width: 4),
                     Text(data.reason, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                   ],
@@ -116,15 +110,24 @@ class ConsultationCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: onOpenFile, // TODO: open patient file/chart
+            onPressed: onOpenFile,
+            tooltip: 'Open patient chart',
             icon: const Icon(Icons.folder_open_outlined, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 4),
           ElevatedButton(
-            onPressed: onAction, // TODO: start-visit / join-call logic
+            onPressed: (isActionLoading || isCompleted) ? null : onAction,
             style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14)),
-            child: Text(isJoinCall ? 'Join Call' : 'Start Visit',
-                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white)),
+            child: isActionLoading
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : Text(
+                    isCompleted ? 'Completed' : (isJoinCall ? 'Join Call' : 'Start Visit'),
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white),
+                  ),
           ),
         ],
       ),

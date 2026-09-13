@@ -1,10 +1,48 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 
-class PatientFilterBar extends StatelessWidget {
+const List<String> kSortOptions = ['Last Visited', 'Name (A-Z)', 'Recently Added'];
+const List<String> kConditionOptions = [
+  'All Conditions',
+  'Hypertension',
+  'Type 2 Diabetes',
+  'Post-Op Follow-up',
+  'General Checkup',
+];
+
+class PatientFilterBar extends StatefulWidget {
+  final String initialQuery;
+  final String sortBy;
+  final String condition;
+  final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String> onSortChanged;
+  final ValueChanged<String> onConditionChanged;
   final VoidCallback onApplyFilters;
 
-  const PatientFilterBar({super.key, required this.onApplyFilters});
+  const PatientFilterBar({
+    super.key,
+    required this.initialQuery,
+    required this.sortBy,
+    required this.condition,
+    required this.onSearchChanged,
+    required this.onSortChanged,
+    required this.onConditionChanged,
+    required this.onApplyFilters,
+  });
+
+  @override
+  State<PatientFilterBar> createState() => _PatientFilterBarState();
+}
+
+class _PatientFilterBarState extends State<PatientFilterBar> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initialQuery);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,20 +57,33 @@ class PatientFilterBar extends StatelessWidget {
         children: [
           const Icon(Icons.search, color: AppColors.textSecondary, size: 20),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: TextField(
-              decoration: InputDecoration(
+              controller: _controller,
+              onChanged: widget.onSearchChanged,
+              onSubmitted: (_) => widget.onApplyFilters(),
+              decoration: const InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Search by name, patient ID, or diagnosis',
               ),
             ),
           ),
-          _FilterDropdown(icon: Icons.filter_list_rounded, label: 'Last Visited'),
+          _FilterDropdown(
+            icon: Icons.filter_list_rounded,
+            value: widget.sortBy,
+            options: kSortOptions,
+            onChanged: widget.onSortChanged,
+          ),
           const SizedBox(width: 12),
-          _FilterDropdown(icon: Icons.monitor_heart_outlined, label: 'All Conditions'),
+          _FilterDropdown(
+            icon: Icons.monitor_heart_outlined,
+            value: widget.condition,
+            options: kConditionOptions,
+            onChanged: widget.onConditionChanged,
+          ),
           const SizedBox(width: 12),
           ElevatedButton(
-            onPressed: onApplyFilters,
+            onPressed: widget.onApplyFilters,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -49,9 +100,16 @@ class PatientFilterBar extends StatelessWidget {
 
 class _FilterDropdown extends StatelessWidget {
   final IconData icon;
-  final String label;
+  final String value;
+  final List<String> options;
+  final ValueChanged<String> onChanged;
 
-  const _FilterDropdown({required this.icon, required this.label});
+  const _FilterDropdown({
+    required this.icon,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +118,19 @@ class _FilterDropdown extends StatelessWidget {
       children: [
         Icon(icon, size: 18, color: AppColors.textSecondary),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-        const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondary),
+        DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: value,
+            items: options
+                .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+                .toList(),
+            onChanged: (v) {
+              if (v != null) onChanged(v);
+            },
+            style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+            icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondary),
+          ),
+        ),
         const SizedBox(width: 4),
         Container(width: 1, height: 20, color: AppColors.divider),
         const SizedBox(width: 4),

@@ -26,7 +26,7 @@ class StatAlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap, // TODO: navigate to relevant list (reports/alerts)
+      onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(20),

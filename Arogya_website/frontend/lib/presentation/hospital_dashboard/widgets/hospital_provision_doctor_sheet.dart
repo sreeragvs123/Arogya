@@ -4,12 +4,17 @@ import 'package:frontend/presentation/hospital_dashboard/widgets/provision_docto
 
 /// Hospital Administration - Doctor Credential Provisioning Drawer / Sheet
 class HospitalProvisionDoctorSheet extends StatelessWidget {
+  final int hospitalId;
   final ValueChanged<String> onSaved;
 
-  const HospitalProvisionDoctorSheet({super.key, required this.onSaved});
+  const HospitalProvisionDoctorSheet({
+    super.key,
+    required this.hospitalId,
+    required this.onSaved,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ProvisionDoctorSheet(onSaved: onSaved);
+    return ProvisionDoctorSheet(hospitalId: hospitalId, onSaved: onSaved);
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/data/models/summary/patient_summary.dart';
+import 'package:frontend/domain/entities/patients/patient_summary_entity.dart';
 import '../../../core/theme/app_colors.dart';
 
 
 class ActivePatientCard extends StatelessWidget {
-  final PatientSummary patient;
+  final PatientSummaryEntity patient;
   final VoidCallback onEnterWorkspace;
 
   const ActivePatientCard({

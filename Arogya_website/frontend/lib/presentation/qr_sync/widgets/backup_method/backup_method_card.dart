@@ -8,11 +8,13 @@ import '../../../../common/section_card.dart';
 class BackupMethodCard extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSearch;
+  final bool isSearching;
 
   const BackupMethodCard({
     super.key,
     required this.controller,
     required this.onSearch,
+    this.isSearching = false,
   });
 
   @override
@@ -35,6 +37,8 @@ class BackupMethodCard extends StatelessWidget {
           TextField(
             controller: controller,
             style: AppTextStyles.label,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (_) => onSearch(),
             decoration: const InputDecoration(
               hintText: 'AR-XXXX-XXXX-XXXX',
               prefixIcon: Icon(Icons.badge_outlined, color: AppColors.textMuted),
@@ -44,17 +48,21 @@ class BackupMethodCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              // TODO: validate the ID format, then call the patient-lookup
-              // repository/bloc event before invoking onSearch's navigation.
-              onPressed: onSearch,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Text('Search Patient', style: AppTextStyles.buttonLabel),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
-                ],
-              ),
+              onPressed: isSearching ? null : onSearch,
+              child: isSearching
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text('Search Patient', style: AppTextStyles.buttonLabel),
+                        SizedBox(width: 8),
+                        Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
+                      ],
+                    ),
             ),
           ),
         ],

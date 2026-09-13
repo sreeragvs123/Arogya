@@ -48,8 +48,11 @@ class AppRouter {
         );
 
       case AppRoutes.patientDetail:
+        final patientId = settings.arguments;
         return MaterialPageRoute(
-          builder: (_) => const PatientDetailPage(),
+          builder: (_) => PatientDetailPage(
+            patientId: patientId is String ? patientId : patientId.toString(),
+          ),
           settings: settings,
         );
 

@@ -127,7 +127,7 @@ class PatientHeader extends StatelessWidget {
           ),
         ),
         OutlinedButton.icon(
-          onPressed: onFullHistory, // TODO: navigate to full patient history
+          onPressed: onFullHistory,
           icon: const Icon(Icons.history_rounded, size: 18, color: AppColors.textPrimary),
           label: const Text('Full History', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
           style: OutlinedButton.styleFrom(
@@ -139,7 +139,7 @@ class PatientHeader extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         OutlinedButton.icon(
-          onPressed: onPrintQr, // TODO: generate + print patient QR
+          onPressed: onPrintQr,
           icon: const Icon(Icons.print_outlined, size: 18, color: AppColors.textPrimary),
           label: const Text('Print QR', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
           style: OutlinedButton.styleFrom(

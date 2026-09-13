@@ -8,6 +8,7 @@ import 'package:frontend/domain/entities/hosptial_dashboard/doctor_staff_section
 import 'package:frontend/domain/entities/hosptial_dashboard/doctor_summary_entity.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/hospital_metrics_entity.dart';
 import 'package:frontend/domain/repositories/hospital_dashboard/hospital_dashboard_repository.dart';
+import 'package:frontend/domain/usecases/hospital_dashboard/create_doctor_usecase.dart';
 
 
 class HospitalDashboardRepositoryImpl implements HospitalDashboardRepository {
@@ -122,4 +123,17 @@ class HospitalDashboardRepositoryImpl implements HospitalDashboardRepository {
         e.response?.data is Map ? (e.response?.data['message'] as String?) : null;
     return ServerFailure(backendMessage ?? 'Something went wrong. Please try again.');
   }
+
+
+  @override
+Future<Either<Failure, Unit>> createDoctor({required CreateDoctorParams params}) async {
+  try {
+    await remoteDataSource.createDoctor(params: params);
+    return const Right(unit);
+  } on DioException catch (e) {
+    return Left(_mapDioError(e));
+  } catch (e) {
+    return Left(ServerFailure(e.toString()));
+  }
+}
 }

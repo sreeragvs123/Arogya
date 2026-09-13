@@ -9,6 +9,7 @@ class ObservationsPanel extends StatelessWidget {
   final ValueChanged<String> onRemoveSymptom;
   final TextEditingController clinicalNoteController;
   final VoidCallback onSaveClinicalNote;
+  final bool isSavingNote;
 
   const ObservationsPanel({
     super.key,
@@ -17,6 +18,7 @@ class ObservationsPanel extends StatelessWidget {
     required this.onRemoveSymptom,
     required this.clinicalNoteController,
     required this.onSaveClinicalNote,
+    this.isSavingNote = false,
   });
 
   @override
@@ -45,6 +47,7 @@ class ObservationsPanel extends StatelessWidget {
         ClinicalObservationCard(
           controller: clinicalNoteController,
           onSave: onSaveClinicalNote,
+          isSaving: isSavingNote,
         ),
       ],
     );

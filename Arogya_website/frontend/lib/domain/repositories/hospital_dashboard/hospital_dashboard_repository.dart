@@ -5,6 +5,7 @@ import 'package:frontend/core/error/failures.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/doctor_staff_section.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/doctor_summary_entity.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/hospital_metrics_entity.dart';
+import 'package:frontend/domain/usecases/hospital_dashboard/create_doctor_usecase.dart';
 
 abstract class HospitalDashboardRepository {
   Future<Either<Failure, PaginatedResult<DoctorSummaryEntity>>> getDoctorsBySection({
@@ -33,4 +34,6 @@ abstract class HospitalDashboardRepository {
   Future<Either<Failure, List<String>>> getSpecializations({required int hospitalId});
 
   Future<Either<Failure, HospitalMetricsEntity>> getMetrics({required int hospitalId});
+
+  Future<Either<Failure, Unit>> createDoctor({required CreateDoctorParams params});
 }

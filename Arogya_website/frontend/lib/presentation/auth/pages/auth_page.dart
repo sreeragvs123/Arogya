@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/common/snack_bar_helper.dart';
 import 'package:frontend/presentation/auth/bloc/auth_bloc.dart';
+import 'package:frontend/presentation/hospital_dashboard/pages/hospital_dashboard_page.dart';
 import '../../../core/theme/app_colors.dart';
 import '../widgets/auth_footer_links.dart';
 import '../widgets/auth_hero_panel.dart';
@@ -20,7 +21,6 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-
   // Doctor
   final _doctorHospitalController = TextEditingController();
   final _doctorIdController = TextEditingController();
@@ -39,7 +39,6 @@ class _AuthPageState extends State<AuthPage> {
   final _phoneController = TextEditingController();
   final _masterPasswordController = TextEditingController();
   final _confirmMasterPasswordController = TextEditingController();
-
 
   String? _selectedFacilityType;
 
@@ -63,18 +62,23 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void _handleDoctorSignIn() {
-  context.read<AuthBloc>().add(
-    DoctorSiginInEvent(
-      hospitalId: _doctorHospitalController.text.trim(),
-      doctorId: _doctorIdController.text.trim(),
-      password: _doctorPasswordController.text,
-    ),
-  );
+    context.read<AuthBloc>().add(
+      DoctorSiginInEvent(
+        hospitalId: _doctorHospitalController.text.trim(),
+        doctorId: _doctorIdController.text.trim(),
+        password: _doctorPasswordController.text,
+      ),
+    );
   }
 
   void _handleHospitalSignIn() {
-    // TODO:
-    // dispatch HospitalLoginEvent(...)
+    context.read<AuthBloc>().add(
+      HospitalSignInEvent(
+        identifier: _hospitalIdentifierController.text.trim(),
+        password: _hospitalPasswordController.text,
+        department: _hospitalDepartmentController.text.trim(),
+      ),
+    );
   }
 
   void _handleHospitalRegistration() {
@@ -131,7 +135,8 @@ class _AuthPageState extends State<AuthPage> {
           phoneController: _phoneController,
           passwordController: _masterPasswordController,
           confirmPasswordController: _confirmMasterPasswordController,
-          onFacilityTypeChanged: (value) {   // NEW
+          onFacilityTypeChanged: (value) {
+            // NEW
             setState(() {
               _selectedFacilityType = value;
             });
@@ -143,14 +148,25 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthFailureState) {
           SnackbarHelper.showError(context, state.message);
         }
-        if(state is AuthSuccessState){
+        if (state is AuthSuccessState) {
           SnackbarHelper.showSuccess(context, state.message);
+
+          if (state.tab == AuthTab.hospitalSignIn) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => HospitalDashboardPage(
+                  hospitalId: state.session?.hospitalId ?? 1,
+                  session: state.session,
+                ),
+              ),
+            );
+          }
         }
       },
       builder: (context, state) {

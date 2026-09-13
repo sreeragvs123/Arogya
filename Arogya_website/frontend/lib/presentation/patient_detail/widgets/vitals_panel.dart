@@ -1,35 +1,46 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 
-class VitalsPanel extends StatefulWidget {
-  const VitalsPanel({super.key});
+class VitalsPanel extends StatelessWidget {
+  final TextEditingController heartRateController;
+  final TextEditingController bloodPressureController;
+  final TextEditingController bodyTempController;
+  final TextEditingController bloodSugarController;
+  final TextEditingController weightController;
+  final TextEditingController heightController;
+  final bool isSaving;
+  final VoidCallback onUpdateVitals;
 
-  @override
-  State<VitalsPanel> createState() => _VitalsPanelState();
-}
+  const VitalsPanel({
+    super.key,
+    required this.heartRateController,
+    required this.bloodPressureController,
+    required this.bodyTempController,
+    required this.bloodSugarController,
+    required this.weightController,
+    required this.heightController,
+    required this.onUpdateVitals,
+    this.isSaving = false,
+  });
 
-class _VitalsPanelState extends State<VitalsPanel> {
-  final TextEditingController _heartRateController = TextEditingController();
-  final TextEditingController _bloodPressureController = TextEditingController();
-  final TextEditingController _bodyTempController = TextEditingController();
-  final TextEditingController _bloodSugarController = TextEditingController();
-  final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _heightController = TextEditingController();
+  void _handleUpdateVitals(BuildContext context) {
+    final hasAnyValue = [
+      heartRateController.text,
+      bloodPressureController.text,
+      bodyTempController.text,
+      bloodSugarController.text,
+      weightController.text,
+      heightController.text,
+    ].any((v) => v.trim().isNotEmpty);
 
-  @override
-  void dispose() {
-    _heartRateController.dispose();
-    _bloodPressureController.dispose();
-    _bodyTempController.dispose();
-    _bloodSugarController.dispose();
-    _weightController.dispose();
-    _heightController.dispose();
-    super.dispose();
-  }
+    if (!hasAnyValue) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter at least one measurement to update.')),
+      );
+      return;
+    }
 
-  void _handleUpdateVitals() {
-    // TODO: validate fields, persist via repository call,
-    // then refresh VitalsTrendCard (likely via bloc/state once wired up).
+    onUpdateVitals();
   }
 
   @override
@@ -54,7 +65,7 @@ class _VitalsPanelState extends State<VitalsPanel> {
               child: _VitalsField(
                 label: 'Heart Rate (BPM)',
                 hint: 'e.g. 72',
-                controller: _heartRateController,
+                controller: heartRateController,
                 keyboardType: TextInputType.number,
               ),
             ),
@@ -63,7 +74,7 @@ class _VitalsPanelState extends State<VitalsPanel> {
               child: _VitalsField(
                 label: 'Blood Pressure (mmHg)',
                 hint: 'e.g. 120/80',
-                controller: _bloodPressureController,
+                controller: bloodPressureController,
               ),
             ),
           ],
@@ -76,7 +87,7 @@ class _VitalsPanelState extends State<VitalsPanel> {
               child: _VitalsField(
                 label: 'Body Temp (°F)',
                 hint: 'e.g. 98.4',
-                controller: _bodyTempController,
+                controller: bodyTempController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
             ),
@@ -85,7 +96,7 @@ class _VitalsPanelState extends State<VitalsPanel> {
               child: _VitalsField(
                 label: 'Blood Sugar (mg/dL)',
                 hint: 'e.g. 95',
-                controller: _bloodSugarController,
+                controller: bloodSugarController,
                 keyboardType: TextInputType.number,
               ),
             ),
@@ -99,7 +110,7 @@ class _VitalsPanelState extends State<VitalsPanel> {
               child: _VitalsField(
                 label: 'Weight (kg)',
                 hint: 'e.g. 72',
-                controller: _weightController,
+                controller: weightController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
             ),
@@ -108,7 +119,7 @@ class _VitalsPanelState extends State<VitalsPanel> {
               child: _VitalsField(
                 label: 'Height (cm)',
                 hint: 'e.g. 175',
-                controller: _heightController,
+                controller: heightController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
             ),
@@ -118,11 +129,17 @@ class _VitalsPanelState extends State<VitalsPanel> {
         Align(
           alignment: Alignment.centerRight,
           child: ElevatedButton.icon(
-            onPressed: _handleUpdateVitals,
-            icon: const Icon(Icons.autorenew_rounded, size: 18, color: Colors.white),
-            label: const Text(
-              'Update Vitals',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            onPressed: isSaving ? null : () => _handleUpdateVitals(context),
+            icon: isSaving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.autorenew_rounded, size: 18, color: Colors.white),
+            label: Text(
+              isSaving ? 'Updating...' : 'Update Vitals',
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
