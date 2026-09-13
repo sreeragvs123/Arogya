@@ -2,12 +2,16 @@ package com.Grp._8.backend.services.auth;
 
 
 import com.Grp._8.backend.dto.auth.DoctorSignInRequestDto;
+import com.Grp._8.backend.dto.auth.DoctorSignInResponseDto;
 import com.Grp._8.backend.entities.enums.DoctorStatus;
 import com.Grp._8.backend.entities.users.Users;
+import com.Grp._8.backend.exceptions.DoctorHospitalMismatchException;
+import com.Grp._8.backend.exceptions.DoctorNotFoundException;
 import com.Grp._8.backend.repositories.users.DoctorRepository;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
 import com.Grp._8.backend.repositories.users.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.auth.InvalidCredentialsException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,7 +42,14 @@ public class DoctorAuthService {
 
 
 
-    public String[] signIn(DoctorSignInRequestDto request) {
+    public Object[] signIn(DoctorSignInRequestDto request) {
+
+        Hospital hospital = hospitalRepository.findById(request.getHospitalId()).orElseThrow(
+                ()-> new HospitalNotFoundException("Hospital Not Found with Id :" + request.getHospitalId())
+        );
+
+
+
         String compositeKey = request.getUsername() + ":" + request.getRole();
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(compositeKey, request.getPassword())
@@ -46,11 +57,24 @@ public class DoctorAuthService {
 
         Users validUser = (Users) authentication.getPrincipal();
 
+        Doctor doctor = doctorRepository.findByUserData_Id(validUser.getId()).orElseThrow(
+                ()-> new DoctorNotFoundException("Doctor Not Found with Id : "+ validUser.getId())
+        );
+
+        if(!doctor.getHospital().getId().equals(hospital.getId())){
+            throw new DoctorHospitalMismatchException("Doctor doesn't Belong to this Hospital");
+        }
+
         String accessToken = jwtService.generateAccessToken(validUser);
         String refreshToken = jwtService.generateRefreshToken(validUser);
-        String[] tokens = {accessToken,refreshToken};
+        DoctorSignInResponseDto responseDto = DoctorSignInResponseDto.builder()
+                .role(validUser.getRole())
+                .doctorId(doctor.getId())
+                .accessToken(accessToken)
+                .build();
+        Object[] data = {responseDto,refreshToken};
 
-        return  tokens;
+        return  data;
     }
 
     public String generateAccessTokenFromRefreshToken(String refreshToken) {

@@ -12,10 +12,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-	@Repository
+import java.util.Optional;
+
+@Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     Boolean existsByLicenseNumber(String licenseNumber);
+
+    Optional<Doctor> findByUserData_Id(Long id);
 
     Boolean existsByHospital_IdAndLicenseNumber(Long hospitalId, String licenseNumber);
 

@@ -28,6 +28,9 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
     Page<HospitalSearchResponseDto> searchByName(@Param("query") String query, Pageable pageable);
 
 
+    Optional<Hospital> findByUserData_Id(Long userId);
+
+
 
 
 

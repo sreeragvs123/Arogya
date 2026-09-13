@@ -20,16 +20,16 @@ public class DoctorAuthController {
 
     @PostMapping("/signIn")
     public ResponseEntity<DoctorSignInResponseDto> signIn(@RequestBody DoctorSignInRequestDto siginRequest, HttpServletResponse response) {
-        String[] tokens = doctorAuthService.signIn(siginRequest);
+        Object[] data = doctorAuthService.signIn(siginRequest);
 
-        String accessToken = tokens[0];
-        String refreshToken = tokens[1];
+        DoctorSignInResponseDto responseDto  = (DoctorSignInResponseDto) data[0];
+        String refreshToken = (String) data[1];
 
-        Cookie cookie = new Cookie("refresh_token",tokens[1]);
+        Cookie cookie = new Cookie("refresh_token",refreshToken);
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(new DoctorSignInResponseDto(accessToken));
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping("/create/{hospitalId}")

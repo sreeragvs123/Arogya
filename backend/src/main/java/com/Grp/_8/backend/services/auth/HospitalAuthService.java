@@ -1,16 +1,15 @@
 package com.Grp._8.backend.services.auth;
 
 
-import com.Grp._8.backend.dto.auth.HospitalSignInDataExchangeDto;
-import com.Grp._8.backend.dto.auth.HospitalSignInRequestDto;
-import com.Grp._8.backend.dto.auth.HospitalRegistrationRequestDto;
-import com.Grp._8.backend.dto.auth.HospitalRegistrationResponseDto;
+import com.Grp._8.backend.dto.auth.*;
 import com.Grp._8.backend.entities.enums.Role;
 import com.Grp._8.backend.entities.users.Hospital;
 import com.Grp._8.backend.entities.users.Users;
 import com.Grp._8.backend.exceptions.HospitalAlreadyExistsException;
+import com.Grp._8.backend.exceptions.ResourceNotFoundException;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
 import com.Grp._8.backend.repositories.users.UserRepository;
+import com.Grp._8.backend.utils.HospitalDisplayUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -36,20 +35,30 @@ public class HospitalAuthService {
     private final HospitalRepository hospitalRepository;
 
 
-    public HospitalSignInDataExchangeDto signIn(HospitalSignInRequestDto request) {
-        String compositeKey = request.getUsername() + ":" + request.getRole();
+    public Object[] signIn(HospitalSignInRequestDto request) {
+        String compositeKey = request.getIdentifierOrEmail() + ":" + Role.HOSPITAL;
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(compositeKey, request.getPassword())
         );
 
         Users validUser = (Users) authentication.getPrincipal();
 
+        Hospital hospital = hospitalRepository.findByUserData_Id(validUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital record not found for this account"));
+
         String accessToken = jwtService.generateAccessToken(validUser);
         String refreshToken = jwtService.generateRefreshToken(validUser);
-        Long hospitalId = hospitalRepository.findByUserId(validUser.getId());
-        HospitalSignInDataExchangeDto dto = new HospitalSignInDataExchangeDto(accessToken,refreshToken,validUser.getId(), validUser.getName(), validUser.getRole(),hospitalId);
 
-        return dto;
+        HospitalSignInResponseDto body = HospitalSignInResponseDto.builder()
+                .accessToken(accessToken)
+                .hospitalId(hospital.getId())
+                .hospitalName(hospital.getUserData().getName())
+                .hospitalCode(HospitalDisplayUtils.generateHospitalCode(hospital.getId()))
+                .adminName(hospital.getHosptialDirector())
+                .adminDesignation(HospitalDisplayUtils.designationFor(hospital.getHospitalType()))
+                .build();
+
+        return new Object[]{body, refreshToken};
     }
 
     public String generateAccessTokenFromRefreshToken(String refreshToken) {

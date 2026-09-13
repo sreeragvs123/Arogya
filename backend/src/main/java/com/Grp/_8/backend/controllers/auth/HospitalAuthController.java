@@ -28,15 +28,18 @@ public class HospitalAuthController {
     }
 
     @PostMapping("/signIn")
-    public ResponseEntity<HospitalSignInResponseDto> login(@RequestBody HospitalSignInRequestDto siginRequest, HttpServletResponse response) {
-        HospitalSignInDataExchangeDto data = hospitalAuthService.signIn(siginRequest);
+    public ResponseEntity<HospitalSignInResponseDto> signIn(
+            @RequestBody HospitalSignInRequestDto request,
+            HttpServletResponse response
+    ) {
+        Object[] result = hospitalAuthService.signIn(request);
+        HospitalSignInResponseDto body = (HospitalSignInResponseDto) result[0];
+        String refreshToken = (String) result[1];
 
-
-
-        Cookie cookie = new Cookie("refresh_token",data.getRefreshToken());
+        Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(new HospitalSignInResponseDto(data.getAccessToken(),data.getUserId(),data.getName(),data.getRole(),data.getHospitalId()));
+        return ResponseEntity.ok(body);
     }
 }

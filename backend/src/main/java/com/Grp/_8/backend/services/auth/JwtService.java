@@ -24,6 +24,12 @@ public class JwtService {
     @Value("${jwt.secret.key}")
     private String secretKey;
 
+    @Value("${jwt.access-token.expiration-ms}")
+    private Long accessTokenExpirationMs;
+
+    @Value("${jwt.refresh-token.expiration-ms}")
+    private Long refreshTokenExpirationMs;
+
     private SecretKey getSigningKey(){
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
@@ -34,7 +40,7 @@ public class JwtService {
                 .claim("username",user.getUsername())
                 .claim("role",user.getRole())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis()+1000*60*15))
+                .expiration(new Date(System.currentTimeMillis()+accessTokenExpirationMs))
                 .signWith(getSigningKey())
                 .compact();
 
@@ -44,7 +50,7 @@ public class JwtService {
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000L*60*60*24*31))
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
                 .signWith(getSigningKey())
                 .compact();
     }
