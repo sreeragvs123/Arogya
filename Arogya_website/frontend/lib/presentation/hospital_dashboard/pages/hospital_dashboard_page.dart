@@ -15,7 +15,7 @@ import '../widgets/hospital_provision_doctor_sheet.dart';
 
 class HospitalDashboardPage extends StatefulWidget {
   final int hospitalId;
-  final AuthSession? session;
+  final HospitalAdminSession? session;
 
   const HospitalDashboardPage({
     super.key,

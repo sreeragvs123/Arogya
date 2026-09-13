@@ -14,7 +14,7 @@ class DoctorSignInUsecase extends Usecase<AuthSession,DoctorSignInParams>{
 
 
 class DoctorSignInParams{
-  final String hospitalId;
+  final int hospitalId;
   final String doctorIdOrEmail;
   final String password;
 

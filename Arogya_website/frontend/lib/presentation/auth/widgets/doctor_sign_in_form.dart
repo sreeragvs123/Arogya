@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/utils/service_locator.dart';
+import 'package:frontend/presentation/auth/bloc/auth_bloc.dart';
 import 'package:frontend/presentation/doctor_dashboard/pages/doctor_page.dart';
 import 'package:frontend/presentation/hospital_search/bloc/hospital_search_bloc.dart';
 import 'package:frontend/domain/entities/auth/hospital.dart';
@@ -13,16 +14,11 @@ class DoctorSignInForm extends StatefulWidget {
   final TextEditingController doctorIdController;
   final TextEditingController passwordController;
 
-  final VoidCallback onSubmit;
-  final VoidCallback onForgotPassword;
-
   const DoctorSignInForm({
     super.key,
     required this.hospitalController,
     required this.doctorIdController,
     required this.passwordController,
-    required this.onSubmit,
-    required this.onForgotPassword,
   });
 
   @override
@@ -32,10 +28,21 @@ class DoctorSignInForm extends StatefulWidget {
 class _DoctorSignInFormState extends State<DoctorSignInForm> {
   bool _obscurePassword = true;
   bool _rememberMe = false;
-
-  // Tracks the selected hospital's id, since widget.hospitalController
-  // only carries the display name back to the parent.
   int? _selectedHospitalId;
+
+
+
+    void _handleDoctorSignIn() {
+    context.read<AuthBloc>().add(
+      DoctorSiginInEvent(
+        hospitalId: _selectedHospitalId!,
+        doctorId: widget.doctorIdController.text.trim(),
+        password: widget.passwordController.text,
+      ),
+    );
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +136,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
             ),
 
             TextButton(
-              onPressed: widget.onForgotPassword,
+              onPressed: (){},
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -215,7 +222,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
 
         _SubmitButton(
           text: 'Access Clinical Portal',
-          onPressed: widget.onSubmit,
+          onPressed:()=>_handleDoctorSignIn(),
         ),
         const SizedBox(height: 20),
         Center(

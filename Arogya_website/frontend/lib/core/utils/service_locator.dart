@@ -64,7 +64,8 @@ Future<void> initializeDependencies() async {
 
 
   //Auth
-  sl.registerLazySingleton<DoctorSignInUsecase>(() => DoctorSignInUsecase());
+  sl.registerLazySingleton<DoctorSignInUsecase>(
+    () => DoctorSignInUsecase());
   sl.registerLazySingleton<HospitalSignInUsecase>(
     () => HospitalSignInUsecase(),
   );
@@ -80,7 +81,7 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerLazySingleton<AuthBloc>(
-    () => AuthBloc(sl<HosptialCreateUsecase>(),sl<HospitalSignInUsecase>()),
+    () => AuthBloc(sl<HosptialCreateUsecase>(),sl<HospitalSignInUsecase>(),sl<DoctorSignInUsecase>()),
   );
 
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:frontend/domain/entities/auth/auth_session.dart';
+import 'package:frontend/domain/usecases/auth/doctor_signin_usecase.dart';
 import 'package:frontend/domain/usecases/auth/hospital_signin_usecase.dart';
 import 'package:frontend/domain/usecases/auth/hosptial_create_usecase.dart';
 import 'package:frontend/presentation/auth/pages/auth_page.dart';
@@ -12,7 +13,12 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   HosptialCreateUsecase hosptialCreateUsecase;
   HospitalSignInUsecase hosptialSignInUsecase;
-  AuthBloc(this.hosptialCreateUsecase,this.hosptialSignInUsecase) : super(const AuthInitial()) {
+  DoctorSignInUsecase doctorSignInUsecase;
+  AuthBloc(
+    this.hosptialCreateUsecase,
+    this.hosptialSignInUsecase,
+    this.doctorSignInUsecase,
+  ) : super(const AuthInitial()) {
     on<AuthTabChangedEvent>(_onAuthTabChanged);
     on<DoctorSiginInEvent>(_onDoctorSignInSubmitted);
     on<HospitalSignInEvent>(_onHospitalSignInSubmitted);
@@ -35,10 +41,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final result = await hosptialSignInUsecase.call(params: params);
       result.fold(
         (failure) => emit(AuthFailureState(currentTab, failure.message)),
-        (session)  {
-          print("calling from auth bloc : $session");
-          emit(AuthSuccessState(currentTab, "Sign In: Successful", session: session));
-        }
+        (session) {
+          emit(
+            AuthSuccessState(
+              currentTab,
+              "Sign In: Successful",
+              session: session,
+            ),
+          );
+        },
       );
     } catch (e) {
       emit(AuthFailureState(currentTab, e.toString()));
@@ -58,14 +69,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     final currentTab = state.tab;
     emit(AuthLoadingState(currentTab));
+
+    final params = DoctorSignInParams(
+      hospitalId: event.hospitalId,
+      doctorIdOrEmail: event.doctorId,
+      password: event.password,
+    );
     try {
-      // TODO: await authRepository.doctorLogin(...)
-      emit(AuthSuccessState(currentTab,"SigIn : SuccessFull"));
+      final result = await doctorSignInUsecase(params: params);
+      result.fold(
+        (failure) => emit(AuthFailureState(currentTab, failure.message)),
+        (success) => emit(
+          AuthSuccessState(
+            currentTab,
+            "Sign In : Successfull",
+            session: success,
+          ),
+        ),
+      );
     } catch (e) {
       emit(AuthFailureState(currentTab, e.toString()));
     }
   }
-
 
   FutureOr<void> _onHospitalRegistrationSubmitted(
     HospitalRegistrationEvent event,
@@ -84,12 +109,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       password: event.password,
     );
 
-
     try {
       final result = await hosptialCreateUsecase.call(params: params);
       result.fold(
         (failure) => emit(AuthFailureState(currentTab, failure.message)),
-        (hospital) => emit(AuthSuccessState(currentTab,"Registration SuccessFull")),
+        (hospital) =>
+            emit(AuthSuccessState(currentTab, "Registration SuccessFull")),
       );
     } catch (e) {
       emit(AuthFailureState(currentTab, e.toString()));

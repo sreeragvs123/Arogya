@@ -7,7 +7,7 @@ import 'package:frontend/domain/usecases/auth/hospital_signin_usecase.dart';
 import 'package:frontend/domain/usecases/auth/hosptial_create_usecase.dart';
 
 abstract class AuthRepository {
-  Future<Either<Failure,AuthSession>> doctorSignIn(DoctorSignInParams params);
-  Future<Either<Failure,AuthSession>> hospitalSignIn(HospitalSignInParams params);
+  Future<Either<Failure,DoctorSession>> doctorSignIn(DoctorSignInParams params);
+  Future<Either<Failure,HospitalAdminSession>> hospitalSignIn(HospitalSignInParams params);
   Future<Either<Failure,Hospital>> createHospital(HospitalCreateParams params);
 }

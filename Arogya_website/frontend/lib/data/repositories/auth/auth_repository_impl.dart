@@ -17,7 +17,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
 
   @override
-  Future<Either<Failure, AuthSession>> doctorSignIn(
+  Future<Either<Failure, DoctorSession>> doctorSignIn(
     DoctorSignInParams params,
   ) async {
     try {
@@ -35,7 +35,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthSession>> hospitalSignIn(
+  Future<Either<Failure, HospitalAdminSession>> hospitalSignIn(
     HospitalSignInParams params,
   ) async {
     try {

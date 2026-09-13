@@ -4,7 +4,7 @@ import 'package:frontend/domain/entities/auth/auth_session.dart';
 class AppTopBar extends StatelessWidget {
   final bool isSidebarCollapsed;
   final VoidCallback onToggleSidebar;
-  final AuthSession? session;
+  final HospitalAdminSession? session;
 
   const AppTopBar({
     super.key,

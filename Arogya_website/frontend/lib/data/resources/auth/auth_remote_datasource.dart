@@ -1,32 +1,40 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/network/api_routes.dart';
-import 'package:frontend/data/models/auth/auth_session_model.dart';
+import 'package:frontend/data/models/auth/doctor_sigin_in_response_model.dart';
 import 'package:frontend/data/models/auth/hospital_model.dart';
 import 'package:frontend/data/models/auth/hospital_sign_in_response_model.dart';
 import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/domain/usecases/auth/hosptial_create_usecase.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<AuthSessionModel> doctorSignIn({
-    required String hospitalId,
+  Future<DoctorSignInResponseModel> doctorSignIn({
+    required int hospitalId,
     required String doctorIdOrEmail,
     required String password,
   });
 
-  Future<AuthSession> hospitalSignIn({
-    // widened to AuthSession
+  Future<HospitalSignInResponseModel> hospitalSignIn({
     required String identifierOrEmail,
     required String password,
   });
   Future<HospitalModel> createHospital({required HospitalCreateParams params});
 }
 
+
+
+
+
+
+
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final Dio dio;
   AuthRemoteDataSourceImpl({required this.dio});
 
+
+
+
   @override
-  Future<AuthSession> hospitalSignIn({
+  Future<HospitalSignInResponseModel> hospitalSignIn({
     required String identifierOrEmail,
     required String password,
   }) async {
@@ -45,9 +53,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     return HospitalSignInResponseModel.fromJson(data);
   }
 
+
+
+
   @override
-  Future<AuthSessionModel> doctorSignIn({
-    required String hospitalId,
+  Future<DoctorSignInResponseModel> doctorSignIn({
+    required int hospitalId,
     required String doctorIdOrEmail,
     required String password,
   }) async {
@@ -55,14 +66,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ApiRoutes.doctorSignIn,
       data: {
         'hospitalId': hospitalId,
-        'doctorIdOrEmail': doctorIdOrEmail,
+        'username': doctorIdOrEmail,
         'password': password,
+        'role' : UserRole.doctor
       },
     );
-    return AuthSessionModel.fromJson(
+    return DoctorSignInResponseModel.fromJson(
       response.data["data"] as Map<String, dynamic>,
     );
   }
+
+
+
+
 
   @override
   Future<HospitalModel> createHospital({
@@ -77,4 +93,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       response.data["data"] as Map<String, dynamic>,
     );
   }
+
+
+
 }

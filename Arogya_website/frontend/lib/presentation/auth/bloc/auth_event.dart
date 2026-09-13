@@ -15,7 +15,7 @@ class AuthTabChangedEvent extends AuthEvent{
 }
 
 class DoctorSiginInEvent extends AuthEvent{
-  final String hospitalId;
+  final int hospitalId;
   final String doctorId;
   final String password;
 

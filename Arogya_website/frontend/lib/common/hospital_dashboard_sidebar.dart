@@ -7,7 +7,7 @@ class AppSidebar extends StatelessWidget {
   final bool isCollapsed;
   final String currentRoute;
   final VoidCallback onToggleCollapse;
-  final AuthSession? session;
+  final HospitalAdminSession? session;
 
   const AppSidebar({
     super.key,

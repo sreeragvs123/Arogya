@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/common/snack_bar_helper.dart';
+import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/presentation/auth/bloc/auth_bloc.dart';
+import 'package:frontend/presentation/doctor_dashboard/pages/doctor_page.dart';
 import 'package:frontend/presentation/hospital_dashboard/pages/hospital_dashboard_page.dart';
 import '../../../core/theme/app_colors.dart';
 import '../widgets/auth_footer_links.dart';
@@ -61,16 +63,6 @@ class _AuthPageState extends State<AuthPage> {
     super.dispose();
   }
 
-  void _handleDoctorSignIn() {
-    context.read<AuthBloc>().add(
-      DoctorSiginInEvent(
-        hospitalId: _doctorHospitalController.text.trim(),
-        doctorId: _doctorIdController.text.trim(),
-        password: _doctorPasswordController.text,
-      ),
-    );
-  }
-
   void _handleHospitalSignIn() {
     context.read<AuthBloc>().add(
       HospitalSignInEvent(
@@ -109,10 +101,6 @@ class _AuthPageState extends State<AuthPage> {
           hospitalController: _doctorHospitalController,
           doctorIdController: _doctorIdController,
           passwordController: _doctorPasswordController,
-          onSubmit: _handleDoctorSignIn,
-          onForgotPassword: () {
-            // TODO
-          },
         );
 
       case AuthTab.hospitalSignIn:
@@ -149,6 +137,10 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
+      listenWhen: (previous, current) =>
+          current is AuthSuccessState || current is AuthFailureState,
+      buildWhen: (previous, current) =>
+          current is AuthLoadingState || current is AuthTabChangedState,
       listener: (context, state) {
         if (state is AuthFailureState) {
           SnackbarHelper.showError(context, state.message);
@@ -157,12 +149,29 @@ class _AuthPageState extends State<AuthPage> {
           SnackbarHelper.showSuccess(context, state.message);
 
           if (state.tab == AuthTab.hospitalSignIn) {
+            final session = state.session;
+            final hospitalId = switch (session) {
+              HospitalAdminSession(:final hospitalId) => hospitalId,
+              _ => throw StateError(
+                'Expected HospitalAdminSession but got $session',
+              ),
+            };
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (_) => HospitalDashboardPage(
-                  hospitalId: state.session?.hospitalId ?? 1,
-                  session: state.session,
+                  hospitalId: hospitalId ?? 1,
+                  session: session,
+                ),
+              ),
+            );
+          } else if (state.tab == AuthTab.doctorSignIn) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DoctorDashBoardPage(
+                  //TODO : pass in the arguments
                 ),
               ),
             );
