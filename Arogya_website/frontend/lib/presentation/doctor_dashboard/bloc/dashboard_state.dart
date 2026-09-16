@@ -2,8 +2,6 @@ part of 'dashboard_bloc.dart';
 
 enum DashboardStatus { initial, loading, success, failure }
 
-/// Describes the outcome of the most recent consultation action so the UI
-/// can react exactly once (via BlocListener.listenWhen comparing actionToken).
 class ConsultationActionResult extends Equatable {
   final int actionToken;
   final ConsultationEntity? consultation;
@@ -62,6 +60,8 @@ class DashboardState extends Equatable {
       actionResult: actionResult ?? this.actionResult,
     );
   }
+
+
 
   @override
   List<Object?> get props => [

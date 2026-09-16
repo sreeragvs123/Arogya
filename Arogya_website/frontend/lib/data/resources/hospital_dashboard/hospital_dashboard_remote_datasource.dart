@@ -171,6 +171,5 @@ class HospitalDashboardRemoteDataSourceImpl
       final error = envelope['error'] as Map<String, dynamic>;
       throw Exception(error['message'] as String? ?? 'Request failed');
     }
-    // data (DoctorCreateResponseDto) not needed by the caller — discarded.
   }
 }

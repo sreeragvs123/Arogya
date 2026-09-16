@@ -3,13 +3,16 @@ import '../../../core/theme/app_colors.dart';
 
 class MorningOverviewCard extends StatelessWidget {
   final int consultationsToday;
-  final int capacityPercent;
+  final double capacityPercent;
 
   const MorningOverviewCard({
     super.key,
-    this.consultationsToday = 12,
-    this.capacityPercent = 85,
+    required this.consultationsToday,
+    required this.capacityPercent,
   });
+
+  // Display:
+  // '${capacityPercent.round()}%'
 
   @override
   Widget build(BuildContext context) {

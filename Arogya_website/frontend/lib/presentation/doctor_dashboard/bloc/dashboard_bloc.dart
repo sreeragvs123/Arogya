@@ -50,8 +50,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
     final summaryResult = await getDashboardSummaryUsecase.call(params: NoParams());
     final consultationsResult = await getUpcomingConsultationsUsecase.call(params: NoParams());
-    final activityResult =
-        await getRecentActivityUsecase.call(params: const GetRecentActivityParams());
+    final activityResult = await getRecentActivityUsecase.call(params: const GetRecentActivityParams());
 
     DashboardSummaryEntity? summary;
     List<ConsultationEntity> consultations = const [];

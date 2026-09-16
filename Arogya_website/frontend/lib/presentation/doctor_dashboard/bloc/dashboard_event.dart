@@ -15,6 +15,8 @@ class DashboardRefreshRequested extends DashboardEvent {
   const DashboardRefreshRequested();
 }
 
+
+
 /// Fired when the doctor taps "Start Visit" or "Join Call" on a consultation.
 class DashboardConsultationActionPressed extends DashboardEvent {
   final ConsultationEntity consultation;

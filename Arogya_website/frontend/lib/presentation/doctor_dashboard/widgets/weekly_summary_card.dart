@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 
 class WeeklySummaryCard extends StatelessWidget {
-  final int efficiencyDeltaPercent;
-  final double progress; // 0.0 - 1.0
+  final double efficiencyPercentDelta;
+  final double progress;
 
   const WeeklySummaryCard({
     super.key,
-    this.efficiencyDeltaPercent = 12,
-    this.progress = 0.72,
+    required this.efficiencyPercentDelta,
+    required this.progress,
   });
 
+  // Use:
+  // final safeProgress = progress.clamp(0.0, 1.0).toDouble();
+  // final isUp = efficiencyPercentDelta >= 0;
   @override
   Widget build(BuildContext context) {
     return Container(

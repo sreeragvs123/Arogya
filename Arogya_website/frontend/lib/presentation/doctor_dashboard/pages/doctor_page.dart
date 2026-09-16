@@ -97,7 +97,6 @@ class _DoctorDashBoardView extends StatelessWidget {
                           child: LayoutBuilder(
                             builder: (context, constraints) {
                               final isWide = constraints.maxWidth > 900;
-
                               final mainColumn = Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

@@ -8,22 +8,29 @@ class MorningOverviewModel extends MorningOverviewEntity {
 
   factory MorningOverviewModel.fromJson(Map<String, dynamic> json) {
     return MorningOverviewModel(
-      consultationsToday: json['consultationsToday'] as int,
-      capacityPercent: json['capacityPercent'] as int,
+      consultationsToday: (json['consultationsToday'] as num).toInt(),
+      capacityPercent: (json['capacityPercent'] as num).toDouble(),
     );
   }
 }
 
 class WeeklySummaryModel extends WeeklySummaryEntity {
   const WeeklySummaryModel({
-    required super.efficiencyDeltaPercent,
+    required super.efficiencyPercentDelta,
     required super.progress,
+    required super.completedConsultations,
+    required super.scheduledConsultations,
   });
 
   factory WeeklySummaryModel.fromJson(Map<String, dynamic> json) {
     return WeeklySummaryModel(
-      efficiencyDeltaPercent: json['efficiencyDeltaPercent'] as int,
+      efficiencyPercentDelta:
+          (json['efficiencyPercentDelta'] as num).toDouble(),
       progress: (json['progress'] as num).toDouble(),
+      completedConsultations:
+          (json['completedConsultations'] as num).toInt(),
+      scheduledConsultations:
+          (json['scheduledConsultations'] as num).toInt(),
     );
   }
 }

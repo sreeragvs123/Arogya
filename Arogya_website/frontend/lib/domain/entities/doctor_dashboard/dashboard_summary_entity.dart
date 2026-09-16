@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class MorningOverviewEntity extends Equatable {
   final int consultationsToday;
-  final int capacityPercent;
+  final double capacityPercent;
 
   const MorningOverviewEntity({
     required this.consultationsToday,
@@ -14,16 +14,25 @@ class MorningOverviewEntity extends Equatable {
 }
 
 class WeeklySummaryEntity extends Equatable {
-  final int efficiencyDeltaPercent;
-  final double progress; // 0.0 - 1.0
+  final double efficiencyPercentDelta;
+  final double progress;
+  final int completedConsultations;
+  final int scheduledConsultations;
 
   const WeeklySummaryEntity({
-    required this.efficiencyDeltaPercent,
+    required this.efficiencyPercentDelta,
     required this.progress,
+    required this.completedConsultations,
+    required this.scheduledConsultations,
   });
 
   @override
-  List<Object?> get props => [efficiencyDeltaPercent, progress];
+  List<Object?> get props => [
+        efficiencyPercentDelta,
+        progress,
+        completedConsultations,
+        scheduledConsultations,
+      ];
 }
 
 class DashboardSummaryEntity extends Equatable {
@@ -42,6 +51,11 @@ class DashboardSummaryEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [morningOverview, pendingReportsCount, newReportsCount, criticalAlertsCount, weeklySummary];
+  List<Object?> get props => [
+        morningOverview,
+        pendingReportsCount,
+        newReportsCount,
+        criticalAlertsCount,
+        weeklySummary,
+      ];
 }
