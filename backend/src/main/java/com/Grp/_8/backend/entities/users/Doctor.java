@@ -1,9 +1,6 @@
 package com.Grp._8.backend.entities.users;
 
-import com.Grp._8.backend.entities.enums.Designation;
-import com.Grp._8.backend.entities.enums.DoctorStatus;
-import com.Grp._8.backend.entities.enums.Sex;
-import com.Grp._8.backend.entities.enums.VerificationStatus;
+import com.Grp._8.backend.entities.enums.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +29,7 @@ public class Doctor {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
-    private Hospital hospital;
+    private Hospital hospital;//Right now A doctor can only be belonging to 1 hospital
 
     @Column(unique = true, nullable = false)
     private String licenseNumber;
@@ -46,7 +43,8 @@ public class Doctor {
     @Enumerated(EnumType.STRING)
     private VerificationStatus verificationStatus = VerificationStatus.PENDING;
 
-    private String specialization;
+    @Enumerated(EnumType.STRING)
+    private Department department;//TODO : Update the ui code : Variable changed from String specilisation -> Department department
 
     private String phoneNumber;
 

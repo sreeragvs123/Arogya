@@ -18,18 +18,14 @@ public class AppointmentRequestDto {
     private Long doctorId;
 
     @NotNull
+    private Long hospitalId;
+
+    @NotNull
     @Future
     private LocalDateTime appointmentAt;
 
     @NotNull
     private ConsultationType consultationType;
 
-    public Long getDoctorId() { return doctorId; }
-    public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }
 
-    public LocalDateTime getAppointmentAt() { return appointmentAt; }
-    public void setAppointmentAt(LocalDateTime appointmentAt) { this.appointmentAt = appointmentAt; }
-
-    public ConsultationType getConsultationType() { return consultationType; }
-    public void setConsultationType(ConsultationType consultationType) { this.consultationType = consultationType; }
 }

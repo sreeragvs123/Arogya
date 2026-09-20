@@ -2,6 +2,7 @@ package com.Grp._8.backend.repositories.appointment;
 
 import com.Grp._8.backend.entities.appointment.Appointment;
 import com.Grp._8.backend.entities.enums.AppointmentStatus;
+import com.Grp._8.backend.entities.enums.Department;
 import com.Grp._8.backend.entities.users.Patient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -67,5 +68,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // Upcoming (after today) appointments for this doctor
     Page<Appointment> findByDoctor_IdAndAppointmentAtAfter(
             Long doctorId, LocalDateTime after, Pageable pageable);
+
+    boolean existsByDoctorIdAndAppointmentAt(Long doctorId, LocalDateTime appointmentAt);
+
+    Optional<Appointment> findByIdAndPatientId(Long id, Long patientId);
+
+    @Query("SELECT a FROM Appointment a JOIN FETCH a.doctor d JOIN FETCH d.userData JOIN FETCH a.hospital WHERE a.patient.id = :patientId ORDER BY a.appointmentAt DESC")
+    List<Appointment> findByPatientIdWithDetails(@Param("patientId") Long patientId);
+
+
+    List<Appointment> findByDoctorIdAndStatus(Long doctorId, AppointmentStatus status);
+
+    List<Appointment> findByHospitalIdAndDoctorDepartmentAndStatus(Long hospitalId, Department department, AppointmentStatus status);
 }
 

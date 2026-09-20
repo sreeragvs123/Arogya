@@ -16,6 +16,8 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
     Optional<Hospital> findById(Long id);
 
+    Optional<Long> findIdByUserData_Username(String username);
+
     @Query("Select id from Hospital h where h.userData.id = : id")
     Long findByUserId(@Param("userId") Long id);
 

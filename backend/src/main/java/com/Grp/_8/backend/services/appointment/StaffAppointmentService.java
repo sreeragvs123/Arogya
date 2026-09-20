@@ -1,22 +1,27 @@
 package com.Grp._8.backend.services.appointment;
 
 import com.Grp._8.backend.dto.appointment.AppointmentRejectDto;
-import com.Grp._8.backend.dto.appointment.AppointmentRequestDto;
 import com.Grp._8.backend.dto.appointment.AppointmentResponseDto;
 import com.Grp._8.backend.entities.appointment.Appointment;
 import com.Grp._8.backend.entities.enums.AppointmentStatus;
-import com.Grp._8.backend.entities.users.Doctor;
-import com.Grp._8.backend.entities.users.Patient;
+import com.Grp._8.backend.entities.users.Staff;
+import com.Grp._8.backend.entities.users.UserPrincipal;
+import com.Grp._8.backend.exceptions.AppointmentNotFoundException;
+import com.Grp._8.backend.exceptions.StaffNotFoundException;
 import com.Grp._8.backend.repositories.appointment.AppointmentRepository;
 import com.Grp._8.backend.repositories.users.DoctorRepository;
 import com.Grp._8.backend.repositories.users.PatientRepository;
+import com.Grp._8.backend.repositories.users.StaffRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -24,134 +29,103 @@ public class StaffAppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
+    private final StaffRepository staffRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
 
 
-    @Transactional
-    public AppointmentResponseDto createAppointment(Long patientId, AppointmentRequestDto dto) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
-        Doctor doctor = doctorRepository.findById(dto.getDoctorId())
-                .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
+    @Transactional(readOnly = true)
+    public List<AppointmentResponseDto> getPendingAppointmentsForDepartment() {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long staffId = principal.getProfileId();
 
-        Appointment appointment = new Appointment();
-        appointment.setPatient(patient);
-        appointment.setDoctor(doctor);
-        appointment.setAppointmentAt(dto.getAppointmentAt());
-        appointment.setConsultationType(dto.getConsultationType());
-        appointment.setStatus(AppointmentStatus.PENDING);
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new StaffNotFoundException("Staff not found"));
 
-        Appointment savedAppointment =  appointmentRepository.save(appointment);
-
-        AppointmentResponseDto responseDto = AppointmentResponseDto.builder()
-                .appointmentAt(appointment.getAppointmentAt())
-                .id(savedAppointment.getId())
-                .consultationType(savedAppointment.getConsultationType())
-                .status(savedAppointment.getStatus())
-                .patientName(patient.getUserData().getName())
-                .doctorName(doctor.getUserData().getName())
-                .doctorId(doctor.getId())
-                .patientId(patient.getId())
-                .build();
-        return responseDto;
+        return appointmentRepository.findByHospitalIdAndDoctorDepartmentAndStatus(
+                        staff.getHospital().getId(), staff.getDepartment(), AppointmentStatus.PENDING)
+                .stream()
+                .map(appointment -> AppointmentResponseDto.builder()
+                        .id(appointment.getId())
+                        .appointmentAt(appointment.getAppointmentAt())
+                        .consultationType(appointment.getConsultationType())
+                        .status(appointment.getStatus())
+                        .doctorId(appointment.getDoctor().getId())
+                        .doctorName(appointment.getDoctor().getUserData().getName())
+                        .patientName(appointment.getPatient().getUserData().getName())
+                        .build())
+                .toList();
     }
 
-
     @Transactional
-    public AppointmentResponseDto acceptAppointment(Long appointmentId, Long actingHospitalId) {
-        Appointment appointment = getPendingOwnedByHospital(appointmentId, actingHospitalId);
-        appointment.setStatus(AppointmentStatus.CONFIRMED);
+    public AppointmentResponseDto acceptAppointment(Long appointmentId, Long hospitalId) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Staff staff = staffRepository.findById(principal.getProfileId())
+                .orElseThrow(() -> new StaffNotFoundException("Staff not found"));
 
-        Appointment savedAppointment =  appointmentRepository.save(appointment);
+        if (!staff.getHospital().getId().equals(hospitalId)) {
+            throw new IllegalArgumentException("Hospital mismatch — please refresh and try again");
+        }
 
-        AppointmentResponseDto responseDto = AppointmentResponseDto.builder()
-                .appointmentAt(appointment.getAppointmentAt())
-                .id(savedAppointment.getId())
-                .consultationType(savedAppointment.getConsultationType())
-                .status(savedAppointment.getStatus())
-                .build();
-        return responseDto;
-    }
-
-
-    @Transactional
-    public AppointmentResponseDto rejectAppointment(Long appointmentId, Long actingHospitalId, AppointmentRejectDto dto) {
-        Appointment appointment = getPendingOwnedByHospital(appointmentId, actingHospitalId);
-        appointment.setStatus(AppointmentStatus.REJECTED);
-        appointment.setRejectionReason(dto != null ? dto.getReason() : null);
-        Appointment savedAppointment =  appointmentRepository.save(appointment);
-
-        AppointmentResponseDto responseDto = AppointmentResponseDto.builder()
-                .appointmentAt(appointment.getAppointmentAt())
-                .id(savedAppointment.getId())
-                .consultationType(savedAppointment.getConsultationType())
-                .status(savedAppointment.getStatus())
-                .build();
-        return responseDto;
-    }
-
-    private Appointment getPendingOwnedByHospital(Long appointmentId, Long actingHospitalId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Appointment not found"));
+                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
 
-        if (!appointment.getDoctor().getHospital().getId().equals(actingHospitalId)) {
-            throw new SecurityException("This appointment does not belong to your hospital");
+        if (!appointment.getHospital().getId().equals(staff.getHospital().getId())
+                || appointment.getDoctor().getDepartment() != staff.getDepartment()) {
+            throw new AccessDeniedException("This appointment is not in your department");
         }
         if (appointment.getStatus() != AppointmentStatus.PENDING) {
-            throw new IllegalStateException("Appointment already " + appointment.getStatus());
+            throw new IllegalStateException("Only pending appointments can be accepted");
         }
-        return appointment;
-    }
 
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        Appointment saved = appointmentRepository.save(appointment);
 
-    public List<AppointmentResponseDto> getDoctorAppointments(Long doctorId, AppointmentStatus status) {
-        AppointmentStatus effective = status != null ? status : AppointmentStatus.CONFIRMED;
-
-        List<AppointmentResponseDto> appointmentResponses =  appointmentRepository.findByDoctor_IdAndStatus(doctorId, effective)
-                .stream().map((appointment)->  AppointmentResponseDto.builder()
-                        .appointmentAt(appointment.getAppointmentAt())
-                        .id(appointment.getId())
-                        .consultationType(appointment.getConsultationType())
-                        .status(appointment.getStatus())
-                        .build()).collect(Collectors.toList());
-
-        return appointmentResponses;
-    }
-
-
-    public List<AppointmentResponseDto> getPatientAppointments(Long patientId) {
-        return appointmentRepository.findByPatient_IdOrderByAppointmentAtDesc(patientId)
-                .stream().map((appointment)->  AppointmentResponseDto.builder()
-                        .appointmentAt(appointment.getAppointmentAt())
-                        .id(appointment.getId())
-                        .consultationType(appointment.getConsultationType())
-                        .status(appointment.getStatus())
-                        .build()).collect(Collectors.toList());
+        return AppointmentResponseDto.builder()
+                .id(saved.getId())
+                .appointmentAt(saved.getAppointmentAt())
+                .consultationType(saved.getConsultationType())
+                .status(saved.getStatus())
+                .build();
     }
 
 
     @Transactional
-    public boolean unlockPatientPortal(Long doctorId, Long appointmentId, String rawPassword) {
+    public AppointmentResponseDto rejectAppointment(Long appointmentId, Long hospitalId, AppointmentRejectDto dto) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Staff staff = staffRepository.findById(principal.getProfileId())
+                .orElseThrow(() -> new StaffNotFoundException("Staff not found"));
+
+        if (!staff.getHospital().getId().equals(hospitalId)) {
+            throw new IllegalArgumentException("Hospital mismatch — please refresh and try again");
+        }
+
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Appointment not found"));
+                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
 
-        if (!appointment.getDoctor().getId().equals(doctorId)) {
-            throw new SecurityException("This appointment is not assigned to you");
+        if (!appointment.getHospital().getId().equals(staff.getHospital().getId())
+                || appointment.getDoctor().getDepartment() != staff.getDepartment()) {
+            throw new AccessDeniedException("This appointment is not in your department");
         }
-        if (appointment.getStatus() != AppointmentStatus.CONFIRMED
-                && appointment.getStatus() != AppointmentStatus.IN_PROGRESS) {
-            throw new IllegalStateException("Appointment is not confirmed yet");
+        if (appointment.getStatus() != AppointmentStatus.PENDING) {
+            throw new IllegalStateException("Only pending appointments can be rejected");
         }
 
-        Patient patient = appointment.getPatient();
-        boolean matches = passwordEncoder.matches(rawPassword, patient.getUserData().getPassword()); // adjust getter name
-
-        if (matches) {
-            appointment.setPatientPortalUnlocked(true);
-            appointment.setStatus(AppointmentStatus.IN_PROGRESS);
-            appointmentRepository.save(appointment);
+        appointment.setStatus(AppointmentStatus.REJECTED);
+        if (dto != null) {
+            appointment.setRejectionReason(dto.getReason());
         }
-        return matches;
+        Appointment saved = appointmentRepository.save(appointment);
+
+        return AppointmentResponseDto.builder()
+                .id(saved.getId())
+                .appointmentAt(saved.getAppointmentAt())
+                .consultationType(saved.getConsultationType())
+                .status(saved.getStatus())
+                .rejectionReason(saved.getRejectionReason())
+                .build();
     }
+
+
 }

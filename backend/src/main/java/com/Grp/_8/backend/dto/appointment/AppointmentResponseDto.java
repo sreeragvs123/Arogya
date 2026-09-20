@@ -18,6 +18,7 @@ public class AppointmentResponseDto {
 
     private Long id;
     private Long doctorId;
+    private Long hospitalId;
     private String doctorName;
     private Long patientId;
     private String patientName;

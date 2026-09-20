@@ -43,7 +43,7 @@ public class Staff {
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     private Users userData;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Hospital hospital;
 

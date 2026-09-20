@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface PatientRepository extends JpaRepository<Patient, Long> {
     Optional<Patient> findByUserData_Id(Long userId);
 
+    Optional<Long> findIdByUserData_Username(String username);
+
     @Query("SELECT p FROM Patient p JOIN FETCH p.userData WHERE p.id = :patientId")
     Optional<Patient> findByIdWithUser(@Param("patientId") Long patientId);
 }
