@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:frontend/common/paginated_result.dart';
 import 'package:frontend/core/error/failures.dart';
 import 'package:frontend/data/resources/hospital_dashboard/hospital_dashboard_remote_datasource.dart';
+import 'package:frontend/domain/entities/hosptial_dashboard/doctor_detail_entity.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/doctor_staff_section.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/doctor_summary_entity.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/hospital_metrics_entity.dart';
@@ -123,6 +124,25 @@ class HospitalDashboardRepositoryImpl implements HospitalDashboardRepository {
         e.response?.data is Map ? (e.response?.data['message'] as String?) : null;
     return ServerFailure(backendMessage ?? 'Something went wrong. Please try again.');
   }
+
+  @override
+Future<Either<Failure, DoctorDetailEntity>> getDoctorDetail({
+  
+  required int hospitalId,
+  required int doctorId,
+}) async {
+  try {
+    final result = await remoteDataSource.getDoctorDetail(
+      hospitalId: hospitalId,
+      doctorId: doctorId,
+    );
+    return Right(result);
+  } on DioException catch (e) {
+    return Left(_mapDioError(e));
+  } catch (e) {
+    return Left(ServerFailure(e.toString()));
+  }
+}
 
 
   @override

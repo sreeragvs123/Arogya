@@ -8,14 +8,14 @@ sealed class DashboardEvent extends Equatable {
 }
 
 class DashboardStarted extends DashboardEvent {
-  const DashboardStarted();
+  final int doctorid;
+  const DashboardStarted({required this.doctorid});
 }
 
 class DashboardRefreshRequested extends DashboardEvent {
-  const DashboardRefreshRequested();
+  final int doctorid;
+  const DashboardRefreshRequested({required this.doctorid});
 }
-
-
 
 /// Fired when the doctor taps "Start Visit" or "Join Call" on a consultation.
 class DashboardConsultationActionPressed extends DashboardEvent {

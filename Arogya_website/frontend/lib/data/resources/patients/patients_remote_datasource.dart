@@ -2,9 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:frontend/common/paginated_result_model.dart';
 import 'package:frontend/core/network/api_routes.dart';
 import 'package:frontend/data/models/patients/patient_summary_model.dart';
+import 'package:frontend/domain/usecases/patients/get_patients_directory_summary_usecase.dart';
 
 abstract class PatientsRemoteDataSource {
-  Future<PatientsDirectorySummaryModel> getDirectorySummary();
+  Future<PatientsDirectorySummaryModel> getDirectorySummary(DoctorHospitalParam param);
 
   Future<PatientSummaryModel?> getActivePatient();
 
@@ -33,8 +34,10 @@ class PatientsRemoteDataSourceImpl implements PatientsRemoteDataSource {
   }
 
   @override
-  Future<PatientsDirectorySummaryModel> getDirectorySummary() async {
-    final response = await dio.get(ApiRoutes.doctorPatientsSummary);
+  Future<PatientsDirectorySummaryModel> getDirectorySummary(DoctorHospitalParam param) async {
+    int doctorId = param.doctorId;
+    int hospitalId = param.hospitalId;
+    final response = await dio.get(ApiRoutes.doctorPatientsSummary(doctorId,hospitalId));
     return PatientsDirectorySummaryModel.fromJson(_unwrap(response.data) as Map<String, dynamic>);
   }
 

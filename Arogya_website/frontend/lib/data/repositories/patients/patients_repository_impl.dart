@@ -5,15 +5,16 @@ import 'package:frontend/core/error/failures.dart';
 import 'package:frontend/data/resources/patients/patients_remote_datasource.dart';
 import 'package:frontend/domain/entities/patients/patient_summary_entity.dart';
 import 'package:frontend/domain/repositories/patients/patients_repository.dart';
+import 'package:frontend/domain/usecases/patients/get_patients_directory_summary_usecase.dart';
 
 class PatientsRepositoryImpl implements PatientsRepository {
   final PatientsRemoteDataSource remoteDataSource;
   const PatientsRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, PatientsDirectorySummaryEntity>> getDirectorySummary() async {
+  Future<Either<Failure, PatientsDirectorySummaryEntity>> getDirectorySummary(DoctorHospitalParam param) async {
     try {
-      final result = await remoteDataSource.getDirectorySummary();
+      final result = await remoteDataSource.getDirectorySummary(param);
       return Right(result);
     } on DioException catch (e) {
       return Left(_mapDioError(e));

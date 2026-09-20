@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/common/paginated_result_model.dart';
 import 'package:frontend/core/network/api_routes.dart';
+import 'package:frontend/data/models/hospital_dashboard/doctor_detail_model.dart';
 import 'package:frontend/data/models/hospital_dashboard/doctor_summary_model.dart';
 import 'package:frontend/data/models/hospital_dashboard/hospital_metrics_model.dart';
 
@@ -18,6 +19,11 @@ abstract class HospitalDashboardRemoteDataSource {
     required int page,
     required int size,
   });
+
+  Future<DoctorDetailModel> getDoctorDetail({
+  required int hospitalId,
+  required int doctorId,
+});
 
   Future<PaginatedResultModel<DoctorSummaryModel>> searchDoctorsByQuery({
     required int hospitalId,
@@ -46,10 +52,7 @@ class HospitalDashboardRemoteDataSourceImpl
   final Dio dio;
   HospitalDashboardRemoteDataSourceImpl({required this.dio});
 
-  /// Unwraps the backend's ApiResponse<T> envelope: { timestamp, data, error }.
-  /// Throws if the envelope carries an error payload (defensive — DioException
-  /// from a non-2xx status is the primary error path, this covers edge cases
-  /// where GlobalResponseHandler still returns 200 with an error body).
+
   Map<String, dynamic> _unwrap(dynamic responseData) {
     final envelope = responseData as Map<String, dynamic>;
     if (envelope['error'] != null) {
@@ -58,6 +61,17 @@ class HospitalDashboardRemoteDataSourceImpl
     }
     return envelope['data'] as Map<String, dynamic>;
   }
+
+  @override
+Future<DoctorDetailModel> getDoctorDetail({
+  required int hospitalId,
+  required int doctorId,
+}) async {
+  final response = await dio.get(
+    ApiRoutes.hospitalDoctorDetail(hospitalId, doctorId),
+  );
+  return DoctorDetailModel.fromJson(_unwrap(response.data));
+}
 
   @override
   Future<PaginatedResultModel<DoctorSummaryModel>> getDoctorsBySection({

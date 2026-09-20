@@ -36,7 +36,7 @@ class _ProvisionDoctorSheetState extends State<ProvisionDoctorSheet> {
   bool _isSaving = false;
 
   // Selectable Clinical Options
-  String _department = 'GENERAL_PHYSICIAN';
+  String _department = 'GENERAL PHYSICIAN';
   String _rank = 'HOD';
   late String _pin;
   bool _isCopied = false;
@@ -47,14 +47,14 @@ class _ProvisionDoctorSheetState extends State<ProvisionDoctorSheet> {
   bool _dischargeSignoff = false;
 
   final List<Map<String, String>> _departmentOptions = [
-    {'value': 'GENERAL_PHYSICIAN', 'label': 'General Physician'},
+    {'value': 'GENERAL PHYSICIAN', 'label': 'General Physician'},
     {'value': 'PEDIATRICIAN', 'label': 'Pediatrician'},
     {
       'value': 'GYNECOLOGIST_OBSTETRICIAN',
       'label': 'Gynecologist / Obstetrician (OB-GYN)',
     },
-    {'value': 'GENERAL_SURGEON', 'label': 'General Surgeon'},
-    {'value': 'ORTHOPEDIC_SURGEON', 'label': 'Orthopedic Surgeon'},
+    {'value': 'GENERAL SURGEON', 'label': 'General Surgeon'},
+    {'value': 'ORTHOPEDIC SURGEON', 'label': 'Orthopedic Surgeon'},
     {'value': 'CARDIOLOGIST', 'label': 'Cardiologist'},
     {'value': 'NEUROLOGIST', 'label': 'Neurologist'},
     {'value': 'GASTROENTEROLOGIST', 'label': 'Gastroenterologist'},
@@ -66,24 +66,24 @@ class _ProvisionDoctorSheetState extends State<ProvisionDoctorSheet> {
     {'value': 'ANESTHESIOLOGIST', 'label': 'Anesthesiologist'},
     {'value': 'PATHOLOGIST', 'label': 'Pathologist'},
     {
-      'value': 'EMERGENCY_MEDICINE_PHYSICIAN',
+      'value': 'EMERGENCY MEDICINE PHYSICIAN',
       'label': 'Emergency Medicine Physician',
     },
     {'value': 'DERMATOLOGIST', 'label': 'Dermatologist'},
     {'value': 'PSYCHIATRIST', 'label': 'Psychiatrist'},
-    {'value': 'ENT_SURGEON', 'label': 'ENT Surgeon'},
+    {'value': 'ENT SURGEON', 'label': 'ENT Surgeon'},
     {'value': 'UROLOGIST', 'label': 'Urologist'},
     {'value': 'OPHTHALMOLOGIST', 'label': 'Ophthalmologist'},
   ];
 
-  final List<Map<String, String>> _designationOptions = [
+  final List<Map<String, String>>  _designationOptions = [
     {'value': 'HOD', 'label': 'Head of Department (HOD)'},
-    {'value': 'SENIOR_CONSULTANT', 'label': 'Senior Consultant'},
+    {'value': 'SENIOR CONSULTANT', 'label': 'Senior Consultant'},
     {'value': 'CONSULTANT', 'label': 'Consultant'},
-    {'value': 'ATTENDING_PHYSICIAN', 'label': 'Attending Physician'},
-    {'value': 'RESIDENT_DOCTOR', 'label': 'Resident Doctor'},
-    {'value': 'CLINICAL_FELLOW', 'label': 'Clinical Fellow'},
-    {'value': 'JUNIOR_DOCTOR', 'label': 'Junior Doctor'},
+    {'value': 'ATTENDING PHYSICIAN', 'label': 'Attending Physician'},
+    {'value': 'RESIDENT DOCTOR', 'label': 'Resident Doctor'},
+    {'value': 'CLINICAL FELLOW', 'label': 'Clinical Fellow'},
+    {'value': 'JUNIOR DOCTOR', 'label': 'Junior Doctor'},
     {'value': 'INTERN', 'label': 'Intern'},
   ];
   @override

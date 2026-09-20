@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/presentation/patients/pages/patients_page.dart';
-import '../../presentation/qr_sync/pages/patient_qr_sync_page.dart';
+import 'package:frontend/presentation/doctor_patients/pages/patients_page.dart';
+import '../../presentation/doctor_qr_sync/pages/patient_qr_sync_page.dart';
 import '../../presentation/doctor_dashboard/pages/doctor_page.dart';
 import '../../presentation/auth/pages/auth_page.dart';
-import '../../presentation/patient_detail/pages/patient_detail_page.dart';
+import '../../presentation/doctor_patient_detail/pages/patient_detail_page.dart';
 
 class AppRoutes {
   // AppRoutes._();
@@ -35,12 +35,6 @@ class AppRouter {
           settings: settings,
         );
 
-      case AppRoutes.dashboard:
-        return MaterialPageRoute(
-          builder: (_) => const DoctorDashBoardPage(),
-          settings: settings,
-        );
-
       case AppRoutes.scanPatientQr:
         return MaterialPageRoute(
           builder: (_) => const PatientQrSyncPage(),
@@ -68,15 +62,11 @@ class AppRouter {
         );
 
       default:
-        return MaterialPageRoute(
-          builder: (_) => const PatientQrSyncPage(),
-        );
+        return MaterialPageRoute(builder: (_) => const PatientQrSyncPage());
     }
   }
 }
 
-/// Temporary stand-in so navigation never dead-ends while other pages
-/// are still being built.
 class _NotImplementedPage extends StatelessWidget {
   final String routeName;
   const _NotImplementedPage({required this.routeName});

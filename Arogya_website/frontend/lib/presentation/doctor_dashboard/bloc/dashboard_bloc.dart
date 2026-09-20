@@ -34,49 +34,49 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     on<DashboardConsultationActionPressed>(_onConsultationActionPressed);
   }
 
-  Future<void> _onStarted(DashboardStarted event, Emitter<DashboardState> emit) async {
-    await _loadAll(emit);
+  Future<void> _onStarted(
+    DashboardStarted event,
+    Emitter<DashboardState> emit,
+  ) async {
+    int doctorId = event.doctorid;
+    await _loadAll(doctorId, emit);
   }
 
   Future<void> _onRefreshRequested(
     DashboardRefreshRequested event,
     Emitter<DashboardState> emit,
   ) async {
-    await _loadAll(emit);
+    int doctorId = event.doctorid;
+    await _loadAll(doctorId, emit);
   }
 
-  Future<void> _loadAll(Emitter<DashboardState> emit) async {
+  Future<void> _loadAll(int doctorId, Emitter<DashboardState> emit) async {
     emit(state.copyWith(status: DashboardStatus.loading, errorMessage: null));
+    print("Loading State is emitted and call is ready to go out");
 
-    final summaryResult = await getDashboardSummaryUsecase.call(params: NoParams());
-    final consultationsResult = await getUpcomingConsultationsUsecase.call(params: NoParams());
-    final activityResult = await getRecentActivityUsecase.call(params: const GetRecentActivityParams());
+    DoctorIdParam param = DoctorIdParam(doctorId: doctorId);
+
+    final summaryResult = await getDashboardSummaryUsecase.call(params: param);
+    print("Got back the result $summaryResult");
 
     DashboardSummaryEntity? summary;
-    List<ConsultationEntity> consultations = const [];
-    List<ActivityEntity> activities = const [];
     String? error;
 
     summaryResult.fold(
       (failure) => error = failure.message,
       (value) => summary = value,
     );
-    consultationsResult.fold(
-      (failure) => error ??= failure.message,
-      (value) => consultations = value,
-    );
-    activityResult.fold(
-      (failure) => error ??= failure.message,
-      (value) => activities = value,
-    );
 
-    emit(state.copyWith(
-      status: error == null ? DashboardStatus.success : DashboardStatus.failure,
-      summary: summary,
-      consultations: consultations,
-      activities: activities,
-      errorMessage: error,
-    ));
+    print("ready to emit data");
+    emit(
+      state.copyWith(
+        status: error == null
+            ? DashboardStatus.success
+            : DashboardStatus.failure,
+        summary: summary,
+        errorMessage: error,
+      ),
+    );
   }
 
   Future<void> _onConsultationActionPressed(
@@ -99,31 +99,37 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
     result.fold(
       (failure) {
-        emit(state.copyWith(
-          clearActionInProgress: true,
-          actionResult: ConsultationActionResult(
-            actionToken: _actionToken,
-            consultation: consultation,
-            succeeded: false,
-            errorMessage: failure.message,
+        emit(
+          state.copyWith(
+            clearActionInProgress: true,
+            actionResult: ConsultationActionResult(
+              actionToken: _actionToken,
+              consultation: consultation,
+              succeeded: false,
+              errorMessage: failure.message,
+            ),
           ),
-        ));
+        );
       },
       (_) {
         final updatedConsultations = state.consultations
-            .map((c) => c.id == consultation.id
-                ? c.copyWith(status: ConsultationLifecycleStatus.inProgress)
-                : c)
+            .map(
+              (c) => c.id == consultation.id
+                  ? c.copyWith(status: ConsultationLifecycleStatus.inProgress)
+                  : c,
+            )
             .toList();
-        emit(state.copyWith(
-          clearActionInProgress: true,
-          consultations: updatedConsultations,
-          actionResult: ConsultationActionResult(
-            actionToken: _actionToken,
-            consultation: consultation,
-            succeeded: true,
+        emit(
+          state.copyWith(
+            clearActionInProgress: true,
+            consultations: updatedConsultations,
+            actionResult: ConsultationActionResult(
+              actionToken: _actionToken,
+              consultation: consultation,
+              succeeded: true,
+            ),
           ),
-        ));
+        );
       },
     );
   }

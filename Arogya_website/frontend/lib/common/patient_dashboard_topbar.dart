@@ -31,31 +31,14 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          Expanded(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: TextField(
-                onChanged: onSearchChanged,
-                decoration: InputDecoration(
-                  hintText: 'Search patients, records, or symptoms...',
-                  hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.textMuted, size: 20),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-            ),
-          ),
           const Spacer(),
           IconButton(
-            onPressed: onHelpTap, // TODO: open help/support flow
+            onPressed: onHelpTap, 
             icon: const Icon(Icons.help_outline_rounded, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 8),
           InkWell(
-            onTap: onProfileTap, // TODO: open profile menu
+            onTap: onProfileTap, 
             borderRadius: BorderRadius.circular(12),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

@@ -13,14 +13,12 @@ class PatientsHeaderSection extends StatelessWidget {
   final int totalPatients;
   final String totalPatientsGrowth;
   final int newThisMonth;
-  final int followUpsPending;
 
   const PatientsHeaderSection({
     super.key,
     required this.totalPatients,
     required this.totalPatientsGrowth,
     required this.newThisMonth,
-    required this.followUpsPending,
   });
 
   @override
@@ -82,7 +80,6 @@ class PatientsHeaderSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            _FollowUpsCard(count: followUpsPending),
           ],
         ),
       ],
@@ -146,43 +143,6 @@ class _StatCard extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FollowUpsCard extends StatelessWidget {
-  final int count;
-  const _FollowUpsCard({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.event_repeat_rounded, color: Colors.white, size: 20),
-          const SizedBox(height: 14),
-          Text(
-            '$count',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 2),
-          const Text(
-            'Follow-ups Pending',
-            style: TextStyle(fontSize: 12.5, color: Colors.white70),
           ),
         ],
       ),

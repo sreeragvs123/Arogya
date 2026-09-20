@@ -5,7 +5,7 @@ import 'package:frontend/data/models/doctor_dashboard/consultation_model.dart';
 import 'package:frontend/data/models/doctor_dashboard/dashboard_summary_model.dart';
 
 abstract class DoctorDashboardRemoteDataSource {
-  Future<DashboardSummaryModel> getDashboardSummary();
+  Future<DashboardSummaryModel> getDashboardSummary(int doctorId);
 
   Future<List<ConsultationModel>> getUpcomingConsultations();
 
@@ -20,21 +20,16 @@ class DoctorDashboardRemoteDataSourceImpl implements DoctorDashboardRemoteDataSo
   final Dio dio;
   DoctorDashboardRemoteDataSourceImpl({required this.dio});
 
-  /// Unwraps the backend's ApiResponse<T> envelope: { timestamp, data, error }.
-  dynamic _unwrap(dynamic responseData) {
-    final envelope = responseData as Map<String, dynamic>;
-    if (envelope['error'] != null) {
-      final error = envelope['error'] as Map<String, dynamic>;
-      throw Exception(error['message'] as String? ?? 'Request failed');
-    }
-    return envelope['data'];
-  }
+
 
   @override
-  Future<DashboardSummaryModel> getDashboardSummary() async {
-    final response = await dio.get(ApiRoutes.doctorDashboardSummary);
+  Future<DashboardSummaryModel> getDashboardSummary(int id) async {
+    
+    final response = await dio.get(ApiRoutes.doctorDashboardSummary(id));
     return DashboardSummaryModel.fromJson(_unwrap(response.data) as Map<String, dynamic>);
   }
+
+  
 
   @override
   Future<List<ConsultationModel>> getUpcomingConsultations() async {
@@ -64,4 +59,20 @@ class DoctorDashboardRemoteDataSourceImpl implements DoctorDashboardRemoteDataSo
     final response = await dio.post(ApiRoutes.consultationJoinCall(consultationId));
     _unwrap(response.data);
   }
+
+
+
+
+
+
+
+    dynamic _unwrap(dynamic responseData) {
+    final envelope = responseData as Map<String, dynamic>;
+    if (envelope['error'] != null) {
+      final error = envelope['error'] as Map<String, dynamic>;
+      throw Exception(error['message'] as String? ?? 'Request failed');
+    }
+    return envelope['data'];
+  }
+
 }

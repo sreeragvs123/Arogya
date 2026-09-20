@@ -26,7 +26,6 @@ class PatientsPage extends StatelessWidget {
 
 class _PatientsView extends StatelessWidget {
   const _PatientsView();
-
   void _openPatientDetail(BuildContext context, PatientSummaryEntity patient) {
     Navigator.pushNamed(context, AppRoutes.patientDetail, arguments: patient.id);
   }
@@ -84,18 +83,8 @@ class _PatientsView extends StatelessWidget {
                                 totalPatients: summary?.totalPatients ?? 0,
                                 totalPatientsGrowth: summary?.totalPatientsGrowth ?? '+0%',
                                 newThisMonth: summary?.newThisMonth ?? 0,
-                                followUpsPending: summary?.followUpsPending ?? 0,
                               ),
                               const SizedBox(height: 24),
-                              PatientFilterBar(
-                                initialQuery: state.searchQuery,
-                                sortBy: state.sortBy,
-                                condition: state.condition,
-                                onSearchChanged: (q) => bloc.add(PatientsSearchChanged(q)),
-                                onSortChanged: (s) => bloc.add(PatientsSortChanged(s)),
-                                onConditionChanged: (c) => bloc.add(PatientsConditionChanged(c)),
-                                onApplyFilters: () => bloc.add(const PatientsApplyFiltersPressed()),
-                              ),
                               const SizedBox(height: 20),
                               if (state.activePatient != null) ...[
                                 ActivePatientCard(

@@ -40,7 +40,6 @@ public class PrescriptionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(prescription);
     }
 
-
     @PatchMapping("/{id}/vitals")
     public ResponseEntity<VitalsResponseDto> updateVitals(@PathVariable Long id, @RequestBody VitalsUpdateRequestDto request) {
         VitalsResponseDto vitalsResponseDto = prescriptionService.updateVitals(id, request);
@@ -73,4 +72,5 @@ public class PrescriptionController {
     public ResponseEntity<SymptomsResponseDto> removeSymptom(@PathVariable Long id, @PathVariable String symptom) {
         return ResponseEntity.ok(observationsService.removeSymptom(id, symptom));
     }
+
 }

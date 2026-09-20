@@ -2,9 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:frontend/common/paginated_result.dart';
 import 'package:frontend/core/error/failures.dart';
 import 'package:frontend/domain/entities/patients/patient_summary_entity.dart';
+import 'package:frontend/domain/usecases/patients/get_patients_directory_summary_usecase.dart';
 
 abstract class PatientsRepository {
-  Future<Either<Failure, PatientsDirectorySummaryEntity>> getDirectorySummary();
+  Future<Either<Failure, PatientsDirectorySummaryEntity>> getDirectorySummary(DoctorHospitalParam param);
+
 
   /// The patient currently in an active session with this doctor, if any.
   Future<Either<Failure, PatientSummaryEntity?>> getActivePatient();

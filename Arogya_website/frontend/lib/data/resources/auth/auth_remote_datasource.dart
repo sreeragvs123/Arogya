@@ -3,6 +3,7 @@ import 'package:frontend/core/network/api_routes.dart';
 import 'package:frontend/data/models/auth/doctor_sigin_in_response_model.dart';
 import 'package:frontend/data/models/auth/hospital_model.dart';
 import 'package:frontend/data/models/auth/hospital_sign_in_response_model.dart';
+import 'package:frontend/data/models/auth/staff_signin_response_model.dart';
 import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/domain/usecases/auth/hosptial_create_usecase.dart';
 
@@ -18,9 +19,14 @@ abstract class AuthRemoteDataSource {
     required String password,
   });
   Future<HospitalModel> createHospital({required HospitalCreateParams params});
+
+    Future<StaffSignInResponseModel> staffSignIn({
+    required int hospitalId,
+    required String department,
+    required String staffIdOrEmail,
+    required String password,
+  });
 }
-
-
 
 
 
@@ -28,6 +34,28 @@ abstract class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final Dio dio;
   AuthRemoteDataSourceImpl({required this.dio});
+
+  @override
+Future<StaffSignInResponseModel> staffSignIn({
+  required int hospitalId,
+  required String department,
+  required String staffIdOrEmail,
+  required String password,
+}) async {
+  final response = await dio.post(
+    ApiRoutes.staffSignIn,
+    data: {
+      'hospitalId': hospitalId,
+      'department': department,
+      'username': staffIdOrEmail,
+      'password': password,
+      'role': UserRole.staff,
+    },
+  );
+  return StaffSignInResponseModel.fromJson(
+    response.data['data'] as Map<String, dynamic>,
+  );
+}
 
 
 

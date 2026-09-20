@@ -5,10 +5,7 @@ import '../pages/auth_page.dart';
 class AuthHeroPanel extends StatelessWidget {
   final AuthTab type;
 
-  const AuthHeroPanel({
-    super.key,
-    required this.type,
-  });
+  const AuthHeroPanel({super.key, required this.type});
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +25,7 @@ class AuthHeroPanel extends StatelessWidget {
           description:
               'Unifying healthcare networks, real-time hospital '
               'administration, and connected doctor workspaces.',
-          bottomText:
-              'Trusted by 120+ accredited medical centers',
+          bottomText: 'Trusted by 120+ accredited medical centers',
         );
 
       case AuthTab.registerHospital:
@@ -39,9 +35,18 @@ class AuthHeroPanel extends StatelessWidget {
               'Register your hospital or clinic network to digitize '
               'clinical workflows, coordinate multidisciplinary doctor '
               'teams, and connect patient health records securely.',
-          bottomText:
-              'Trusted by 650+ verified medical centers',
+          bottomText: 'Trusted by 650+ verified medical centers',
           showFeatureList: true,
+        );
+      case AuthTab.staffSignIn:
+        return _HeroContent(
+          title: 'Welcome Back, Care Team.',
+          description:
+              'Sign in to access your assigned patient schedules, '
+              'coordinate with multidisciplinary departments, and '
+              'manage secure clinical notes in real-time.',
+          bottomText: 'HIPAA-compliant & secure staff portal',
+          showFeatureList: false,
         );
     }
   }
@@ -63,25 +68,17 @@ class _HeroContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF00574B),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFF00574B)),
       child: Stack(
         children: [
-
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xCC00574F),
-              ),
+              decoration: BoxDecoration(color: const Color(0xCC00574F)),
             ),
           ),
 
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 40,
-              vertical: 42,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 42),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -128,10 +125,7 @@ class _HeroContent extends StatelessWidget {
 
                 const Spacer(),
 
-                Container(
-                  height: 1,
-                  color: Colors.white.withOpacity(0.18),
-                ),
+                Container(height: 1, color: Colors.white.withOpacity(0.18)),
 
                 const SizedBox(height: 20),
 
@@ -211,9 +205,7 @@ class _Logo extends StatelessWidget {
 class _Feature extends StatelessWidget {
   final String text;
 
-  const _Feature({
-    required this.text,
-  });
+  const _Feature({required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -227,15 +219,9 @@ class _Feature extends StatelessWidget {
             height: 20,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color(0xFF35B9A8),
-              ),
+              border: Border.all(color: const Color(0xFF35B9A8)),
             ),
-            child: const Icon(
-              Icons.check,
-              size: 13,
-              color: Color(0xFF5FD3C3),
-            ),
+            child: const Icon(Icons.check, size: 13, color: Color(0xFF5FD3C3)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -273,10 +259,7 @@ class _AvatarStack extends StatelessWidget {
                       ? const Color(0xFF0AA58D)
                       : const Color(0xFFD9E8E5),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2,
-                  ),
+                  border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: i == 3
                     ? const Center(

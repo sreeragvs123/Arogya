@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/core/session/session_bloc.dart';
+import 'package:frontend/core/storage/session_storage.dart';
 import 'package:frontend/data/repositories/auth/auth_repository_impl.dart';
 import 'package:frontend/data/repositories/hospital/hospital_repository_impl.dart';
 import 'package:frontend/data/repositories/hospital_dashboard/hospital_dashboard_repository_impl.dart';
@@ -12,9 +14,11 @@ import 'package:frontend/domain/repositories/hospital_dashboard/hospital_dashboa
 import 'package:frontend/domain/usecases/auth/doctor_signin_usecase.dart';
 import 'package:frontend/domain/usecases/auth/hospital_signin_usecase.dart';
 import 'package:frontend/domain/usecases/auth/hosptial_create_usecase.dart';
+import 'package:frontend/domain/usecases/auth/staff_signin_usecase.dart';
 import 'package:frontend/domain/usecases/hospital/search_hospital_usecase.dart';
 import 'package:frontend/domain/usecases/hospital_dashboard/create_doctor_usecase.dart';
 import 'package:frontend/domain/usecases/hospital_dashboard/filter_doctors_by_specialization_usecase.dart';
+import 'package:frontend/domain/usecases/hospital_dashboard/get_doctor_detail_usecase.dart';
 import 'package:frontend/domain/usecases/hospital_dashboard/get_doctors_by_section_usecase.dart';
 import 'package:frontend/domain/usecases/hospital_dashboard/get_hospital_metrics_usecase.dart';
 import 'package:frontend/domain/usecases/hospital_dashboard/get_specializations_usecase.dart';
@@ -36,7 +40,8 @@ import 'package:frontend/domain/usecases/patients/get_patients_directory_summary
 import 'package:frontend/domain/usecases/patients/get_patients_usecase.dart';
 import 'package:frontend/domain/usecases/patients/lookup_patient_usecase.dart';
 import 'package:frontend/presentation/doctor_dashboard/bloc/dashboard_bloc.dart';
-import 'package:frontend/presentation/patients/bloc/patients_bloc.dart';
+import 'package:frontend/presentation/hospital_doctor_detail/bloc/doctor_detail_bloc.dart';
+import 'package:frontend/presentation/doctor_patients/bloc/patients_bloc.dart';
 import 'package:frontend/data/repositories/patient_detail/patient_detail_repository_impl.dart';
 import 'package:frontend/data/resources/patient_detail/patient_detail_remote_datasource.dart';
 import 'package:frontend/domain/repositories/patient_detail/patient_detail_repository.dart';
@@ -48,10 +53,10 @@ import 'package:frontend/domain/usecases/patient_detail/get_vitals_usecase.dart'
 import 'package:frontend/domain/usecases/patient_detail/save_observations_usecase.dart';
 import 'package:frontend/domain/usecases/patient_detail/save_prescription_usecase.dart';
 import 'package:frontend/domain/usecases/patient_detail/update_vitals_usecase.dart';
-import 'package:frontend/presentation/patient_detail/bloc/patient_details_bloc.dart';
-import 'package:frontend/presentation/qr_sync/bloc/qr_bloc.dart';
+import 'package:frontend/presentation/doctor_patient_detail/bloc/patient_details_bloc.dart';
+import 'package:frontend/presentation/doctor_qr_sync/bloc/qr_bloc.dart';
 import 'package:frontend/presentation/hospital_dashboard/bloc/hospital_dashboard_bloc.dart';
-import 'package:frontend/presentation/hospital_search/bloc/hospital_search_bloc.dart';
+import 'package:frontend/common/hospital_search/hospital_search_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
@@ -59,19 +64,25 @@ final sl = GetIt.instance;
 Future<void> initializeDependencies() async {
   //Api
   sl.registerLazySingleton<Dio>(() => ApiClient().dio);
+  sl.registerLazySingleton<SessionStorage>(() => SessionStorage());
+  sl.registerLazySingleton<SessionBloc>(
+    () => SessionBloc(sl<SessionStorage>()),
+  );
+
+
 
 
 
 
   //Auth
-  sl.registerLazySingleton<DoctorSignInUsecase>(
-    () => DoctorSignInUsecase());
+  sl.registerLazySingleton<DoctorSignInUsecase>(() => DoctorSignInUsecase());
   sl.registerLazySingleton<HospitalSignInUsecase>(
     () => HospitalSignInUsecase(),
   );
   sl.registerLazySingleton<HosptialCreateUsecase>(
     () => HosptialCreateUsecase(),
   );
+  sl.registerLazySingleton<StaffSignInUsecase>(() => StaffSignInUsecase());
 
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl<AuthRemoteDataSource>()),
@@ -80,12 +91,16 @@ Future<void> initializeDependencies() async {
     () => AuthRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
-  sl.registerLazySingleton<AuthBloc>(
-    () => AuthBloc(sl<HosptialCreateUsecase>(),sl<HospitalSignInUsecase>(),sl<DoctorSignInUsecase>()),
+  sl.registerFactory<AuthBloc>(
+    () => AuthBloc(
+      sl<HosptialCreateUsecase>(),
+      sl<HospitalSignInUsecase>(),
+      sl<DoctorSignInUsecase>(),
+      sl<SessionStorage>(),
+      sl<SessionBloc>(),
+      sl<StaffSignInUsecase>(),
+    ),
   );
-
-
-
 
 
   // Auth - Hospital search
@@ -106,12 +121,21 @@ Future<void> initializeDependencies() async {
 
 
 
+
+
+
+
+
+
+
   //Hospital Dashboard
   sl.registerLazySingleton<HospitalDashboardRemoteDataSource>(
     () => HospitalDashboardRemoteDataSourceImpl(dio: sl<Dio>()),
   );
   sl.registerLazySingleton<HospitalDashboardRepository>(
-    () => HospitalDashboardRepositoryImpl(remoteDataSource: sl<HospitalDashboardRemoteDataSource>()),
+    () => HospitalDashboardRepositoryImpl(
+      remoteDataSource: sl<HospitalDashboardRemoteDataSource>(),
+    ),
   );
   sl.registerLazySingleton(() => GetDoctorsBySectionUsecase());
   sl.registerLazySingleton(() => SearchDoctorsUsecase());
@@ -128,6 +152,13 @@ Future<void> initializeDependencies() async {
     ),
   );
   sl.registerLazySingleton(() => CreateDoctorUsecase(sl()));
+  sl.registerLazySingleton(() => GetDoctorDetailUsecase());
+  sl.registerFactory(() => DoctorDetailBloc(getDoctorDetailUsecase: sl()));
+
+
+
+
+
 
 
   //Doctor Dashboard
@@ -135,7 +166,9 @@ Future<void> initializeDependencies() async {
     () => DoctorDashboardRemoteDataSourceImpl(dio: sl<Dio>()),
   );
   sl.registerLazySingleton<DoctorDashboardRepository>(
-    () => DoctorDashboardRepositoryImpl(remoteDataSource: sl<DoctorDashboardRemoteDataSource>()),
+    () => DoctorDashboardRepositoryImpl(
+      remoteDataSource: sl<DoctorDashboardRemoteDataSource>(),
+    ),
   );
   sl.registerLazySingleton(() => GetDashboardSummaryUsecase(sl()));
   sl.registerLazySingleton(() => GetUpcomingConsultationsUsecase(sl()));
@@ -152,12 +185,18 @@ Future<void> initializeDependencies() async {
     ),
   );
 
-  //Patients Directory
+
+
+
+
+  //Patients Directory - Doctors side
   sl.registerLazySingleton<PatientsRemoteDataSource>(
     () => PatientsRemoteDataSourceImpl(dio: sl<Dio>()),
   );
   sl.registerLazySingleton<PatientsRepository>(
-    () => PatientsRepositoryImpl(remoteDataSource: sl<PatientsRemoteDataSource>()),
+    () => PatientsRepositoryImpl(
+      remoteDataSource: sl<PatientsRemoteDataSource>(),
+    ),
   );
   sl.registerLazySingleton(() => GetPatientsDirectorySummaryUsecase(sl()));
   sl.registerLazySingleton(() => GetActivePatientUsecase(sl()));
@@ -171,15 +210,17 @@ Future<void> initializeDependencies() async {
     ),
   );
 
-  //Patient QR Sync
+  //Patient QR Sync - Doctor Side
   sl.registerFactory(() => QrBloc(lookupPatientUsecase: sl()));
 
-  //Patient Detail
+  //Patient Detail - Doctor Side
   sl.registerLazySingleton<PatientDetailRemoteDataSource>(
     () => PatientDetailRemoteDataSourceImpl(dio: sl<Dio>()),
   );
   sl.registerLazySingleton<PatientDetailRepository>(
-    () => PatientDetailRepositoryImpl(remoteDataSource: sl<PatientDetailRemoteDataSource>()),
+    () => PatientDetailRepositoryImpl(
+      remoteDataSource: sl<PatientDetailRemoteDataSource>(),
+    ),
   );
   sl.registerLazySingleton(() => GetPatientDetailUsecase(sl()));
   sl.registerLazySingleton(() => GetVitalsUsecase(sl()));

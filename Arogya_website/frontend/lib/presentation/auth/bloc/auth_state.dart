@@ -10,7 +10,7 @@ class AuthState extends Equatable {
 
 
 final class AuthInitial extends AuthState {
-  const AuthInitial():super(AuthTab.doctorSignIn);
+  const AuthInitial():super(AuthTab.staffSignIn);
 }
 
 final class AuthTabChangedState extends AuthState{

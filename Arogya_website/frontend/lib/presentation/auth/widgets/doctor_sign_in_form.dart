@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/utils/service_locator.dart';
+import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/presentation/auth/bloc/auth_bloc.dart';
+import 'package:frontend/presentation/auth/widgets/hospital_search_field.dart';
 import 'package:frontend/presentation/doctor_dashboard/pages/doctor_page.dart';
-import 'package:frontend/presentation/hospital_search/bloc/hospital_search_bloc.dart';
+import 'package:frontend/common/hospital_search/hospital_search_bloc.dart';
 import 'package:frontend/domain/entities/auth/hospital.dart';
-
 
 import 'auth_field.dart';
 
@@ -30,9 +31,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
   bool _rememberMe = false;
   int? _selectedHospitalId;
 
-
-
-    void _handleDoctorSignIn() {
+  void _handleDoctorSignIn() {
     context.read<AuthBloc>().add(
       DoctorSiginInEvent(
         hospitalId: _selectedHospitalId!,
@@ -41,8 +40,6 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
       ),
     );
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +51,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
             Text(
               'Doctor Sign In',
               style: TextStyle(
+
                 fontSize: 31,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF0F172A),
@@ -101,7 +99,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
 
         BlocProvider(
           create: (_) => sl<HospitalSearchBloc>(),
-          child: _HospitalSearchField(
+          child: HospitalSearchField(
             controller: widget.hospitalController,
             onHospitalSelected: (hospital) {
               setState(() {
@@ -136,7 +134,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
             ),
 
             TextButton(
-              onPressed: (){},
+              onPressed: () {},
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -222,7 +220,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
 
         _SubmitButton(
           text: 'Access Clinical Portal',
-          onPressed:()=>_handleDoctorSignIn(),
+          onPressed: () => _handleDoctorSignIn(),
         ),
         const SizedBox(height: 20),
         Center(
@@ -230,7 +228,18 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const DoctorDashBoardPage()),
+                MaterialPageRoute(
+                  builder: (_) => DoctorDashBoardPage(
+                    session: DoctorSession(
+                      accessToken: 'dev-token',
+                      expiresAt: DateTime.now().add(const Duration(hours: 1)),
+                      role: UserRole.doctor,
+                      doctorId: 1,
+                      doctorName: 'Dev Doctor',
+                      hospitalId: 1,
+                    ),
+                  ),
+                ),
               );
             },
             child: Text(
@@ -245,96 +254,6 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
 }
 
 
-class _HospitalSearchField extends StatelessWidget {
-  final TextEditingController controller;
-  final ValueChanged<Hospital> onHospitalSelected;
-
-  const _HospitalSearchField({
-    required this.controller,
-    required this.onHospitalSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextFormField(
-          controller: controller,
-          onChanged: (value) =>
-              context.read<HospitalSearchBloc>().add(HospitalQueryChanged(value)),
-          decoration: InputDecoration(
-            hintText: 'Choose your medical institution...',
-            prefixIcon: const Icon(
-              Icons.business,
-              size: 19,
-              color: Color(0xFF475569),
-            ),
-            suffixIcon: BlocSelector<HospitalSearchBloc, HospitalSearchState, bool>(
-              selector: (state) => state.isLoading,
-              builder: (context, isLoading) => isLoading
-                  ? const Padding(
-                      padding: EdgeInsets.all(14),
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 15,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(7),
-              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(7),
-              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
-            ),
-          ),
-        ),
-        BlocBuilder<HospitalSearchBloc, HospitalSearchState>(
-          builder: (context, state) {
-            if (!state.showResults || state.results.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            return Container(
-              margin: const EdgeInsets.only(top: 4),
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFFCBD5E1)),
-                borderRadius: BorderRadius.circular(7),
-              ),
-              constraints: const BoxConstraints(maxHeight: 200),
-              child: ListView.separated(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                itemCount: state.results.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final hospital = state.results[index];
-                  return ListTile(
-                    dense: true,
-                    title: Text(hospital.name),
-                    onTap: () {
-                      onHospitalSelected(hospital);
-                      context
-                          .read<HospitalSearchBloc>()
-                          .add(HospitalQueryChanged(''));
-                    },
-                  );
-                },
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
 
 class _StatusBadge extends StatelessWidget {
   final String text;

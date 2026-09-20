@@ -7,7 +7,9 @@ class DoctorSignInResponseModel extends DoctorSession{
     required super.accessToken,
     required super.expiresAt,
     required super.role,
-    required super.doctorId
+    required super.doctorId,
+    required super.doctorName,
+    required super.hospitalId
   });
 
   factory DoctorSignInResponseModel.fromJson(Map<String, dynamic> json) {
@@ -16,6 +18,9 @@ class DoctorSignInResponseModel extends DoctorSession{
       expiresAt: DateTime.now().add(const Duration(minutes: 15)),
       role: UserRole.fromJson(json["role"]),
       doctorId: json['doctorId'] as int?,
+      doctorName: json['doctorName'] as String,
+      hospitalId: json['hospitalId'] as int?
+
     );
   }
 }

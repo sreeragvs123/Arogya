@@ -5,6 +5,7 @@ import 'package:frontend/common/hospital_dashboard_sidebar.dart';
 import 'package:frontend/common/hospital_dashboard_topbar.dart';
 import 'package:frontend/core/utils/service_locator.dart';
 import 'package:frontend/domain/entities/auth/auth_session.dart';
+import 'package:frontend/presentation/hospital_doctor_detail/pages/doctor_detail_page.dart';
 import 'package:frontend/presentation/hospital_dashboard/bloc/hospital_dashboard_bloc.dart';
 import 'package:frontend/presentation/hospital_dashboard/widgets/hospital_table_section.dart';
 import '../../../core/routing/app_routes.dart';
@@ -34,7 +35,8 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
   @override
   void initState() {
     super.initState();
-    _bloc = sl<HospitalDashboardBloc>()..add(HospitalDashboardStarted(widget.hospitalId));
+    _bloc = sl<HospitalDashboardBloc>()
+      ..add(HospitalDashboardStarted(widget.hospitalId));
   }
 
   @override
@@ -69,7 +71,9 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Hospital credential issued for $doctorName'),
+                      content: Text(
+                        'Hospital credential issued for $doctorName',
+                      ),
                       backgroundColor: const Color(0xFF0F172A),
                     ),
                   );
@@ -120,35 +124,45 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                     child: BlocBuilder<HospitalDashboardBloc, HospitalDashboardState>(
                       builder: (context, state) {
                         return SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 24,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               HospitalHeaderSection(
-                                onAddDoctorTap: () => _openProvisionDoctorModal(context),
+                                onAddDoctorTap: () =>
+                                    _openProvisionDoctorModal(context),
                                 onImportCsv: () {},
                                 onExportRegister: () {},
                               ),
                               const SizedBox(height: 20),
 
                               HospitalMetricsRow(
-                                affiliatedDoctors: state.metrics?.totalStaff ?? 0,
-                                activeDutyToday: state.metrics?.activeOnDuty ?? 0,
-                                credentialReviewCount: state.metrics?.pendingReviews ?? 0,
-                                clinicalSpecialtiesCount: state.metrics?.specialtyCount ?? 0,
+                                affiliatedDoctors:
+                                    state.metrics?.totalStaff ?? 0,
+                                activeDutyToday:
+                                    state.metrics?.activeOnDuty ?? 0,
+                                credentialReviewCount:
+                                    state.metrics?.pendingReviews ?? 0,
+                                clinicalSpecialtiesCount:
+                                    state.metrics?.specialtyCount ?? 0,
                               ),
                               const SizedBox(height: 24),
 
                               HospitalFilterBar(
                                 searchQuery: state.searchQuery,
-                                onSearchChanged: (val) =>
-                                    _bloc.add(HospitalDashboardSearchChanged(val)),
+                                onSearchChanged: (val) => _bloc.add(
+                                  HospitalDashboardSearchChanged(val),
+                                ),
                                 activeTab: state.activeTab,
                                 onTabChanged: (val) =>
                                     _bloc.add(HospitalDashboardTabChanged(val)),
                                 selectedDepartment: state.selectedDepartment,
-                                onDepartmentChanged: (val) =>
-                                    _bloc.add(HospitalDashboardDepartmentChanged(val)),
+                                onDepartmentChanged: (val) => _bloc.add(
+                                  HospitalDashboardDepartmentChanged(val),
+                                ),
                                 specializations: state.specializations,
                               ),
                               const SizedBox(height: 20),
@@ -168,7 +182,10 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                                   padding: const EdgeInsets.only(bottom: 12),
                                   child: Text(
                                     state.errorMessage!,
-                                    style: const TextStyle(color: Colors.red, fontSize: 12),
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
 
@@ -177,7 +194,9 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                                 onManagePrivileges: (doctor) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Editing privileges for ${doctor.doctorName}'),
+                                      content: Text(
+                                        'Editing privileges for ${doctor.doctorName}',
+                                      ),
                                       duration: const Duration(seconds: 2),
                                     ),
                                   );
@@ -185,8 +204,20 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                                 onResendPin: (doctor) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Resending security PIN to ${doctor.phoneNumber}'),
+                                      content: Text(
+                                        'Resending security PIN to ${doctor.phoneNumber}',
+                                      ),
                                       duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                                onRowTap: (doctor) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => DoctorDetailPage(
+                                        hospitalId: widget.hospitalId,
+                                        doctorId: doctor.doctorId,
+                                      ),
                                     ),
                                   );
                                 },
@@ -194,39 +225,75 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                               const SizedBox(height: 16),
 
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'Page ${state.currentPage + 1} of ${state.totalPages}',
                                     style: const TextStyle(
-                                        fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                                      fontSize: 12,
+                                      color: Color(0xFF64748B),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                   Row(
                                     children: [
                                       OutlinedButton(
                                         onPressed: state.currentPage > 0
                                             ? () => _bloc.add(
-                                                HospitalDashboardPageChanged(state.currentPage - 1))
+                                                HospitalDashboardPageChanged(
+                                                  state.currentPage - 1,
+                                                ),
+                                              )
                                             : null,
                                         style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          side: const BorderSide(color: Color(0xFFCBD5E1)),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                          side: const BorderSide(
+                                            color: Color(0xFFCBD5E1),
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
                                         ),
-                                        child: const Text('Previous', style: TextStyle(fontSize: 12)),
+                                        child: const Text(
+                                          'Previous',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
                                       ),
                                       const SizedBox(width: 8),
                                       OutlinedButton(
-                                        onPressed: state.currentPage + 1 < state.totalPages
+                                        onPressed:
+                                            state.currentPage + 1 <
+                                                state.totalPages
                                             ? () => _bloc.add(
-                                                HospitalDashboardPageChanged(state.currentPage + 1))
+                                                HospitalDashboardPageChanged(
+                                                  state.currentPage + 1,
+                                                ),
+                                              )
                                             : null,
                                         style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          side: const BorderSide(color: Color(0xFFCBD5E1)),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                          side: const BorderSide(
+                                            color: Color(0xFFCBD5E1),
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
                                         ),
-                                        child: const Text('Next', style: TextStyle(fontSize: 12)),
+                                        child: const Text(
+                                          'Next',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
                                       ),
                                     ],
                                   ),

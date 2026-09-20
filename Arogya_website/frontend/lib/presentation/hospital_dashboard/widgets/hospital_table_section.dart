@@ -6,12 +6,14 @@ class HospitalTableSection extends StatelessWidget {
   final List<DoctorSummaryEntity> doctors;
   final ValueChanged<DoctorSummaryEntity> onManagePrivileges;
   final ValueChanged<DoctorSummaryEntity> onResendPin;
+  final ValueChanged<DoctorSummaryEntity> onRowTap; // NEW
 
   const HospitalTableSection({
     super.key,
     required this.doctors,
     required this.onManagePrivileges,
     required this.onResendPin,
+    required this.onRowTap, // NEW
   });
 
   static String _designationLabel(Designation d) {
@@ -65,7 +67,11 @@ class HospitalTableSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: const [
-          BoxShadow(color: Color(0x04000000), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x04000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -79,25 +85,40 @@ class HospitalTableSection extends StatelessWidget {
                   children: [
                     const Text(
                       'Hospital Clinical Staff Register',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0F172A),
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         '${doctors.length} Staff on Roster',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF475569),
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, size: 14, color: Color(0xFF10B981)),
+                    Icon(
+                      Icons.check_circle_rounded,
+                      size: 14,
+                      color: Color(0xFF10B981),
+                    ),
                     SizedBox(width: 4),
                     Text(
                       'Council Verification Synchronized',
@@ -116,34 +137,70 @@ class HospitalTableSection extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 4,
-                  child: Text('HOSPITAL PRACTITIONER',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                  child: Text(
+                    'HOSPITAL PRACTITIONER',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
                 ),
                 Expanded(
                   flex: 3,
-                  child: Text('LICENSE & COUNCIL',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                  child: Text(
+                    'LICENSE & COUNCIL',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
                 ),
                 Expanded(
                   flex: 3,
-                  child: Text('FACILITY & WARD',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                  child: Text(
+                    'FACILITY & WARD',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
                 ),
                 Expanded(
                   flex: 3,
-                  child: Text('STATUS',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                  child: Text(
+                    'STATUS',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
                 ),
                 Expanded(
                   flex: 3,
-                  child: Text('DIRECT CONTACT',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                  child: Text(
+                    'DIRECT CONTACT',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 130,
-                  child: Text('ACTIONS',
-                      textAlign: TextAlign.end,
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                  child: Text(
+                    'ACTIONS',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -153,7 +210,10 @@ class HospitalTableSection extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 32),
               child: Center(
-                child: Text('No staff match the current filters', style: TextStyle(color: Color(0xFF94A3B8))),
+                child: Text(
+                  'No staff match the current filters',
+                  style: TextStyle(color: Color(0xFF94A3B8)),
+                ),
               ),
             )
           else
@@ -161,8 +221,12 @@ class HospitalTableSection extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: doctors.length,
-              separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
-              itemBuilder: (context, index) => _buildDoctorRow(context, doctors[index]),
+              separatorBuilder: (context, index) =>
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+              itemBuilder: (context, index) => InkWell(
+                onTap: () => onRowTap(doctors[index]),
+                child: _buildDoctorRow(context, doctors[index]),
+              ),
             ),
         ],
       ),
@@ -210,7 +274,10 @@ class HospitalTableSection extends StatelessWidget {
                   backgroundColor: const Color(0xFFE0E7FF),
                   child: Text(
                     initial,
-                    style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF3730A3)),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF3730A3),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -220,12 +287,19 @@ class HospitalTableSection extends StatelessWidget {
                     children: [
                       Text(
                         doc.doctorName,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '${_designationLabel(doc.designation)} • ${doc.specialization}',
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF64748B),
+                        ),
                       ),
                     ],
                   ),
@@ -240,7 +314,11 @@ class HospitalTableSection extends StatelessWidget {
               children: [
                 Text(
                   doc.licenseNumber,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF334155),
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -250,8 +328,8 @@ class HospitalTableSection extends StatelessWidget {
                     color: doc.verificationStatus == VerificationStatus.verified
                         ? const Color(0xFF16A34A)
                         : doc.verificationStatus == VerificationStatus.rejected
-                            ? const Color(0xFFDC2626)
-                            : const Color(0xFFD97706),
+                        ? const Color(0xFFDC2626)
+                        : const Color(0xFFD97706),
                   ),
                 ),
               ],
@@ -262,9 +340,21 @@ class HospitalTableSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(doc.hospitalName, style: const TextStyle(fontSize: 12, color: Color(0xFF334155))),
+                Text(
+                  doc.hospitalName,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF334155),
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(doc.wardOrDepartment, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                Text(
+                  doc.wardOrDepartment,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF94A3B8),
+                  ),
+                ),
               ],
             ),
           ),
@@ -274,10 +364,17 @@ class HospitalTableSection extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(
+                  color: badgeBg,
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Text(
                   _statusLabel(doc.status),
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: badgeText),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: badgeText,
+                  ),
                 ),
               ),
             ),
@@ -287,9 +384,21 @@ class HospitalTableSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(doc.email, style: const TextStyle(fontSize: 11, color: Color(0xFF2563EB))),
+                Text(
+                  doc.email,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF2563EB),
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(doc.phoneNumber, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                Text(
+                  doc.phoneNumber,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
               ],
             ),
           ),
@@ -301,16 +410,28 @@ class HospitalTableSection extends StatelessWidget {
                 OutlinedButton(
                   onPressed: () => onManagePrivileges(doc),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     side: const BorderSide(color: Color(0xFFE2E8F0)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: const Text('Privileges', style: TextStyle(fontSize: 11, color: Color(0xFF334155))),
+                  child: const Text(
+                    'Privileges',
+                    style: TextStyle(fontSize: 11, color: Color(0xFF334155)),
+                  ),
                 ),
                 const SizedBox(width: 6),
                 IconButton(
                   onPressed: () => onResendPin(doc),
-                  icon: const Icon(Icons.send_rounded, size: 14, color: Color(0xFF64748B)),
+                  icon: const Icon(
+                    Icons.send_rounded,
+                    size: 14,
+                    color: Color(0xFF64748B),
+                  ),
                   tooltip: 'Resend PIN',
                 ),
               ],

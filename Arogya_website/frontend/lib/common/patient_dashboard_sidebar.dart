@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/session/session_bloc.dart';
+import 'package:frontend/presentation/doctor_dashboard/pages/doctor_page.dart';
 import '../core/routing/app_routes.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
@@ -20,15 +23,8 @@ const List<NavItemData> kPortalNavItems = [
     label: 'Scan Patient QR',
     routeName: AppRoutes.scanPatientQr,
   ),
-  NavItemData(
-    icon: Icons.notifications_none_rounded,
-    label: 'Notifications',
-    routeName: AppRoutes.notifications,
-  ),
 ];
 
-/// Fixed-width sidebar used on every clinician-facing page.
-/// Pass in [currentRoute] so the active item highlights correctly.
 class AppSidebar extends StatelessWidget {
   final String currentRoute;
   final String emergencyNumber;
@@ -41,6 +37,8 @@ class AppSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionBloc>().state.doctorSession;
+
     return Container(
       width: 248,
       color: AppColors.sidebarBackground,
@@ -59,8 +57,29 @@ class AppSidebar extends StatelessWidget {
                         data: item,
                         isSelected: item.routeName == currentRoute,
                         onTap: () {
-                          if (item.routeName == currentRoute) return;
-                            Navigator.pushReplacementNamed(context, item.routeName);
+                          if (item.routeName == currentRoute) {
+                            return;
+                          } else if (item.routeName == AppRoutes.dashboard) {
+                            if (session == null) return;
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DoctorDashBoardPage(session: session),
+                              ),
+                            );
+                          } else if (item.routeName == AppRoutes.myPatients) {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              item.routeName,
+                            );
+                          } else if (item.routeName ==
+                              AppRoutes.scanPatientQr) {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              item.routeName,
+                            );
+                          }
                         },
                       ),
                     )

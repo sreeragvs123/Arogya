@@ -2,6 +2,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:frontend/common/paginated_result.dart';
 import 'package:frontend/core/error/failures.dart';
+import 'package:frontend/domain/entities/hosptial_dashboard/doctor_detail_entity.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/doctor_staff_section.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/doctor_summary_entity.dart';
 import 'package:frontend/domain/entities/hosptial_dashboard/hospital_metrics_entity.dart';
@@ -30,6 +31,11 @@ abstract class HospitalDashboardRepository {
     required int page,
     required int size,
   });
+
+  Future<Either<Failure, DoctorDetailEntity>> getDoctorDetail({
+  required int hospitalId,
+  required int doctorId,
+});
 
   Future<Either<Failure, List<String>>> getSpecializations({required int hospitalId});
 

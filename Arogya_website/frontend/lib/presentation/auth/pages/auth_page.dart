@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/common/snack_bar_helper.dart';
 import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/presentation/auth/bloc/auth_bloc.dart';
+import 'package:frontend/presentation/auth/widgets/staff_sign_in_form.dart';
 import 'package:frontend/presentation/doctor_dashboard/pages/doctor_page.dart';
 import 'package:frontend/presentation/hospital_dashboard/pages/hospital_dashboard_page.dart';
+import 'package:frontend/presentation/staff_dashboard/pages/department_doctors_page.dart';
 import '../../../core/theme/app_colors.dart';
 import '../widgets/auth_footer_links.dart';
 import '../widgets/auth_hero_panel.dart';
@@ -13,7 +15,7 @@ import '../widgets/doctor_sign_in_form.dart';
 import '../widgets/hospital_sign_in_form.dart';
 import '../widgets/register_hospital_form.dart';
 
-enum AuthTab { doctorSignIn, hospitalSignIn, registerHospital }
+enum AuthTab { doctorSignIn, staffSignIn, hospitalSignIn, registerHospital }
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -41,6 +43,12 @@ class _AuthPageState extends State<AuthPage> {
   final _phoneController = TextEditingController();
   final _masterPasswordController = TextEditingController();
   final _confirmMasterPasswordController = TextEditingController();
+
+  //Staff Registration
+  final _staffHospitalController = TextEditingController();
+  final _staffDepartmentController = TextEditingController();
+  final _staffIdController = TextEditingController();
+  final _staffPasswordController = TextEditingController();
 
   String? _selectedFacilityType;
 
@@ -114,6 +122,14 @@ class _AuthPageState extends State<AuthPage> {
           },
         );
 
+      case AuthTab.staffSignIn:
+      case AuthTab.staffSignIn:
+        return StaffSignInForm(
+          hospitalController: _staffHospitalController,
+          departmentController: _staffDepartmentController,
+          staffIdController: _staffIdController,
+          passwordController: _staffPasswordController,
+        );
       case AuthTab.registerHospital:
         return RegisterHospitalForm(
           hospitalNameController: _hospitalNameController,
@@ -124,7 +140,6 @@ class _AuthPageState extends State<AuthPage> {
           passwordController: _masterPasswordController,
           confirmPasswordController: _confirmMasterPasswordController,
           onFacilityTypeChanged: (value) {
-            // NEW
             setState(() {
               _selectedFacilityType = value;
             });
@@ -147,32 +162,41 @@ class _AuthPageState extends State<AuthPage> {
         }
         if (state is AuthSuccessState) {
           SnackbarHelper.showSuccess(context, state.message);
-
           if (state.tab == AuthTab.hospitalSignIn) {
             final session = state.session;
-            final hospitalId = switch (session) {
-              HospitalAdminSession(:final hospitalId) => hospitalId,
-              _ => throw StateError(
-                'Expected HospitalAdminSession but got $session',
-              ),
-            };
-
+            if (session is! HospitalAdminSession) {
+              throw StateError('Excepted Hospitala Session but got $session');
+            }
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (_) => HospitalDashboardPage(
-                  hospitalId: hospitalId ?? 1,
+                  hospitalId: session.hospitalId ?? 1,
                   session: session,
                 ),
               ),
             );
           } else if (state.tab == AuthTab.doctorSignIn) {
+            final session = state.session;
+            if (session is! DoctorSession) {
+              throw StateError("Expected DoctorSession but got $session");
+            }
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (_) => DoctorDashBoardPage(
-                  //TODO : pass in the arguments
-                ),
+                builder: (_) => DoctorDashBoardPage(session: session),
+              ),
+            );
+          } else if (state.tab == AuthTab.staffSignIn) {
+            final session = state.session;
+            if (session is! StaffSession) {
+              throw StateError('Expected StaffSession but got $session');
+            }
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DepartmentDoctorsPage(session: session),
               ),
             );
           }

@@ -28,7 +28,7 @@ class WeeklySummaryCard extends StatelessWidget {
           const Text('Weekly Summary',
               style: TextStyle(fontFamily: 'Georgia', color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
-          Text('Your efficiency is up by $efficiencyDeltaPercent% compared to last week.',
+          Text('Your efficiency is up by $efficiencyPercentDelta% compared to last week.',
               style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4)),
           const SizedBox(height: 18),
           Row(

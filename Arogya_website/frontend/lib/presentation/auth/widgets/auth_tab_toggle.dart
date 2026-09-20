@@ -27,6 +27,13 @@ class AuthTabToggle extends StatelessWidget {
       child: Row(
         children: [
           _TabItem(
+            icon: Icons.badge_outlined,
+            title: 'Staff Sign In',
+            selected: selected == AuthTab.staffSignIn,
+            onTap: () => onChanged(AuthTab.staffSignIn),
+          ),
+          
+          _TabItem(
             icon: Icons.person_outline,
             title: 'Doctor Sign In',
             selected: selected == AuthTab.doctorSignIn,
@@ -46,6 +53,7 @@ class AuthTabToggle extends StatelessWidget {
             selected: selected == AuthTab.registerHospital,
             onTap: () => onChanged(AuthTab.registerHospital),
           ),
+
         ],
       ),
     );

@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
+import 'package:frontend/core/storage/session_storage.dart';
 import 'package:frontend/core/usecases/usecase.dart';
+import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/domain/entities/patients/patient_summary_entity.dart';
 import 'package:frontend/domain/usecases/patients/get_active_patient_usecase.dart';
 import 'package:frontend/domain/usecases/patients/get_patients_directory_summary_usecase.dart';
@@ -35,28 +37,61 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
     );
     on<PatientsSortChanged>(_onSortChanged);
     on<PatientsConditionChanged>(_onConditionChanged);
-    on<PatientsApplyFiltersPressed>(_onApplyFilters, transformer: restartable());
+    on<PatientsApplyFiltersPressed>(
+      _onApplyFilters,
+      transformer: restartable(),
+    );
     on<PatientsPageChanged>(_onPageChanged, transformer: restartable());
     on<_PatientsListRequested>(_onListRequested, transformer: restartable());
   }
 
-  Future<void> _onStarted(PatientsStarted event, Emitter<PatientsState> emit) async {
+  Future<void> _onStarted(
+    PatientsStarted event,
+    Emitter<PatientsState> emit,
+  ) async {
     emit(state.copyWith(status: PatientsStatus.loading, errorMessage: null));
 
-    final summaryResult = await getPatientsDirectorySummaryUsecase.call(params: NoParams());
-    final activePatientResult = await getActivePatientUsecase.call(params: NoParams());
+    final session = await SessionStorage()
+        .read(); // or read(UserRole.doctor) if per-role
+
+    if (session is! DoctorSession ||
+        session.doctorId == null ||
+        session.hospitalId == null) {
+      emit(
+        state.copyWith(
+          status: PatientsStatus.failure,
+          errorMessage: 'Not signed in.',
+        ),
+      );
+      return;
+    }
+
+    final summaryResult = await getPatientsDirectorySummaryUsecase.call(
+      params: DoctorHospitalParam(
+        doctorId: session.doctorId!,
+        hospitalId: session.hospitalId!,
+      ),
+    );
+    final activePatientResult = await getActivePatientUsecase.call(
+      params: NoParams(),
+    );
 
     String? error;
     summaryResult.fold((failure) => error = failure.message, (_) {});
     activePatientResult.fold((failure) => error ??= failure.message, (_) {});
 
-    emit(state.copyWith(
-      status: error == null ? PatientsStatus.success : PatientsStatus.failure,
-      summary: summaryResult.fold((_) => null, (value) => value),
-      activePatient: activePatientResult.fold((_) => null, (value) => value),
-      clearActivePatient: activePatientResult.fold((_) => false, (value) => value == null),
-      errorMessage: error,
-    ));
+    emit(
+      state.copyWith(
+        status: error == null ? PatientsStatus.success : PatientsStatus.failure,
+        summary: summaryResult.fold((_) => null, (value) => value),
+        activePatient: activePatientResult.fold((_) => null, (value) => value),
+        clearActivePatient: activePatientResult.fold(
+          (_) => false,
+          (value) => value == null,
+        ),
+        errorMessage: error,
+      ),
+    );
 
     add(const _PatientsListRequested());
   }
@@ -80,9 +115,16 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
     emit(state.copyWith(sortBy: event.sortBy));
   }
 
-  void _onConditionChanged(PatientsConditionChanged event, Emitter<PatientsState> emit) {
+
+  void _onConditionChanged(
+    PatientsConditionChanged event,
+    Emitter<PatientsState> emit,
+  ) {
     emit(state.copyWith(condition: event.condition));
   }
+
+
+
 
   Future<void> _onApplyFilters(
     PatientsApplyFiltersPressed event,
@@ -92,10 +134,16 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
     add(const _PatientsListRequested());
   }
 
-  Future<void> _onPageChanged(PatientsPageChanged event, Emitter<PatientsState> emit) async {
+  Future<void> _onPageChanged(
+    PatientsPageChanged event,
+    Emitter<PatientsState> emit,
+  ) async {
     emit(state.copyWith(currentPage: event.page));
     add(const _PatientsListRequested());
   }
+
+
+
 
   Future<void> _onListRequested(
     _PatientsListRequested event,
@@ -115,14 +163,18 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
 
     result.fold(
       (failure) {
-        emit(state.copyWith(isListLoading: false, errorMessage: failure.message));
+        emit(
+          state.copyWith(isListLoading: false, errorMessage: failure.message),
+        );
       },
       (paginated) {
-        emit(state.copyWith(
-          isListLoading: false,
-          patients: paginated.content,
-          totalPages: paginated.totalPages < 1 ? 1 : paginated.totalPages,
-        ));
+        emit(
+          state.copyWith(
+            isListLoading: false,
+            patients: paginated.content,
+            totalPages: paginated.totalPages < 1 ? 1 : paginated.totalPages,
+          ),
+        );
       },
     );
   }

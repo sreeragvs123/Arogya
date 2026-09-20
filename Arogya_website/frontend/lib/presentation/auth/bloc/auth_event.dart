@@ -14,6 +14,23 @@ class AuthTabChangedEvent extends AuthEvent{
   List<Object> get props => [tab];
 }
 
+class StaffSignInEvent extends AuthEvent {
+  final int hospitalId;
+  final String department;
+  final String staffId;
+  final String password;
+
+  const StaffSignInEvent({
+    required this.hospitalId,
+    required this.department,
+    required this.staffId,
+    required this.password,
+  });
+
+  @override
+  List<Object> get props => [hospitalId, department, staffId, password];
+}
+
 class DoctorSiginInEvent extends AuthEvent{
   final int hospitalId;
   final String doctorId;
@@ -53,5 +70,11 @@ class HospitalRegistrationEvent extends AuthEvent{
   
 }
 
+class AuthCheckRequested extends AuthEvent {
+  const AuthCheckRequested();
+}
 
+class AuthLoggedOut extends AuthEvent {
+  const AuthLoggedOut();
+}
 

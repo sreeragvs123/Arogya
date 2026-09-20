@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/session/session_bloc.dart';
 import 'package:frontend/core/utils/service_locator.dart';
 import 'package:frontend/presentation/auth/bloc/auth_bloc.dart';
 import "package:hive_flutter/hive_flutter.dart";
@@ -8,7 +9,7 @@ import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();       
+  await Hive.initFlutter();
   await Hive.openBox('authBox');
   await initializeDependencies();
   runApp(const ArogyaApp());
@@ -21,7 +22,10 @@ class ArogyaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_)=>sl<AuthBloc>()),
+        BlocProvider(create: (_) => sl<AuthBloc>()),
+        BlocProvider(
+          create: (_) => sl<SessionBloc>()..add(const SessionLoadRequested()),
+        ),
       ],
       child: MaterialApp(
         title: 'Arogya Portal',
@@ -32,4 +36,5 @@ class ArogyaApp extends StatelessWidget {
       ),
     );
   }
+
 }
