@@ -4,15 +4,12 @@ import '../../../core/theme/app_colors.dart';
 class PatientHeader extends StatelessWidget {
   final String name;
   final String patientId;
-  final bool isHighSensitivity;
   final String age;
   final String gender;
   final String bloodGroup;
   final String height;
   final String weight;
   final String? photoUrl;
-  final VoidCallback onFullHistory;
-  final VoidCallback onPrintQr;
 
   const PatientHeader({
     super.key,
@@ -23,9 +20,6 @@ class PatientHeader extends StatelessWidget {
     required this.bloodGroup,
     required this.height,
     required this.weight,
-    required this.onFullHistory,
-    required this.onPrintQr,
-    this.isHighSensitivity = false,
     this.photoUrl,
   });
 
@@ -83,25 +77,6 @@ class PatientHeader extends StatelessWidget {
                     child: Text('ID: $patientId',
                         style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
                   ),
-                  if (isHighSensitivity) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFBE0DA),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.warning_amber_rounded, size: 13, color: Color(0xFFC24A2E)),
-                          SizedBox(width: 4),
-                          Text('High Sensitivity',
-                              style: TextStyle(fontSize: 12, color: Color(0xFFC24A2E), fontWeight: FontWeight.w600)),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
               ),
               const SizedBox(height: 8),
@@ -126,29 +101,7 @@ class PatientHeader extends StatelessWidget {
             ],
           ),
         ),
-        OutlinedButton.icon(
-          onPressed: onFullHistory,
-          icon: const Icon(Icons.history_rounded, size: 18, color: AppColors.textPrimary),
-          label: const Text('Full History', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
-          style: OutlinedButton.styleFrom(
-            backgroundColor: AppColors.softPanel,
-            side: BorderSide.none,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-        const SizedBox(width: 12),
-        OutlinedButton.icon(
-          onPressed: onPrintQr,
-          icon: const Icon(Icons.print_outlined, size: 18, color: AppColors.textPrimary),
-          label: const Text('Print QR', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
-          style: OutlinedButton.styleFrom(
-            backgroundColor: AppColors.softPanel,
-            side: BorderSide.none,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
+
       ],
     );
   }

@@ -18,11 +18,6 @@ const List<NavItemData> kPortalNavItems = [
     label: 'My Patients',
     routeName: AppRoutes.myPatients,
   ),
-  NavItemData(
-    icon: Icons.qr_code_scanner_rounded,
-    label: 'Scan Patient QR',
-    routeName: AppRoutes.scanPatientQr,
-  ),
 ];
 
 class AppSidebar extends StatelessWidget {

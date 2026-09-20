@@ -12,7 +12,6 @@ import '../widgets/clinical_report_panel.dart';
 import '../widgets/observations_panel.dart';
 import '../widgets/patient_header.dart';
 import '../widgets/prescription_panel.dart';
-import '../widgets/recent_observations_card.dart';
 import '../widgets/vitals_panel.dart';
 import '../widgets/vitals_trend_card.dart';
 
@@ -204,9 +203,6 @@ class _PatientDetailViewState extends State<_PatientDetailView>
                       final bloc = context.read<PatientDetailsBloc>();
                       final patient = state.patient!;
                       final vitals = state.vitals;
-                      final observations = state.observations
-                          .map((o) => ObservationData(date: o.date, note: o.note))
-                          .toList();
                       final medicineLines = state.prescriptionDraft
                           .map((m) => '${m.displayName} — ${m.displaySchedule}')
                           .toList();
@@ -224,15 +220,12 @@ class _PatientDetailViewState extends State<_PatientDetailView>
                               PatientHeader(
                                 name: patient.name,
                                 patientId: patient.displayId,
-                                isHighSensitivity: patient.isHighSensitivity,
                                 age: '${patient.age}',
                                 gender: patient.gender,
                                 bloodGroup: patient.bloodGroup,
                                 height: patient.heightCm,
                                 weight: patient.weightKg,
                                 photoUrl: patient.photoUrl,
-                                onFullHistory: () => _showComingSoon('Full patient history'),
-                                onPrintQr: () => _showPrintQrDialog(patient.displayId),
                               ),
                               const SizedBox(height: 24),
                               LayoutBuilder(
@@ -252,7 +245,6 @@ class _PatientDetailViewState extends State<_PatientDetailView>
                                         bodyTempF: vitals?.bodyTempF ?? 0,
                                       ),
                                       const SizedBox(height: 20),
-                                      RecentObservationsCard(observations: observations),
                                     ],
                                   );
 
