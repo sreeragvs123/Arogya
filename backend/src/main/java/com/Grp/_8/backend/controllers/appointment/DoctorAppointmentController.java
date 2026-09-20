@@ -50,27 +50,20 @@ public class DoctorAppointmentController {
     }
 
 
-
-    @GetMapping("/doctor")
-    public ResponseEntity<List<AppointmentResponseDto>> getDoctorAppointments(
-            @RequestParam(required = false) AppointmentStatus status
-            ) {
-
-        return ResponseEntity.ok(doctorAppointmentService.getDoctorAppointments(status));
+    @PatchMapping("/{appointmentId}/start")
+    public ResponseEntity<Void> startConsultation(@PathVariable Long appointmentId) {
+        doctorAppointmentService.startConsultation(appointmentId);
+        return ResponseEntity.noContent().build();
     }
 
 
-    @PostMapping("/{appointmentId}/access")
-    public ResponseEntity<?> unlockPatientPortal(
-            @PathVariable Long appointmentId,
-            @Valid @RequestBody PatientPortalAccessRequestDto dto
-           ) {
+//    @GetMapping("/doctor")
+//    public ResponseEntity<List<AppointmentResponseDto>> getDoctorAppointments(
+//            @RequestParam(required = false) AppointmentStatus status
+//            ) {
+//
+//        return ResponseEntity.ok(doctorAppointmentService.getDoctorAppointments(status));
+//    }
 
-        boolean unlocked = doctorAppointmentService.unlockPatientPortal(appointmentId, dto.getPassword());
-        if (!unlocked) {
-            return ResponseEntity.status(401).body("Invalid patient credentials");
-        }
-        return ResponseEntity.ok().build();
 
-    }
 }

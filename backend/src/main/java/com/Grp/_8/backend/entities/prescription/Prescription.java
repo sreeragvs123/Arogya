@@ -1,5 +1,6 @@
 package com.Grp._8.backend.entities.prescription;
 
+import com.Grp._8.backend.entities.appointment.Appointment;
 import com.Grp._8.backend.entities.dashboard.doctor.DiagnosticReport;
 import com.Grp._8.backend.entities.enums.ReportStatus;
 import com.Grp._8.backend.entities.users.Doctor;
@@ -67,6 +68,10 @@ public class Prescription {
     private Double height;            // 178.0
     private Double heartRate;         // 72.0
     private Double bodyTemp;          // 98.4
+
+    @OneToOne
+    @JoinColumn(name = "appointment_id", unique = true /* nullable = false — see below */)
+    private Appointment appointment;
 
     private String pdfUrl;
 

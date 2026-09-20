@@ -2,7 +2,6 @@ package com.Grp._8.backend.dto.prescription;
 
 import com.Grp._8.backend.entities.enums.DoseTiming;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.DayOfWeek;
@@ -11,7 +10,6 @@ import java.util.Set;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class PrescriptionItemRequestDto {
     private Long drugId;
     private String dosage;

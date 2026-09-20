@@ -1,5 +1,7 @@
 package com.Grp._8.backend.entities.histories;
 
+import com.Grp._8.backend.entities.appointment.Appointment;
+import com.Grp._8.backend.entities.enums.RecordedBy;
 import com.Grp._8.backend.entities.enums.VitalType;
 import com.Grp._8.backend.entities.users.Patient;
 import jakarta.persistence.*;
@@ -30,6 +32,13 @@ public class VitalReading {
 
     @Enumerated(EnumType.STRING)
     private VitalType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment; // nullable — only set for doctor-recorded readings
+
+    @Enumerated(EnumType.STRING)
+    private RecordedBy recordedBy;
 
     private Double value;
     private String unit;      // "mg/dL", "kg", "%"

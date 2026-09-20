@@ -5,6 +5,8 @@ import com.Grp._8.backend.dto.appointment.AppointmentResponseDto;
 import com.Grp._8.backend.dto.appointment.AppointmentsNumberResponseDto;
 import com.Grp._8.backend.entities.appointment.Appointment;
 import com.Grp._8.backend.entities.enums.AppointmentStatus;
+import com.Grp._8.backend.entities.enums.ReportStatus;
+import com.Grp._8.backend.entities.prescription.Prescription;
 import com.Grp._8.backend.entities.users.Doctor;
 import com.Grp._8.backend.entities.users.Hospital;
 import com.Grp._8.backend.entities.users.Patient;
@@ -13,6 +15,7 @@ import com.Grp._8.backend.exceptions.AppointmentNotFoundException;
 import com.Grp._8.backend.exceptions.DoctorNotFoundException;
 import com.Grp._8.backend.exceptions.HospitalNotFoundException;
 import com.Grp._8.backend.repositories.appointment.AppointmentRepository;
+import com.Grp._8.backend.repositories.prescription.PrescriptionRepository;
 import com.Grp._8.backend.repositories.users.DoctorRepository;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,7 @@ public class DoctorAppointmentService {
     private final DoctorRepository doctorRepository;
     private final HospitalRepository hospitalRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PrescriptionRepository prescriptionRepository;
 
 
     public AppointmentsNumberResponseDto getDoctorAppointmentsCount(Long doctorId, Long hospitalId) {
@@ -88,39 +92,23 @@ public class DoctorAppointmentService {
     }
 
 
-    @Transactional(readOnly = true)
-    public List<AppointmentResponseDto> getDoctorAppointments(AppointmentStatus status) {
-        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long doctorId = principal.getProfileId();
-        AppointmentStatus effective = status != null ? status : AppointmentStatus.CONFIRMED;
-
-        return appointmentRepository.findByDoctorIdAndStatus(doctorId, effective)
-                .stream()
-                .map(appointment -> AppointmentResponseDto.builder()
-                        .id(appointment.getId())
-                        .appointmentAt(appointment.getAppointmentAt())
-                        .consultationType(appointment.getConsultationType())
-                        .status(appointment.getStatus())
-                        .build())
-                .toList();
-    }
-
-
-
-
-    @Transactional
-    public boolean unlockPatientPortal(Long appointmentId, String rawPassword) {
-        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long doctorId = principal.getProfileId();
-
-        Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
-
-        if (!appointment.getDoctor().getId().equals(doctorId)) {
-            throw new AccessDeniedException("This appointment is not assigned to you");
-        }
-        return false;
-    }
+//    @Transactional(readOnly = true)
+//    public List<AppointmentResponseDto> getDoctorAppointments(AppointmentStatus status) {
+//        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        Long doctorId = principal.getProfileId();
+//        AppointmentStatus effective = status != null ? status : AppointmentStatus.CONFIRMED;
+//
+//        return appointmentRepository.findByDoctorIdAndStatus(doctorId, effective)
+//                .stream()
+//                .map(appointment -> AppointmentResponseDto.builder()
+//                        .id(appointment.getId())
+//                        .appointmentAt(appointment.getAppointmentAt())
+//                        .consultationType(appointment.getConsultationType())
+//                        .status(appointment.getStatus())
+//                        .build())
+//                .toList();
+//    }
+//
 
     public Page<AppointmentResponseDto> getUpcomingAppointments(Long doctorId, int page, int size) {
         validateDoctorExists(doctorId);
@@ -137,6 +125,35 @@ public class DoctorAppointmentService {
                         .consultationType(appointment.getConsultationType())
                         .status(appointment.getStatus())
                         .build());
+    }
+    @PreAuthorize("hasRole('DOCTOR')")
+    @Transactional
+    public void startConsultation(Long appointmentId) {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long doctorId = principal.getProfileId();
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
+
+        if (!appointment.getDoctor().getId().equals(doctorId)) {
+            throw new AccessDeniedException("This appointment is not assigned to you");
+        }
+        if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+            throw new IllegalStateException("Only confirmed appointments can be started");
+        }
+
+        appointment.setStatus(AppointmentStatus.IN_PROGRESS);
+        appointmentRepository.save(appointment);
+
+        if (prescriptionRepository.findByAppointmentId(appointmentId).isEmpty()) {
+            Prescription prescription = new Prescription();
+            prescription.setAppointment(appointment);
+            prescription.setPatient(appointment.getPatient());
+            prescription.setDoctor(appointment.getDoctor());
+            prescription.setHospital(appointment.getHospital());
+            prescription.setStatus(ReportStatus.DRAFT);
+            prescriptionRepository.save(prescription);
+        }
     }
 
     private void validateDoctorExists(Long doctorId) {

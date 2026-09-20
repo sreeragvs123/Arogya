@@ -1,18 +1,14 @@
 package com.Grp._8.backend.services.prescription;
-import com.Grp._8.backend.dto.prescription.PrescriptionItemRequestDto;
-import com.Grp._8.backend.dto.prescription.PrescriptionItemsUpdateRequestDto;
+
+
+import com.Grp._8.backend.dto.prescription.ObservationUpdateRequestDto;
 import com.Grp._8.backend.entities.appointment.Appointment;
 import com.Grp._8.backend.entities.enums.AppointmentStatus;
-import com.Grp._8.backend.entities.enums.ReportStatus;
-import com.Grp._8.backend.entities.medicine.Drug;
 import com.Grp._8.backend.entities.prescription.Prescription;
-import com.Grp._8.backend.entities.prescription.PrescriptionItem;
 import com.Grp._8.backend.entities.users.UserPrincipal;
 import com.Grp._8.backend.exceptions.AppointmentNotFoundException;
-import com.Grp._8.backend.exceptions.DrugNotFoundException;
 import com.Grp._8.backend.exceptions.PrescriptionNotFoundException;
 import com.Grp._8.backend.repositories.appointment.AppointmentRepository;
-import com.Grp._8.backend.repositories.drug.DrugRepository;
 import com.Grp._8.backend.repositories.prescription.PrescriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,20 +17,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class PrescriptionItemService {
+public class ObservationsService {
 
     private final AppointmentRepository appointmentRepository;
     private final PrescriptionRepository prescriptionRepository;
-    private final DrugRepository drugRepository;
 
     @PreAuthorize("hasRole('DOCTOR')")
     @Transactional
-    public void updatePrescriptionItems(Long appointmentId, PrescriptionItemsUpdateRequestDto dto) {
+    public void updateObservations(Long appointmentId, ObservationUpdateRequestDto dto) {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long doctorId = principal.getProfileId();
 
@@ -51,36 +45,22 @@ public class PrescriptionItemService {
         Prescription prescription = prescriptionRepository.findByAppointmentId(appointmentId)
                 .orElseThrow(() -> new PrescriptionNotFoundException("Prescription not found for this appointment"));
 
-        if (prescription.getStatus() != ReportStatus.DRAFT) {
-            throw new IllegalStateException("Prescription items can no longer be modified");
+        if (dto.getSymptoms() != null) {
+            List<String> cleaned = dto.getSymptoms().stream()
+                    .filter(s -> s != null && !s.isBlank())
+                    .map(String::trim)
+                    .toList();
+            prescription.setSymptoms(cleaned);
         }
 
-        List<PrescriptionItemRequestDto> incoming = dto.getItems() != null ? dto.getItems() : List.of();
-
-        prescription.getPrescriptionItems().clear();
-
-        List<PrescriptionItem> rebuilt = new ArrayList<>();
-        for (PrescriptionItemRequestDto itemDto : incoming) {
-            Drug drug = drugRepository.findById(itemDto.getDrugId())
-                    .orElseThrow(() -> new DrugNotFoundException("Drug not found: " + itemDto.getDrugId()));
-
-            PrescriptionItem item = new PrescriptionItem();
-            item.setPrescription(prescription);
-            item.setMedicine(drug);
-            item.setDosage(itemDto.getDosage());
-            item.setMorning(itemDto.getMorning());
-            item.setAfternoon(itemDto.getAfternoon());
-            item.setEvening(itemDto.getEvening());
-            item.setWeeklyDays(itemDto.getWeeklyDays());
-            item.setDoseTiming(itemDto.getDoseTiming());
-            item.setStartDate(itemDto.getStartDate());
-            item.setDurationDays(itemDto.getDurationDays());
-            rebuilt.add(item);
+        if (dto.getNote() != null && !dto.getNote().isBlank()) {
+            String existing = prescription.getClinicalObservations();
+            String updated = (existing == null || existing.isBlank())
+                    ? dto.getNote().trim()
+                    : existing + "\n" + dto.getNote().trim();
+            prescription.setClinicalObservations(updated);
         }
-        prescription.getPrescriptionItems().addAll(rebuilt);
 
-        prescription.setStatus(ReportStatus.PENDING_SIGNATURE);
         prescriptionRepository.save(prescription);
     }
 }
-

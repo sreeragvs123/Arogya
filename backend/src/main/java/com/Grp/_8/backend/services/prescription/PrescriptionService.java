@@ -1,8 +1,5 @@
 package com.Grp._8.backend.services.prescription;
 
-import com.Grp._8.backend.dto.prescription.PrescriptionDraftResponseDto;
-import com.Grp._8.backend.dto.prescription.PrescriptionItemResponseDto;
-import com.Grp._8.backend.dto.prescription.PrescriptionResponseDto;
 import com.Grp._8.backend.dto.vitals.VitalsResponseDto;
 import com.Grp._8.backend.dto.vitals.VitalsUpdateRequestDto;
 import com.Grp._8.backend.entities.enums.ReportStatus;
@@ -34,7 +31,6 @@ public class PrescriptionService {
     private final HospitalRepository hospitalRepository;
     private final PrescriptionPdfService prescriptionPdfService;
     private final ReferenceNumberGenerator referenceNumberGenerator;
-//    private final NotificationService notificationService;
     private final ModelMapper modelMapper;
 
     @Transactional
@@ -66,11 +62,9 @@ public class PrescriptionService {
                         .afternoon(item.getAfternoon())
                         .evening(item.getEvening())
                         .weeklyDays(item.getWeeklyDays())
-                        .frequency(item.getFrequency())
                         .doseTiming(item.getDoseTiming())
                         .startDate(item.getStartDate())
                         .durationDays(item.getDurationDays())
-                        .instructions(item.getInstructions())
                         .build())
                 .toList();
 

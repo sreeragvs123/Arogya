@@ -28,12 +28,16 @@ public class StorageService {
         ));
     }
 
-    public String upload(byte[] fileBytes, String fileName) throws IOException {
-        Map result = getCloudinary().uploader().upload(fileBytes, ObjectUtils.asMap(
-                "resource_type", "raw",      // ✗ keep ObjectUtils here — Cloudinary mutates this map internally
-                "public_id",     fileName,
-                "folder",        "prescriptions"
-        ));
-        return result.get("secure_url").toString();
+    public String upload(byte[] fileBytes, String fileName) {
+        try {
+            Map result = getCloudinary().uploader().upload(fileBytes, ObjectUtils.asMap(
+                    "resource_type", "raw",
+                    "public_id",     fileName,
+                    "folder",        "prescriptions"
+            ));
+            return result.get("secure_url").toString();
+        } catch (IOException e) {
+            throw new FileStorageException("Failed to upload file to storage", e);
+        }
     }
 }

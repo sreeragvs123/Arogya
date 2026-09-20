@@ -1,8 +1,10 @@
 package com.Grp._8.backend.services.files;
 
 import com.Grp._8.backend.entities.prescription.Prescription;
+import com.Grp._8.backend.entities.prescription.PrescriptionItem;
 import com.Grp._8.backend.entities.users.Patient;
 import com.Grp._8.backend.entities.users.Users;
+import com.Grp._8.backend.exceptions.FileStorageException;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,13 @@ public class PrescriptionPdfService {
     private final TemplateEngine templateEngine;
     private final StorageService storageService;
 
-    public String generateAndStore(Prescription prescription) throws IOException {
+    public byte[] renderPreview(Prescription prescription) {
+        Context context = buildContext(prescription);
+        String html = templateEngine.process("prescription-pdf", context);
+        return convertToPdf(html);
+    }
+
+    public String generateAndStore(Prescription prescription) {
         Context context = buildContext(prescription);
         String html = templateEngine.process("prescription-pdf", context);
         byte[] pdfBytes = convertToPdf(html);
@@ -56,27 +64,29 @@ public class PrescriptionPdfService {
                 p.getDateOfBirth() != null
                         ? Period.between(p.getDateOfBirth(), LocalDate.now()).getYears()
                         : "N/A");
-        ctx.setVariable("height", p.getHeightCm() != null ? p.getHeightCm() + " cm" : "N/A");
 
-        // ── Vitals stored on Prescription ─────────────────────────
+        // ── Vitals — all sourced from THIS visit's Prescription snapshot, not the patient's stored profile ──
         ctx.setVariable("bloodPressure", rx.getBloodPressure() != null ? rx.getBloodPressure() : "N/A");
-        ctx.setVariable("bloodSugar", rx.getBloodSugar() != null ? rx.getBloodSugar() + " mg/dL" : "N/A");
-        ctx.setVariable("heartRate", rx.getHeartRate() != null ? rx.getHeartRate() + " BPM" : "N/A");
-        ctx.setVariable("bodyTemp", rx.getBodyTemp() != null ? rx.getBodyTemp() + " °F" : "N/A");
-        ctx.setVariable("weight", rx.getWeight() != null ? rx.getWeight() + " kg" : "N/A");
+        ctx.setVariable("bloodSugar", rx.getBloodSugar());
+        ctx.setVariable("heartRate", rx.getHeartRate());
+        ctx.setVariable("bodyTemp", rx.getBodyTemp());
+        // raw numbers only — template owns unit formatting, no double-appending
+        ctx.setVariable("height", rx.getHeight());
+        ctx.setVariable("weight", rx.getWeight());
 
         // ── Clinical ──────────────────────────────────────────────
         ctx.setVariable("clinicalObservations",
                 rx.getClinicalObservations() != null ? rx.getClinicalObservations() : "No observations recorded");
-
-        // symptoms is now a tag list, not free text
         ctx.setVariable("symptoms", rx.getSymptoms() != null ? rx.getSymptoms() : List.of());
 
         // ── Doctor ────────────────────────────────────────────────
         Users doctorUser = rx.getDoctor().getUserData();
         ctx.setVariable("doctorName", doctorUser.getName());
-        ctx.setVariable("doctorSpecialization", rx.getDoctor().getSpecialization());
+        ctx.setVariable("doctorSpecialization", formatEnumDisplay(rx.getDoctor().getDepartment()));
         ctx.setVariable("doctorEmail", doctorUser.getEmail());
+
+        // ── Signature — only present once the doctor has actually signed ─
+        ctx.setVariable("signatureImageUrl", rx.getSignatureImageUrl());
 
         // ── Meta ──────────────────────────────────────────────────
         ctx.setVariable("prescriptionDate",
@@ -85,18 +95,15 @@ public class PrescriptionPdfService {
         ctx.setVariable("generatedAt",
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
 
-        // ── Prescription items ────────────────────────────────────
+        // ── Prescription items — frequency derived from morning/afternoon/evening,
+        //    since PrescriptionItem has no `frequency` or `instructions` field.
         List<Map<String, String>> items = rx.getPrescriptionItems().stream()
                 .map(item -> Map.of(
                         "medicineName", item.getMedicine().getName(),
                         "dosage",       item.getDosage(),
-                        "frequency",    item.getFrequency().toString(),
+                        "frequency",    formatFrequency(item),
                         "durationDays", String.valueOf(item.getDurationDays()),
-                        "doseTiming",   item.getDoseTiming().toString(),
-                        "morning",      Boolean.TRUE.equals(item.getMorning()) ? "Yes" : "No",
-                        "afternoon",    Boolean.TRUE.equals(item.getAfternoon()) ? "Yes" : "No",
-                        "evening",      Boolean.TRUE.equals(item.getEvening()) ? "Yes" : "No",
-                        "instructions", item.getInstructions() != null ? item.getInstructions() : ""
+                        "doseTiming",   item.getDoseTiming() != null ? item.getDoseTiming().toString() : "—"
                 ))
                 .toList();
         ctx.setVariable("prescriptionItems", items);
@@ -104,7 +111,13 @@ public class PrescriptionPdfService {
         return ctx;
     }
 
-    private byte[] convertToPdf(String html) throws IOException {
+    private String formatFrequency(PrescriptionItem item) {
+        return (Boolean.TRUE.equals(item.getMorning()) ? "1" : "0") + "-"
+                + (Boolean.TRUE.equals(item.getAfternoon()) ? "1" : "0") + "-"
+                + (Boolean.TRUE.equals(item.getEvening()) ? "1" : "0");
+    }
+
+    private byte[] convertToPdf(String html) {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
@@ -112,6 +125,14 @@ public class PrescriptionPdfService {
             builder.toStream(os);
             builder.run();
             return os.toByteArray();
+        } catch (IOException e) {
+            throw new FileStorageException("Failed to render PDF", e);
         }
+    }
+
+    private String formatEnumDisplay(Enum<?> value) {
+        if (value == null) return "N/A";
+        String name = value.name().replace("_", " ").toLowerCase();
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 }
