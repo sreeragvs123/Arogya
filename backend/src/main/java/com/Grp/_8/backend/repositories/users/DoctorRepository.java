@@ -21,6 +21,8 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     Optional<Doctor> findByUserData_Id(Long id);
 
+    Optional<Doctor> findById(Long id);
+
     Boolean existsByHospital_IdAndLicenseNumber(Long hospitalId, String licenseNumber);
 
     @Query("SELECT d FROM Doctor d JOIN FETCH d.userData WHERE d.hospital.id = :hospitalId")

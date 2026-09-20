@@ -2,14 +2,11 @@ package com.Grp._8.backend.dto.prescription;
 
 import com.Grp._8.backend.entities.enums.DoseFrequency;
 import com.Grp._8.backend.entities.enums.DoseTiming;
-import com.Grp._8.backend.entities.enums.TimeOfDay;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 

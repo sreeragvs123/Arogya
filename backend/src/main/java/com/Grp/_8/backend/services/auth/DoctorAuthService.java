@@ -3,15 +3,16 @@ package com.Grp._8.backend.services.auth;
 
 import com.Grp._8.backend.dto.auth.DoctorSignInRequestDto;
 import com.Grp._8.backend.dto.auth.DoctorSignInResponseDto;
+import com.Grp._8.backend.entities.dashboard.doctor.DoctorDashboardSettings;
 import com.Grp._8.backend.entities.enums.DoctorStatus;
 import com.Grp._8.backend.entities.users.Users;
 import com.Grp._8.backend.exceptions.DoctorHospitalMismatchException;
 import com.Grp._8.backend.exceptions.DoctorNotFoundException;
+import com.Grp._8.backend.repositories.dashboard.doctor.DoctorDashboardSettingsRepository;
 import com.Grp._8.backend.repositories.users.DoctorRepository;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
 import com.Grp._8.backend.repositories.users.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.auth.InvalidCredentialsException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,6 +40,7 @@ public class DoctorAuthService {
     private final DoctorRepository doctorRepository;
     private final HospitalRepository hospitalRepository;
     private final PasswordEncoder passwordEncoder;
+    private final DoctorDashboardSettingsRepository dashboardSettingsRepository;
 
 
 
@@ -68,6 +70,7 @@ public class DoctorAuthService {
         String accessToken = jwtService.generateAccessToken(validUser);
         String refreshToken = jwtService.generateRefreshToken(validUser);
         DoctorSignInResponseDto responseDto = DoctorSignInResponseDto.builder()
+                .doctorName(validUser.getName())
                 .role(validUser.getRole())
                 .doctorId(doctor.getId())
                 .accessToken(accessToken)
@@ -126,6 +129,10 @@ public class DoctorAuthService {
         } catch (DataIntegrityViolationException e) {
             throw new DoctorAlreadyExistsException("Doctor already exists");
         }
+
+        DoctorDashboardSettings settings = new DoctorDashboardSettings();
+        settings.setDoctor(savedDoctor);
+        dashboardSettingsRepository.save(settings);
 
         return DoctorCreateResponseDto.builder()
                 .doctorId(savedDoctor.getId())

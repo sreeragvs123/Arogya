@@ -1,6 +1,6 @@
 package com.Grp._8.backend.entities.prescription;
 
-import com.Grp._8.backend.entities.enums.DoseFrequency;
+
 import com.Grp._8.backend.entities.enums.DoseTiming;
 import com.Grp._8.backend.entities.medicine.Drug;
 import jakarta.persistence.*;
@@ -45,9 +45,6 @@ public class PrescriptionItem {
     @Column(name = "day_of_week")
     private Set<DayOfWeek> weeklyDays = new HashSet<>();
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DoseFrequency frequency;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -59,5 +56,4 @@ public class PrescriptionItem {
     @Column(nullable = false)
     private Integer durationDays;
 
-    private String instructions;
 }

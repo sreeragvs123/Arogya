@@ -1,6 +1,7 @@
 package com.Grp._8.backend.services.dashboard.impl;
 
 
+import com.Grp._8.backend.dto.dashboard.hosptial.DoctorDetailResponseDto;
 import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashBoardDoctorSearchResponseDto;
 import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashboardMetricsDto;
 import com.Grp._8.backend.entities.enums.DoctorStaffSection;
@@ -8,6 +9,8 @@ import com.Grp._8.backend.entities.enums.DoctorStatus;
 import com.Grp._8.backend.entities.enums.VerificationStatus;
 import com.Grp._8.backend.entities.users.Doctor;
 import com.Grp._8.backend.entities.users.Hospital;
+import com.Grp._8.backend.exceptions.DoctorHospitalMismatchException;
+import com.Grp._8.backend.exceptions.DoctorNotFoundException;
 import com.Grp._8.backend.exceptions.HospitalNotFoundException;
 import com.Grp._8.backend.repositories.users.DoctorRepository;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
@@ -130,6 +133,42 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
                     DoctorStatus.PENDING_FIRST_LOGIN
             );
         };
+    }
+    @Override
+    public DoctorDetailResponseDto getDoctorDetail(Long hospitalId, Long doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new DoctorNotFoundException("Doctor not found with id " + doctorId));
+
+        if (!doctor.getHospital().getId().equals(hospitalId)) {
+            throw new DoctorHospitalMismatchException("Doctor does not belong to this hospital");
+        }
+
+        return mapToDetailResponse(doctor);
+    }
+
+    private DoctorDetailResponseDto mapToDetailResponse(Doctor doctor) {
+        return DoctorDetailResponseDto.builder()
+                .doctorId(doctor.getId())
+                .fullName(doctor.getUserData().getName())
+                .email(doctor.getUserData().getEmail())
+                .profileImageUrl(doctor.getUserData().getProfileImageUrl())
+                .phoneNumber(doctor.getPhoneNumber())
+                .licenseNumber(doctor.getLicenseNumber())
+                .designation(doctor.getDesignation())
+                .specialization(doctor.getSpecialization())
+                .sex(doctor.getSex())
+                .dateOfBirth(doctor.getDateOfBirth())
+                .verificationStatus(doctor.getVerificationStatus())
+                .status(doctor.getStatus())
+                .prescriptionAuthority(doctor.getPrescriptionAuthority())
+                .labImagingOrdering(doctor.getLabImagingOrdering())
+                .dischargeSignoffAuthority(doctor.getDischargeSignoffAuthority())
+                .hospitalId(doctor.getHospital().getId())
+                .hospitalName(doctor.getHospital().getUserData().getName())
+                .lastLoginAt(doctor.getLastLoginAt())
+                .createdAt(doctor.getCreatedAt())
+                .updatedAt(doctor.getUpdatedAt())
+                .build();
     }
 
     private Pageable createPageable(int page, int size) {

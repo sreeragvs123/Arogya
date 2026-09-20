@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/hospital/dashboard")
+@RequestMapping("/hospital/dashboard/search")
 @RequiredArgsConstructor
-public class HospitalDashBoardController {
+public class HospitalDashBoardSearchController {
 
     private final HospitalDashboardServiceImpl hospitalDashboardService;
 

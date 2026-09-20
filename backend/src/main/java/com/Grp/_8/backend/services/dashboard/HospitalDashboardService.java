@@ -1,5 +1,6 @@
 package com.Grp._8.backend.services.dashboard;
 
+import com.Grp._8.backend.dto.dashboard.hosptial.DoctorDetailResponseDto;
 import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashBoardDoctorSearchResponseDto;
 import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashboardMetricsDto;
 import com.Grp._8.backend.entities.enums.DoctorStaffSection;
@@ -35,4 +36,6 @@ public interface HospitalDashboardService {
             int page,
             int size
     );
+
+    DoctorDetailResponseDto getDoctorDetail(Long hospitalId, Long doctorId);
 }

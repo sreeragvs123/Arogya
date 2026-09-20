@@ -1,7 +1,6 @@
 package com.Grp._8.backend.repositories.users;
 
 import com.Grp._8.backend.dto.search.HospitalSearchResponseDto;
-import com.Grp._8.backend.entities.enums.VerificationStatus;
 import com.Grp._8.backend.entities.users.Hospital;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

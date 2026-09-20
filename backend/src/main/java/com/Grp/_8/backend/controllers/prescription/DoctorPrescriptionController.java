@@ -11,11 +11,9 @@ import com.Grp._8.backend.dto.vitals.VitalsUpdateRequestDto;
 import com.Grp._8.backend.services.observations.ObservationsService;
 import com.Grp._8.backend.services.prescription.PrescriptionItemService;
 import com.Grp._8.backend.services.prescription.PrescriptionService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -23,7 +21,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/prescriptions")
 @RequiredArgsConstructor
-public class PrescriptionController {
+public class DoctorPrescriptionController {
 
     private final PrescriptionService prescriptionService;
     private final PrescriptionItemService prescriptionItemService;
@@ -34,6 +32,7 @@ public class PrescriptionController {
         return ResponseEntity.ok(prescriptionService.generateAndSend(id));
     }
 
+    //Before Sending data we need to create prescription first
     @PostMapping
     public ResponseEntity<PrescriptionDraftResponseDto> createDraft(@RequestBody PrescriptionDraftRequestDto request) {
         PrescriptionDraftResponseDto prescription = prescriptionService.createDraft(request.getPatientId(), request.getDoctorId());//TODO : get the doctor id from securityContext
@@ -44,6 +43,21 @@ public class PrescriptionController {
     public ResponseEntity<VitalsResponseDto> updateVitals(@PathVariable Long id, @RequestBody VitalsUpdateRequestDto request) {
         VitalsResponseDto vitalsResponseDto = prescriptionService.updateVitals(id, request);
         return ResponseEntity.ok(vitalsResponseDto);
+    }
+
+    @PostMapping("/{id}/symptoms")
+    public ResponseEntity<SymptomsResponseDto> addSymptom(@PathVariable Long id, @RequestBody SymptomRequestDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(observationsService.addSymptom(id, request));
+    }
+
+    @DeleteMapping("/{id}/symptoms/{symptom}")
+    public ResponseEntity<SymptomsResponseDto> removeSymptom(@PathVariable Long id, @PathVariable String symptom) {
+        return ResponseEntity.ok(observationsService.removeSymptom(id, symptom));
+    }
+
+    @PatchMapping("/{id}/observations")
+    public ResponseEntity<ClinicalObservationsResponseDto> updateObservations(@PathVariable Long id, @RequestBody ClinicalObservationsRequestDto request) {
+        return ResponseEntity.ok(observationsService.updateObservations(id, request));
     }
 
     @PostMapping("/{id}/items")
@@ -58,19 +72,6 @@ public class PrescriptionController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/observations")
-    public ResponseEntity<ClinicalObservationsResponseDto> updateObservations(@PathVariable Long id, @RequestBody ClinicalObservationsRequestDto request) {
-        return ResponseEntity.ok(observationsService.updateObservations(id, request));
-    }
 
-    @PostMapping("/{id}/symptoms")
-    public ResponseEntity<SymptomsResponseDto> addSymptom(@PathVariable Long id, @RequestBody SymptomRequestDto request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(observationsService.addSymptom(id, request));
-    }
-
-    @DeleteMapping("/{id}/symptoms/{symptom}")
-    public ResponseEntity<SymptomsResponseDto> removeSymptom(@PathVariable Long id, @PathVariable String symptom) {
-        return ResponseEntity.ok(observationsService.removeSymptom(id, symptom));
-    }
 
 }

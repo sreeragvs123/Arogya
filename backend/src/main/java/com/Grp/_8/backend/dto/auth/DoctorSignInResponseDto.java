@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class DoctorSignInResponseDto {
+    private String doctorName;
     private Long doctorId;
     private Long hospitalId;
     private Role role;

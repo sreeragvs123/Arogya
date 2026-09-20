@@ -63,7 +63,7 @@ public class Doctor {
     private DoctorStatus status = DoctorStatus.PENDING_FIRST_LOGIN;
 
 
-    private LocalDateTime lastLoginAt; // null until they log in for the first time
+    private LocalDateTime lastLoginAt;
 
 
     @CreationTimestamp

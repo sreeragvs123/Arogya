@@ -3,7 +3,6 @@ package com.Grp._8.backend.dto.prescription;
 import com.Grp._8.backend.entities.enums.ReportStatus;
 import lombok.Builder;
 import lombok.Data;
-import org.thymeleaf.standard.expression.NoOpTokenExpression;
 
 @Data
 @Builder

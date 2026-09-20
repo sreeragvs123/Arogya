@@ -38,7 +38,7 @@ public class WebSecurityConfigs {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**","/hospital/**").permitAll()
+                        .requestMatchers("/auth/**","/hospital/**","/doctor/**").permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(Session -> Session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

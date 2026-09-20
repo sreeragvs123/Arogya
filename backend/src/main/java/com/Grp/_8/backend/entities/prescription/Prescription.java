@@ -1,5 +1,6 @@
 package com.Grp._8.backend.entities.prescription;
 
+import com.Grp._8.backend.entities.dashboard.doctor.DiagnosticReport;
 import com.Grp._8.backend.entities.enums.ReportStatus;
 import com.Grp._8.backend.entities.users.Doctor;
 import com.Grp._8.backend.entities.users.Hospital;
@@ -13,7 +14,9 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter @Setter
@@ -46,6 +49,7 @@ public class Prescription {
     // Doctor's treatment notes — also shown in PDF
     @Column(columnDefinition = "TEXT")
     private String clinicalObservations;
+
     @Enumerated(EnumType.STRING)
     private ReportStatus status = ReportStatus.DRAFT;   // DRAFT -> PENDING_SIGNATURE -> SIGNED -> SENT
 
@@ -68,6 +72,15 @@ public class Prescription {
 
     @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL)
     private List<PrescriptionItem> prescriptionItems = new ArrayList<>();
+
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "prescription_diagnostic_reports",
+            joinColumns = @JoinColumn(name = "prescription_id"),
+            inverseJoinColumns = @JoinColumn(name = "diagnostic_report_id")
+    )
+    private Set<DiagnosticReport> diagnosticReports = new HashSet<>();
 
     @CreationTimestamp
     private LocalDateTime createdAt;

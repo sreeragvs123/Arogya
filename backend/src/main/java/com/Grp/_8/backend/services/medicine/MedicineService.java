@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class MedicineService {
+public class    MedicineService {
 
     private HospitalMedicineRepository hospitalMedicineRepository;
     private DrugRepository drugRepository;
