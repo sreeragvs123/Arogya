@@ -55,4 +55,4 @@ class CreateDoctorUsecase implements Usecase<Unit, CreateDoctorParams> {
   Future<Either<Failure, Unit>> call({required CreateDoctorParams params}) {
     return repository.createDoctor(params: params);
   }
-}
+} 

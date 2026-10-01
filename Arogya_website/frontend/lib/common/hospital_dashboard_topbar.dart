@@ -38,7 +38,7 @@ class AppTopBar extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           const Text(
-            'Hospital Dashboard — Arogya',
+            'Hospital Dashboard',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -95,15 +95,6 @@ class AppTopBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF64748B)),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.search_rounded, color: Color(0xFF64748B)),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 8),
           const VerticalDivider(width: 24, indent: 16, endIndent: 16),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,

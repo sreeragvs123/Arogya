@@ -8,12 +8,14 @@ class AppSidebar extends StatelessWidget {
   final String currentRoute;
   final VoidCallback onToggleCollapse;
   final HospitalAdminSession? session;
+  final int? hospitalId;
 
   const AppSidebar({
     super.key,
     required this.isCollapsed,
     required this.currentRoute,
     required this.onToggleCollapse,
+    this.hospitalId,
     this.session,
   });
 
@@ -23,6 +25,15 @@ class AppSidebar extends StatelessWidget {
     final hospitalName = session?.hospitalName ?? 'Hospital';
     final hospitalSubtitle = session?.hospitalCode ??
         (session?.hospitalId != null ? 'Facility ID: ${session!.hospitalId}' : '—');
+    final resolvedHospitalId = hospitalId ?? session?.hospitalId ?? 1;
+
+    void navigateTo(String route) {
+      if (currentRoute == route) return;
+      Navigator.of(context).pushReplacementNamed(
+        route,
+        arguments: session ?? resolvedHospitalId,
+      );
+    }
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
@@ -128,57 +139,22 @@ class AppSidebar extends StatelessWidget {
                     ),
 
                   _SidebarItem(
-                    icon: Icons.dashboard_outlined,
-                    label: 'Hospital Overview',
-                    isActive: currentRoute == AppRoutes.hospitalOverview,
-                    isCollapsed: isCollapsed,
-                  ),
-                  _SidebarItem(
                     icon: Icons.people_alt_rounded,
-                    label: 'Doctors & Medical Staff',
-                    isActive: currentRoute == AppRoutes.doctorsDirectory,
+                    label: 'Physician staff',
+                    isActive: currentRoute == AppRoutes.hospitalDashboard,
                     isCollapsed: isCollapsed,
+                    onTap: () => navigateTo(AppRoutes.hospitalDashboard),
                   ),
                   _SidebarItem(
-                    icon: Icons.apartment_outlined,
-                    label: 'Departments & Wards',
-                    isActive: currentRoute == AppRoutes.departments,
+                    icon: Icons.badge_rounded,
+                    label: 'Non-Physician staff',
+                    isActive: currentRoute == AppRoutes.staffDirectory,
                     isCollapsed: isCollapsed,
-                  ),
-                  _SidebarItem(
-                    icon: Icons.assignment_outlined,
-                    label: 'Patient Records',
-                    isActive: currentRoute == AppRoutes.patientRecords,
-                    isCollapsed: isCollapsed,
+                    onTap: () => navigateTo(AppRoutes.staffDirectory),
                   ),
 
                   const SizedBox(height: 20),
-                  if (!isCollapsed)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Text(
-                        'OPERATIONS & AUDIT',
-                        style: TextStyle(
-                          fontSize: 11,
-                          letterSpacing: 1.0,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF94A3B8),
-                        ),
-                      ),
-                    ),
 
-                  _SidebarItem(
-                    icon: Icons.settings_outlined,
-                    label: 'Facility Settings',
-                    isActive: currentRoute == AppRoutes.facilitySettings,
-                    isCollapsed: isCollapsed,
-                  ),
-                  _SidebarItem(
-                    icon: Icons.verified_user_outlined,
-                    label: 'Audit & Compliance',
-                    isActive: currentRoute == AppRoutes.auditCompliance,
-                    isCollapsed: isCollapsed,
-                  ),
                 ],
               ),
             ),
@@ -251,6 +227,7 @@ class AppSidebar extends StatelessWidget {
 }
 
 class _SidebarItem extends StatelessWidget {
+  final VoidCallback? onTap;
   final IconData icon;
   final String label;
   final bool isActive;
@@ -261,6 +238,7 @@ class _SidebarItem extends StatelessWidget {
     required this.label,
     required this.isActive,
     required this.isCollapsed,
+    this.onTap,
   });
 
   @override
@@ -271,7 +249,7 @@ class _SidebarItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () {},
+          onTap: onTap,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOutCubic,

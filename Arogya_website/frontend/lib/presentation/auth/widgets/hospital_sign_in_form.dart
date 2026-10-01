@@ -1,5 +1,6 @@
   import 'package:flutter/material.dart';
-  import 'package:frontend/presentation/hospital_dashboard/pages/hospital_dashboard_page.dart';
+  import 'package:frontend/core/routing/app_routes.dart';
+  import 'package:frontend/presentation/hospital_doctor_dashboard/pages/hospital_dashboard_page.dart';
 
   import 'auth_field.dart';
 
@@ -9,7 +10,6 @@
     final TextEditingController departmentController;
 
     final VoidCallback onSubmit;
-    final VoidCallback onForgotPassword;
 
     const HospitalSignInForm({
       super.key,
@@ -17,7 +17,6 @@
       required this.passwordController,
       required this.departmentController,
       required this.onSubmit,
-      required this.onForgotPassword,
     });
 
     @override
@@ -26,7 +25,6 @@
 
   class _HospitalSignInFormState extends State<HospitalSignInForm> {
     bool _obscurePassword = true;
-    bool _rememberMe = false;
 
     @override
     Widget build(BuildContext context) {
@@ -44,7 +42,6 @@
                 ),
               ),
               SizedBox(width: 10),
-              _FacilityBadge(),
             ],
           ),
 
@@ -52,7 +49,7 @@
 
           const Text(
             'Enter your institutional credentials to manage clinical '
-            'departments, doctors, and\npatient records.',
+            'departments, doctors, and patient records.',
             style: TextStyle(
               fontSize: 14.5,
               height: 1.45,
@@ -60,7 +57,7 @@
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 40),
 
           AuthField(
             label: 'Hospital Identifier or Admin Work Email',
@@ -82,17 +79,6 @@
                   color: Color(0xFF334155),
                 ),
               ),
-              TextButton(
-                onPressed: widget.onForgotPassword,
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                ),
-                child: const Text(
-                  'Forgot Hospital Password?',
-                  style: TextStyle(color: Color(0xFF00695C), fontSize: 12),
-                ),
-              ),
             ],
           ),
 
@@ -102,7 +88,7 @@
             controller: widget.passwordController,
             obscureText: _obscurePassword,
             decoration: InputDecoration(
-              hintText: '••••••••••••',
+              hintText: "Enter Password",
               prefixIcon: const Icon(
                 Icons.lock_open_outlined,
                 size: 18,
@@ -135,41 +121,7 @@
 
           SizedBox(height: 30,),
 
-          Row(
-            children: [
-              Checkbox(
-                value: _rememberMe,
-                onChanged: (value) {
-                  setState(() {
-                    _rememberMe = value ?? false;
-                  });
-                },
-                visualDensity: VisualDensity.compact,
-              ),
 
-              const Text(
-                'Remember this workstation',
-                style: TextStyle(fontSize: 12, color: Color(0xFF475569)),
-              ),
-
-              const Spacer(),
-
-              const Icon(
-                Icons.verified_user_outlined,
-                size: 15,
-                color: Color(0xFF009688),
-              ),
-
-              const SizedBox(width: 4),
-
-              const Text(
-                'NABH & HIPAA Secure',
-                style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 11),
 
           SizedBox(
             width: double.infinity,
@@ -223,11 +175,10 @@
           Center(
             child: GestureDetector(
               onTap: () {
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const HospitalDashboardPage(hospitalId: 1),
-                  ),
+                  AppRoutes.hospitalDashboard,
+                  arguments: 1,
                 );
               },
               child: Text(
@@ -241,29 +192,4 @@
     }
   }
 
-  class _FacilityBadge extends StatelessWidget {
-    const _FacilityBadge();
 
-    @override
-    Widget build(BuildContext context) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE8F8F5),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF9DE5D2)),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.circle, size: 6, color: Color(0xFF00897B)),
-            SizedBox(width: 5),
-            Text(
-              'Facility Admin',
-              style: TextStyle(fontSize: 11, color: Color(0xFF00796B)),
-            ),
-          ],
-        ),
-      );
-    }
-  }

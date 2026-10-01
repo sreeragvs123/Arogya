@@ -1,12 +1,17 @@
 part of 'session_bloc.dart';
 
 class SessionState extends Equatable {
-  final DoctorSession? doctorSession;
+  final AuthSession? session;
 
-  const SessionState({this.doctorSession});
+  const SessionState({this.session});
 
-  int? get doctorId => doctorSession?.doctorId;
+  bool get isLoggedIn => session != null;
+
+  int? get doctorId {
+    final s = session;
+    return s is DoctorSession ? s.doctorId : null;
+  }
 
   @override
-  List<Object?> get props => [doctorSession];
+  List<Object?> get props => [session];
 }

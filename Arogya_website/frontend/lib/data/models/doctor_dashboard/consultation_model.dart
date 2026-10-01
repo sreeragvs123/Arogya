@@ -14,13 +14,19 @@ class ConsultationModel extends ConsultationEntity {
   });
 
   factory ConsultationModel.fromJson(Map<String, dynamic> json) {
+    final patientName = (json['patientName'] as String?) ?? 'Patient';
+    final timeVal = (json['time'] ?? json['appointmentAt'])?.toString() ?? '';
+    final reasonVal = (json['reason'] ?? json['consultationType'])?.toString() ?? 'General Consultation';
+    final idVal = (json['id'] ?? json['appointmentId'])?.toString() ?? '';
+    final patientIdVal = (json['patientId'])?.toString() ?? '';
+
     return ConsultationModel(
-      id: json['id'].toString(),
-      patientId: json['patientId'].toString(),
-      patientName: json['patientName'] as String,
-      time: json['time'] as String,
-      reason: json['reason'] as String,
-      initials: json['initials'] as String? ?? _initialsFrom(json['patientName'] as String),
+      id: idVal,
+      patientId: patientIdVal,
+      patientName: patientName,
+      time: timeVal,
+      reason: reasonVal,
+      initials: json['initials'] as String? ?? _initialsFrom(patientName),
       avatarUrl: json['avatarUrl'] as String?,
       action: (json['action'] as String?) == 'JOIN_CALL'
           ? ConsultationActionType.joinCall

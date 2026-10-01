@@ -68,8 +68,12 @@ class PatientDetailRemoteDataSourceImpl implements PatientDetailRemoteDataSource
     required String patientId,
     required VitalsUpdateInput input,
   }) async {
-    final response = await dio.post(ApiRoutes.patientVitals(patientId), data: input.toJson());
-    return VitalsModel.fromJson(_unwrap(response.data) as Map<String, dynamic>);
+    final response = await dio.patch(ApiRoutes.patientVitals(patientId), data: input.toJson());
+    final data = _unwrap(response.data);
+    if (data == null) {
+      return VitalsModel.fromJson(input.toJson());
+    }
+    return VitalsModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
@@ -78,7 +82,7 @@ class PatientDetailRemoteDataSourceImpl implements PatientDetailRemoteDataSource
     required List<String> symptoms,
     required String clinicalNote,
   }) async {
-    final response = await dio.post(
+    final response = await dio.patch(
       ApiRoutes.patientObservations(patientId),
       data: {'symptoms': symptoms, 'clinicalNote': clinicalNote},
     );
@@ -97,7 +101,7 @@ class PatientDetailRemoteDataSourceImpl implements PatientDetailRemoteDataSource
     required String patientId,
     required List<PrescriptionItemModel> items,
   }) async {
-    final response = await dio.post(
+    final response = await dio.patch(
       ApiRoutes.patientPrescriptionSave(patientId),
       data: {'items': items.map((e) => e.toJson()).toList()},
     );

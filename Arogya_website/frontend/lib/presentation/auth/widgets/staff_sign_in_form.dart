@@ -67,7 +67,7 @@ class _StaffSignInFormState extends State<StaffSignInForm> {
             style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         const Text('Select your affiliated hospital, department and enter your staff credentials.'),
-        const SizedBox(height: 18),
+        const SizedBox(height: 30),
         const Text('Affiliated Hospital / Health Center'),
         const SizedBox(height: 6),
         BlocProvider(
@@ -107,7 +107,7 @@ class _StaffSignInFormState extends State<StaffSignInForm> {
           controller: widget.passwordController,
           obscureText: _obscurePassword,
           decoration: _input(
-            'Enter your secure staff password',
+            'Enter Password',
             suffixIcon: IconButton(
               icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
               onPressed: () => setState(() => _obscurePassword = !_obscurePassword),

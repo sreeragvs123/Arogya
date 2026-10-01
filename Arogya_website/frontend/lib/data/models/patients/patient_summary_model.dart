@@ -15,14 +15,14 @@ class PatientSummaryModel extends PatientSummaryEntity {
 
   factory PatientSummaryModel.fromJson(Map<String, dynamic> json) {
     return PatientSummaryModel(
-      id: json['id'].toString(),
-      name: json['name'] as String,
-      patientId: json['patientId'] as String,
-      age: json['age'] as int,
-      gender: json['gender'] as String,
-      status: json['status'] as String,
-      lastVisit: json['lastVisit'] as String,
-      diagnosis: json['diagnosis'] as String,
+      id: (json['id'] ?? json['patientId'])?.toString() ?? '',
+      name: (json['name'] ?? json['patientName'])?.toString() ?? 'Patient',
+      patientId: (json['patientId'] ?? json['id'])?.toString() ?? '',
+      age: (json['age'] as num?)?.toInt() ?? 0,
+      gender: (json['gender'] as String?) ?? 'N/A',
+      status: (json['status'] ?? json['directoryStatus']) as String? ?? 'Active',
+      lastVisit: (json['lastVisit'] ?? json['lastVisitedAt'])?.toString() ?? '',
+      diagnosis: (json['diagnosis'] ?? json['primaryDiagnosis']) as String? ?? 'N/A',
       isHighRisk: json['isHighRisk'] as bool? ?? false,
     );
   }
@@ -38,10 +38,10 @@ class PatientsDirectorySummaryModel extends PatientsDirectorySummaryEntity {
 
   factory PatientsDirectorySummaryModel.fromJson(Map<String, dynamic> json) {
     return PatientsDirectorySummaryModel(
-      totalPatients: json['totalPatients'] as int,
-      totalPatientsGrowth: json['totalPatientsGrowth'] as String,
-      newThisMonth: json['newThisMonth'] as int,
-      followUpsPending: json['followUpsPending'] as int,
+      totalPatients: (json['totalPatients'] as num?)?.toInt() ?? 0,
+      totalPatientsGrowth: (json['totalPatientsGrowth'] as String?) ?? '+0%',
+      newThisMonth: (json['newThisMonth'] ?? json['newPatientsThisMonth'] as num?)?.toInt() ?? 0,
+      followUpsPending: (json['followUpsPending'] ?? json['followUpsDue'] as num?)?.toInt() ?? 0,
     );
   }
 }

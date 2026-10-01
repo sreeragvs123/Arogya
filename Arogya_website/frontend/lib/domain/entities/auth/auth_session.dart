@@ -21,6 +21,9 @@ enum UserRole {
       case 'DOCTOR':
         return UserRole.doctor;
       case 'ADMIN':
+      case 'HOSPITAL':
+      case 'HOSPITAL_ADMIN':
+      case 'HOSPITALADMIN':
         return UserRole.hospitalAdmin;
       case 'STAFF':
         return UserRole.staff;

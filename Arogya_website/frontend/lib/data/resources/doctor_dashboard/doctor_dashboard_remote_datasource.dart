@@ -50,7 +50,7 @@ class DoctorDashboardRemoteDataSourceImpl implements DoctorDashboardRemoteDataSo
 
   @override
   Future<void> startConsultation({required String consultationId}) async {
-    final response = await dio.post(ApiRoutes.consultationStart(consultationId));
+    final response = await dio.patch(ApiRoutes.consultationStart(consultationId));
     _unwrap(response.data);
   }
 

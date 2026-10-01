@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/routing/app_routes.dart';
 import 'package:frontend/core/utils/service_locator.dart';
 import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/presentation/auth/bloc/auth_bloc.dart';
 import 'package:frontend/presentation/auth/widgets/hospital_search_field.dart';
 import 'package:frontend/presentation/doctor_dashboard/pages/doctor_page.dart';
 import 'package:frontend/common/hospital_search/hospital_search_bloc.dart';
-import 'package:frontend/domain/entities/auth/hospital.dart';
 
 import 'auth_field.dart';
 
@@ -28,7 +28,6 @@ class DoctorSignInForm extends StatefulWidget {
 
 class _DoctorSignInFormState extends State<DoctorSignInForm> {
   bool _obscurePassword = true;
-  bool _rememberMe = false;
   int? _selectedHospitalId;
 
   void _handleDoctorSignIn() {
@@ -58,21 +57,9 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
               ),
             ),
             SizedBox(width: 12),
-            _StatusBadge(text: 'Clinical Staff'),
           ],
         ),
 
-        const SizedBox(height: 6),
-
-        const Text(
-          'Select your affiliated facility and enter your doctor\n'
-          'credentials.',
-          style: TextStyle(
-            fontSize: 15,
-            height: 1.45,
-            color: Color(0xFF64748B),
-          ),
-        ),
 
         const SizedBox(height: 18),
 
@@ -84,7 +71,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
               'contact your facility IT desk.',
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 40),
 
         const Text(
           'Associated Hospital / Health Center',
@@ -153,7 +140,7 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
           controller: widget.passwordController,
           obscureText: _obscurePassword,
           decoration: InputDecoration(
-            hintText: '••••••••••',
+            hintText: 'Enter Password',
             prefixIcon: const Icon(
               Icons.lock_outline,
               size: 18,
@@ -184,39 +171,8 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 22),
 
-        Row(
-          children: [
-            Checkbox(
-              value: _rememberMe,
-              onChanged: (value) {
-                setState(() {
-                  _rememberMe = value ?? false;
-                });
-              },
-              visualDensity: VisualDensity.compact,
-            ),
-
-            const Text(
-              'Remember on this workstation',
-              style: TextStyle(fontSize: 12, color: Color(0xFF475569)),
-            ),
-
-            const Spacer(),
-
-            const Icon(Icons.lock_outline, size: 14, color: Color(0xFF00897B)),
-
-            const SizedBox(width: 4),
-
-            const Text(
-              'HIPAA Secure',
-              style: TextStyle(fontSize: 12, color: Color(0xFF00796B)),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 10),
 
         _SubmitButton(
           text: 'Access Clinical Portal',
@@ -226,19 +182,16 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
         Center(
           child: GestureDetector(
             onTap: () {
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => DoctorDashBoardPage(
-                    session: DoctorSession(
-                      accessToken: 'dev-token',
-                      expiresAt: DateTime.now().add(const Duration(hours: 1)),
-                      role: UserRole.doctor,
-                      doctorId: 1,
-                      doctorName: 'Dev Doctor',
-                      hospitalId: 1,
-                    ),
-                  ),
+                AppRoutes.doctorDashboard,
+                arguments: DoctorSession(
+                  accessToken: 'dev-token',
+                  expiresAt: DateTime.now().add(const Duration(hours: 1)),
+                  role: UserRole.doctor,
+                  doctorId: 1,
+                  doctorName: 'Dev Doctor',
+                  hospitalId: 1,
                 ),
               );
             },
@@ -254,32 +207,6 @@ class _DoctorSignInFormState extends State<DoctorSignInForm> {
 }
 
 
-
-class _StatusBadge extends StatelessWidget {
-  final String text;
-
-  const _StatusBadge({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F5F3),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFB2DFDB)),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 11,
-          color: Color(0xFF00796B),
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-}
 
 class _InfoBox extends StatelessWidget {
   final IconData icon;

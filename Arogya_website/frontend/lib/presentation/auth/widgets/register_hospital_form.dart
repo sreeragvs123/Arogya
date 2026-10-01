@@ -76,7 +76,7 @@ class _RegisterHospitalFormState extends State<RegisterHospitalForm> {
 
         const Text(
           'Create your hospital entity. Once verified by our clinical desk, '
-          'you can provision\ndoctor credentials and configure specialized departments.',
+          'you can provision doctor credentials and configure specialized departments.',
           style: TextStyle(
             fontSize: 14,
             height: 1.45,
@@ -84,42 +84,7 @@ class _RegisterHospitalFormState extends State<RegisterHospitalForm> {
           ),
         ),
 
-        const SizedBox(height: 13),
-
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 11,
-            vertical: 6,
-          ),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAF8F4),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: const Color(0xFFB6E9DC),
-            ),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.circle,
-                size: 7,
-                color: Color(0xFF009688),
-              ),
-              SizedBox(width: 6),
-              Text(
-                'New Facility',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF00897B),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
+        const SizedBox(height: 26),
 
         Container(
           padding: const EdgeInsets.all(13),
@@ -155,7 +120,7 @@ class _RegisterHospitalFormState extends State<RegisterHospitalForm> {
           ),
         ),
 
-        const SizedBox(height: 25),
+        const SizedBox(height: 30),
 
         _SectionTitle(
           title: '1. INSTITUTIONAL DETAILS',

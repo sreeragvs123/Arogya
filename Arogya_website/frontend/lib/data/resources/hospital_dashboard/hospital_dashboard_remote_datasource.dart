@@ -68,7 +68,7 @@ Future<DoctorDetailModel> getDoctorDetail({
   required int doctorId,
 }) async {
   final response = await dio.get(
-    ApiRoutes.hospitalDoctorDetail(hospitalId, doctorId),
+    ApiRoutes.hospitalDoctorDetail(doctorId),
   );
   return DoctorDetailModel.fromJson(_unwrap(response.data));
 }
@@ -81,7 +81,7 @@ Future<DoctorDetailModel> getDoctorDetail({
     required int size,
   }) async {
     final response = await dio.get(
-      ApiRoutes.hospitalDoctorsBySection(hospitalId),
+      ApiRoutes.doctorsBySection,
       queryParameters: {
         'section': section.apiValue,
         'page': page,
@@ -103,7 +103,7 @@ Future<DoctorDetailModel> getDoctorDetail({
     required int size,
   }) async {
     final response = await dio.get(
-      ApiRoutes.hospitalDoctorsSearch(hospitalId),
+      ApiRoutes.doctorsSearch,
       queryParameters: {
         'section': section.apiValue,
         'query': query,
@@ -127,7 +127,7 @@ Future<DoctorDetailModel> getDoctorDetail({
     required int size,
   }) async {
     final response = await dio.get(
-      ApiRoutes.hospitalDoctorsFilterSpecialization(hospitalId),
+      ApiRoutes.doctorsFilter,
       queryParameters: {
         'section': section.apiValue,
         'specialization': specialization,
@@ -144,7 +144,7 @@ Future<DoctorDetailModel> getDoctorDetail({
   @override
   Future<List<String>> getSpecializations({required int hospitalId}) async {
     final response = await dio.get(
-      ApiRoutes.hospitalDoctorsSpecializations(hospitalId),
+      ApiRoutes.doctorSpecializations,
     );
     final envelope = response.data as Map<String, dynamic>;
     if (envelope['error'] != null) {
@@ -157,7 +157,7 @@ Future<DoctorDetailModel> getDoctorDetail({
 
   @override
   Future<HospitalMetricsModel> getMetrics({required int hospitalId}) async {
-    final response = await dio.get(ApiRoutes.hospitalMetrics(hospitalId));
+    final response = await dio.get(ApiRoutes.hospitalMetrics);
     return HospitalMetricsModel.fromJson(_unwrap(response.data));
   }
 
@@ -165,7 +165,7 @@ Future<DoctorDetailModel> getDoctorDetail({
   @override
   Future<void> createDoctor({required CreateDoctorParams params}) async {
     final response = await dio.post(
-      ApiRoutes.doctorCreate(params.hospitalId),
+      ApiRoutes.doctorCreate,
       data: {
         'fullName': params.fullName,
         'licenseNumber': params.licenseNumber,

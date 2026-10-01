@@ -16,16 +16,16 @@ class PatientDetailModel extends PatientDetailEntity {
 
   factory PatientDetailModel.fromJson(Map<String, dynamic> json) {
     return PatientDetailModel(
-      id: json['id'].toString(),
-      name: json['name'] as String,
-      displayId: json['displayId'] as String,
-      age: json['age'] as int,
-      gender: json['gender'] as String,
-      bloodGroup: json['bloodGroup'] as String,
-      heightCm: json['heightCm'] as String,
-      weightKg: json['weightKg'] as String,
+      id: (json['id'] ?? json['patientDisplayId'] ?? json['patientId'])?.toString() ?? '',
+      name: (json['name'] ?? json['fullName'])?.toString() ?? 'Patient',
+      displayId: (json['displayId'] ?? json['patientDisplayId'])?.toString() ?? '',
+      age: (json['age'] as num?)?.toInt() ?? 0,
+      gender: (json['gender'] ?? json['sex'])?.toString() ?? 'N/A',
+      bloodGroup: (json['bloodGroup'] ?? json['bloodType'])?.toString() ?? 'N/A',
+      heightCm: json['heightCm']?.toString() ?? '170',
+      weightKg: json['weightKg']?.toString() ?? '65',
       isHighSensitivity: json['isHighSensitivity'] as bool? ?? false,
-      photoUrl: json['photoUrl'] as String?,
+      photoUrl: (json['photoUrl'] ?? json['profileImageUrl']) as String?,
     );
   }
 }

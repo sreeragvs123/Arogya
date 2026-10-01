@@ -22,18 +22,9 @@ class HospitalHeaderSection extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
-              children: [
-                Text('Hospital Governance',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-                Icon(Icons.chevron_right, size: 14, color: Color(0xFF94A3B8)),
-                Text('Hospital Dashboard',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF2563EB))),
-              ],
-            ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 15),
             const Text(
-              'Hospital Dashboard — Clinical Staff & Doctors',
+              'Hospital Dashboard : Physician Staffs',
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: Color(0xFF0F172A)),
             ),
             const SizedBox(height: 4),
@@ -43,20 +34,10 @@ class HospitalHeaderSection extends StatelessWidget {
             ),
           ],
         ),
+
+
         Row(
           children: [
-            OutlinedButton.icon(
-              onPressed: onExportRegister,
-              icon: const Icon(Icons.file_download_outlined, size: 16),
-              label: const Text('Export Register'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF334155),
-                side: const BorderSide(color: Color(0xFFCBD5E1)),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-            const SizedBox(width: 10),
             ElevatedButton.icon(
               onPressed: onAddDoctorTap,
               icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),

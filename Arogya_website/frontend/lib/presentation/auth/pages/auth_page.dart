@@ -5,8 +5,9 @@ import 'package:frontend/domain/entities/auth/auth_session.dart';
 import 'package:frontend/presentation/auth/bloc/auth_bloc.dart';
 import 'package:frontend/presentation/auth/widgets/staff_sign_in_form.dart';
 import 'package:frontend/presentation/doctor_dashboard/pages/doctor_page.dart';
-import 'package:frontend/presentation/hospital_dashboard/pages/hospital_dashboard_page.dart';
+import 'package:frontend/presentation/hospital_doctor_dashboard/pages/hospital_dashboard_page.dart';
 import 'package:frontend/presentation/staff_dashboard/pages/department_doctors_page.dart';
+import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../widgets/auth_footer_links.dart';
 import '../widgets/auth_hero_panel.dart';
@@ -117,12 +118,7 @@ class _AuthPageState extends State<AuthPage> {
           passwordController: _hospitalPasswordController,
           departmentController: _hospitalDepartmentController,
           onSubmit: _handleHospitalSignIn,
-          onForgotPassword: () {
-            // TODO
-          },
         );
-
-      case AuthTab.staffSignIn:
       case AuthTab.staffSignIn:
         return StaffSignInForm(
           hospitalController: _staffHospitalController,
@@ -167,14 +163,10 @@ class _AuthPageState extends State<AuthPage> {
             if (session is! HospitalAdminSession) {
               throw StateError('Excepted Hospitala Session but got $session');
             }
-            Navigator.pushReplacement(
+            Navigator.pushReplacementNamed(
               context,
-              MaterialPageRoute(
-                builder: (_) => HospitalDashboardPage(
-                  hospitalId: session.hospitalId ?? 1,
-                  session: session,
-                ),
-              ),
+              AppRoutes.hospitalDashboard,
+              arguments: session,
             );
           } else if (state.tab == AuthTab.doctorSignIn) {
             final session = state.session;
@@ -182,22 +174,20 @@ class _AuthPageState extends State<AuthPage> {
               throw StateError("Expected DoctorSession but got $session");
             }
 
-            Navigator.pushReplacement(
+            Navigator.pushReplacementNamed(
               context,
-              MaterialPageRoute(
-                builder: (_) => DoctorDashBoardPage(session: session),
-              ),
+              AppRoutes.doctorDashboard,
+              arguments: session,
             );
           } else if (state.tab == AuthTab.staffSignIn) {
             final session = state.session;
             if (session is! StaffSession) {
               throw StateError('Expected StaffSession but got $session');
             }
-            Navigator.pushReplacement(
+            Navigator.pushReplacementNamed(
               context,
-              MaterialPageRoute(
-                builder: (_) => DepartmentDoctorsPage(session: session),
-              ),
+              AppRoutes.departmentDoctors,
+              arguments: session,
             );
           }
         }

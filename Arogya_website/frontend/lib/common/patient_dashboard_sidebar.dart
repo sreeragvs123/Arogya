@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/session/session_bloc.dart';
-import 'package:frontend/presentation/doctor_dashboard/pages/doctor_page.dart';
+import 'package:frontend/domain/entities/auth/auth_session.dart';
 import '../core/routing/app_routes.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_text_styles.dart';
@@ -11,7 +11,7 @@ const List<NavItemData> kPortalNavItems = [
   NavItemData(
     icon: Icons.grid_view_rounded,
     label: 'Dashboard',
-    routeName: AppRoutes.dashboard,
+    routeName: AppRoutes.doctorDashboard,
   ),
   NavItemData(
     icon: Icons.people_alt_outlined,
@@ -32,7 +32,7 @@ class AppSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final session = context.watch<SessionBloc>().state.doctorSession;
+    final session = context.watch<SessionBloc>().state.session;
 
     return Container(
       width: 248,
@@ -54,14 +54,13 @@ class AppSidebar extends StatelessWidget {
                         onTap: () {
                           if (item.routeName == currentRoute) {
                             return;
-                          } else if (item.routeName == AppRoutes.dashboard) {
-                            if (session == null) return;
-                            Navigator.pushReplacement(
+                          } else if (item.routeName ==
+                              AppRoutes.doctorDashboard) {
+                            if (session is! DoctorSession) return;
+                            Navigator.pushReplacementNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    DoctorDashBoardPage(session: session),
-                              ),
+                              AppRoutes.doctorDashboard,
+                              arguments: session,
                             );
                           } else if (item.routeName == AppRoutes.myPatients) {
                             Navigator.pushReplacementNamed(

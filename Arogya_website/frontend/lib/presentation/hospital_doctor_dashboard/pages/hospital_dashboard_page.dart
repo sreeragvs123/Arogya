@@ -5,9 +5,9 @@ import 'package:frontend/common/hospital_dashboard_sidebar.dart';
 import 'package:frontend/common/hospital_dashboard_topbar.dart';
 import 'package:frontend/core/utils/service_locator.dart';
 import 'package:frontend/domain/entities/auth/auth_session.dart';
-import 'package:frontend/presentation/hospital_doctor_detail/pages/doctor_detail_page.dart';
-import 'package:frontend/presentation/hospital_dashboard/bloc/hospital_dashboard_bloc.dart';
-import 'package:frontend/presentation/hospital_dashboard/widgets/hospital_table_section.dart';
+import 'package:frontend/presentation/hospital_doctor_dashboard/bloc/hospital_dashboard_bloc.dart';
+import 'package:frontend/presentation/hospital_doctor_dashboard/bloc/provision_doctor_bloc.dart';
+import 'package:frontend/presentation/hospital_doctor_dashboard/widgets/hospital_table_section.dart';
 import '../../../core/routing/app_routes.dart';
 import '../widgets/hospital_header_section.dart';
 import '../widgets/hospital_metrics_row.dart';
@@ -58,28 +58,31 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
       barrierLabel: 'HospitalProvisionDoctor',
       barrierColor: Colors.black45,
       transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, anim1, anim2) {
-        return Align(
-          alignment: Alignment.centerRight,
-          child: Material(
-            color: Colors.transparent,
-            child: SizedBox(
-              width: 560,
-              height: double.infinity,
-              child: HospitalProvisionDoctorSheet(
-                onSaved: (doctorName) {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Hospital credential issued for $doctorName',
+      pageBuilder: (dialogContext, anim1, anim2) {
+        return BlocProvider(
+          create: (_) => sl<ProvisionDoctorBloc>(),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Material(
+              color: Colors.transparent,
+              child: SizedBox(
+                width: 560,
+                height: double.infinity,
+                child: HospitalProvisionDoctorSheet(
+                  hospitalId: widget.hospitalId,
+                  onSaved: (doctorName) {
+                    Navigator.of(dialogContext).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Hospital credential issued for $doctorName',
+                        ),
+                        backgroundColor: const Color(0xFF0F172A),
                       ),
-                      backgroundColor: const Color(0xFF0F172A),
-                    ),
-                  );
-                  _bloc.add(HospitalDashboardStarted(widget.hospitalId));
-                },
-                hospitalId: widget.hospitalId,
+                    );
+                    _bloc.add(HospitalDashboardStarted(widget.hospitalId));
+                  },
+                ),
               ),
             ),
           ),
@@ -110,6 +113,7 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
               currentRoute: AppRoutes.hospitalDashboard,
               onToggleCollapse: _toggleSidebar,
               session: widget.session,
+              hospitalId: widget.hospitalId,
             ),
             Expanded(
               child: Column(
@@ -137,7 +141,7 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                                 onImportCsv: () {},
                                 onExportRegister: () {},
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 30),
 
                               HospitalMetricsRow(
                                 affiliatedDoctors:
@@ -212,13 +216,13 @@ class _HospitalDashboardPageState extends State<HospitalDashboardPage> {
                                   );
                                 },
                                 onRowTap: (doctor) {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => DoctorDetailPage(
-                                        hospitalId: widget.hospitalId,
-                                        doctorId: doctor.doctorId,
-                                      ),
-                                    ),
+                                  Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.doctorDetail,
+                                    arguments: {
+                                      'hospitalId': widget.hospitalId,
+                                      'doctorId': doctor.doctorId,
+                                    },
                                   );
                                 },
                               ),

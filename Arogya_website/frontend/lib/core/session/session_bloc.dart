@@ -21,8 +21,8 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     Emitter<SessionState> emit,
   ) async {
     final session = await sessionStorage.read();
-    if (session is DoctorSession) {
-      emit(SessionState(doctorSession: session));
+    if (session != null) {
+      emit(SessionState(session: session));
     }
   }
 
@@ -30,13 +30,14 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     SessionUpdated event,
     Emitter<SessionState> emit,
   ) {
-    emit(SessionState(doctorSession: event.session));
+    emit(SessionState(session: event.session));
   }
 
   FutureOr<void> _onSessionCleared(
     SessionCleared event,
     Emitter<SessionState> emit,
-  ) {
+  ) async {
+    await sessionStorage.clear();
     emit(const SessionState());
   }
 }

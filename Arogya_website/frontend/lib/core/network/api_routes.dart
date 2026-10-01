@@ -3,38 +3,37 @@ class ApiRoutes {
 
   //Auth
   static final String getRefreshToken = "/auth/doctor/refresh";
-  static const hospitalSignIn = '/auth/hospital/signIn';
+  static const String hospitalSignIn = '/auth/hospital/signIn';
   static final String createHospital = "/auth/hospital/create";
   static final String doctorSignIn = "/auth/doctor/signIn";
-  static final String createDoctor = "/auth/doctor/create";
   static final String hospitalSearch = "/hospital/search";
   static final String staffSignIn = "/auth/staff/signIn";
-  static  String createStaff(int hospitalId) => "/auth/staff/create/$hospitalId";
 
 
 
-  //Hospital_dashboard
-  static String hospitalDoctorsBySection(int hospitalId) =>
-      '/hospital/dashboard/search/$hospitalId/doctors';
-  static String hospitalDoctorsSearch(int hospitalId) =>
-      '/hospital/dashboard/search/$hospitalId/doctors/search';
-  static String hospitalDoctorsSpecializations(int hospitalId) =>
-      '/hospital/dashboard/search/$hospitalId/doctors/specializations';
-  static String hospitalDoctorsFilterSpecialization(int hospitalId) =>
-      '/hospital/dashboard/search/$hospitalId/doctors/filter-specialization';
-  static String hospitalMetrics(int hospitalId) =>
-      '/hospital/dashboard/search/$hospitalId/metrics';
-  static String doctorCreate(int hospitalId) =>
-      '/auth/doctor/create/$hospitalId';
-  static String hospitalDoctorDetail(int hospitalId, int doctorId) =>
-    '/hospital/dashboard/doctor/$hospitalId/$doctorId';
+
+  //Hospital_doctor_dashboard
+  static const doctorsBySection = '/hospital/dashboard/search/doctors';
+  static const doctorsSearch = '/hospital/dashboard/search/doctors/search';
+  static const doctorSpecializations = '/hospital/dashboard/search/doctors/specializations';
+  static const doctorsFilter = '/hospital/dashboard/search/doctors/filter-specialization';
+  static const hospitalMetrics = '/hospital/dashboard/search/metrics';
+  static String doctorCreate = "hospital/dashboard/doctor/create";
+  static String hospitalDoctorDetail(int doctorId) =>'/hospital/dashboard/doctor/$doctorId';
+
+
+
+  //Hospital_staff_dashboard
+  static const staffCreate = '/hospital/dashboard/staff';
+  static const String getAllStaff = '/hospital/dashboard/staff';
+
 
 
   //Doctor_dashboard
   static String doctorDashboardSummary(int doctorId) =>
       '/doctor/$doctorId/dashboard/summary';
   static const String doctorDashboardConsultations =
-      '/doctor/dashboard/consultations';
+      '/doctor/consultations/today';
   static const String doctorDashboardActivity = '/doctor/dashboard/activity';
   static String consultationStart(String consultationId) =>
       '/doctor/consultations/$consultationId/start';
@@ -42,23 +41,24 @@ class ApiRoutes {
       '/doctor/consultations/$consultationId/join-call';
 
   // Patients directory
-  static  String doctorPatientsSummary(int doctorId,int hospitalId) => '/doctor/$doctorId/$hospitalId/appointments/count';
+  static String doctorPatientsSummary(int doctorId, int hospitalId) =>
+      '/doctor/$doctorId/$hospitalId/appointments/count';
   static const String doctorPatientsActive = '/doctor/patients/active';
-  static const String doctorPatients = '/doctor/patients';
+  static const String doctorPatients = '/doctor/patients/search';
 
   // Patient record sync (QR / manual lookup)
   static const String patientLookup = '/patients/lookup';
 
   // Patient detail workspace
-  static String patientDetail(String patientId) => '/patients/$patientId';
+  static String patientDetail(String patientId) => '/patients/$patientId/card';
   static String patientVitals(String patientId) =>
-      '/patients/$patientId/vitals';
+      '/doctor/appointment/$patientId/vitals';
   static String patientObservations(String patientId) =>
-      '/patients/$patientId/observations';
+      '/doctor/appointment/$patientId/observations';
   static String patientPrescriptionDraft(String patientId) =>
       '/patients/$patientId/prescription/draft';
   static String patientPrescriptionSave(String patientId) =>
-      '/patients/$patientId/prescription/save';
+      '/doctor/appointment/$patientId/prescription-items';
   static String patientClinicalReportGenerate(String patientId) =>
       '/patients/$patientId/clinical-report/generate';
 }

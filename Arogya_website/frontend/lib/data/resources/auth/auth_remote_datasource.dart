@@ -69,15 +69,7 @@ Future<StaffSignInResponseModel> staffSignIn({
       ApiRoutes.hospitalSignIn,
       data: {'identifierOrEmail': identifierOrEmail, 'password': password},
     );
-    final envelope = response.data as Map<String, dynamic>;
-    if (envelope['error'] != null) {
-      final error = envelope['error'] as Map<String, dynamic>;
-      throw Exception(error['message'] as String? ?? 'Request failed');
-    }
-    print(envelope);
-    print(envelope["data"]);
-    final data = envelope['data'] as Map<String, dynamic>;
-    return HospitalSignInResponseModel.fromJson(data);
+    return HospitalSignInResponseModel.fromJson(response.data["data"] as Map<String, dynamic>);
   }
 
 
@@ -115,7 +107,7 @@ Future<StaffSignInResponseModel> staffSignIn({
       ApiRoutes.createHospital,
       data: params.toJson(),
     );
-    print(response.data);
+
     return HospitalModel.fromJson(
       response.data["data"] as Map<String, dynamic>,
     );

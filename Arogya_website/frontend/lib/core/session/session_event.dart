@@ -12,7 +12,7 @@ class SessionLoadRequested extends SessionEvent {
 }
 
 class SessionUpdated extends SessionEvent {
-  final DoctorSession session;
+  final AuthSession session;
 
   const SessionUpdated(this.session);
 

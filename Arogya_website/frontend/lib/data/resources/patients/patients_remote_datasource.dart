@@ -60,11 +60,10 @@ class PatientsRemoteDataSourceImpl implements PatientsRemoteDataSource {
     final response = await dio.get(
       ApiRoutes.doctorPatients,
       queryParameters: {
-        if (query.isNotEmpty) 'query': query,
-        'sortBy': sortBy,
-        if (condition != 'All Conditions') 'condition': condition,
+        'q': query,
         'page': page,
         'size': size,
+        if (sortBy.isNotEmpty) 'sort': sortBy,
       },
     );
     return PaginatedResultModel.fromJson(
@@ -75,10 +74,7 @@ class PatientsRemoteDataSourceImpl implements PatientsRemoteDataSource {
 
   @override
   Future<PatientSummaryModel> lookupPatient({required String identifier}) async {
-    final response = await dio.get(
-      ApiRoutes.patientLookup,
-      queryParameters: {'identifier': identifier},
-    );
+    final response = await dio.get(ApiRoutes.patientDetail(identifier));
     return PatientSummaryModel.fromJson(_unwrap(response.data) as Map<String, dynamic>);
   }
 }

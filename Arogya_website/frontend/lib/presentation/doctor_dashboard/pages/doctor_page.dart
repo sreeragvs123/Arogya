@@ -51,7 +51,7 @@ class _DoctorDashBoardView extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-          const AppSidebar(currentRoute: AppRoutes.dashboard),
+          const AppSidebar(currentRoute: AppRoutes.doctorDashboard),
           Expanded(
             child: Column(
               children: [

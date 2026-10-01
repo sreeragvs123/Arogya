@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/routing/app_routes.dart';
 import 'package:frontend/domain/entities/auth/auth_session.dart';
 import '../widgets/doctor_card.dart';
-import 'doctor_queue_page.dart';
 
 class DepartmentDoctorsPage extends StatefulWidget {
   final StaffSession session;
@@ -126,11 +126,10 @@ class _DepartmentDoctorsPageState extends State<DepartmentDoctorsPage> {
                         ),
                         itemBuilder: (_, index) => DoctorCard(
                           doctor: filtered[index],
-                          onTap: () => Navigator.push(
+                          onTap: () => Navigator.pushNamed(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => DoctorQueuePage(doctor: filtered[index]),
-                            ),
+                            AppRoutes.doctorQueue,
+                            arguments: filtered[index],
                           ),
                         ),
                       ),
