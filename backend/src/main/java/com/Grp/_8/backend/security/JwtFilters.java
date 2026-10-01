@@ -1,8 +1,8 @@
-package com.Grp._8.backend.filters;
+package com.Grp._8.backend.security;
 
-import com.Grp._8.backend.entities.users.Users;
-import com.Grp._8.backend.repositories.users.UserRepository;
-import com.Grp._8.backend.services.auth.JwtService;
+import com.Grp._8.backend.entities.enums.Role;
+import com.Grp._8.backend.entities.users.UserPrincipal;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,49 +18,55 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
 public class JwtFilters extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserRepository userRepository;
 
     @Autowired
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver handlerExceptionResolver;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            final String requestTokenHeader = request.getHeader("Authorization");//get JWt token from header
-            if (requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")) {//If no token or wrong format → skip authentication, continue to next filter
+            final String requestTokenHeader = request.getHeader("Authorization");
+            if (requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            String jwtToken = requestTokenHeader.split("Bearer ")[1].trim();//Removes "Bearer " prefix to get the actual token
-            Long userId = jwtService.getUserIdFromToken(jwtToken);//Decodes and validates JWT, extracts the user ID from claims
+            String jwtToken = requestTokenHeader.substring(7).trim();
+            Claims claims = jwtService.parseClaims(jwtToken); // verifies signature + expiry
+            String roleClaim = claims.get("role", String.class);
 
-            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                Optional<Users> user = userRepository.findById(userId);
+            // Refresh tokens carry no role claim, so they can't authenticate requests
+            if (roleClaim != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                Long userId = Long.valueOf(claims.getSubject());
+                Object pid = claims.get("profileId");
+                Long profileId = pid instanceof Number n ? n.longValue() : null;
+
+                UserPrincipal principal = new UserPrincipal(
+                        claims.get("username", String.class),
+                        null,
+                        Role.valueOf(roleClaim),
+                        userId,
+                        profileId
+                );
+
                 UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(user.get(), null, null);
+                        new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                 authenticationToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
             }
-            filterChain.doFilter(request, response);//Pass request to the next filter/controller
+
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
             handlerExceptionResolver.resolveException(request, response, null, e);
         }
-
-
     }
-
-
 }

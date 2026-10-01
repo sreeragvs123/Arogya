@@ -1,4 +1,4 @@
-package com.Grp._8.backend.controllers.prescription;
+package com.Grp._8.backend.controllers.prescription.doctor;
 
 
 import com.Grp._8.backend.services.prescription.PrescriptionSignatureService;

@@ -4,11 +4,13 @@ package com.Grp._8.backend.services.auth;
 import com.Grp._8.backend.dto.auth.*;
 import com.Grp._8.backend.entities.enums.Role;
 import com.Grp._8.backend.entities.users.Hospital;
+import com.Grp._8.backend.entities.users.UserPrincipal;
 import com.Grp._8.backend.entities.users.Users;
 import com.Grp._8.backend.exceptions.HospitalAlreadyExistsException;
 import com.Grp._8.backend.exceptions.ResourceNotFoundException;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
 import com.Grp._8.backend.repositories.users.UserRepository;
+import com.Grp._8.backend.security.JwtService;
 import com.Grp._8.backend.utils.HospitalDisplayUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,18 +38,19 @@ public class HospitalAuthService {
 
 
     public Object[] signIn(HospitalSignInRequestDto request) {
-        String compositeKey = request.getIdentifierOrEmail() + ":" + Role.HOSPITAL;
+
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(compositeKey, request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getIdentifierOrEmail(), request.getPassword())
         );
 
-        Users validUser = (Users) authentication.getPrincipal();
 
-        Hospital hospital = hospitalRepository.findByUserData_Id(validUser.getId())
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        Hospital hospital = hospitalRepository.findById(principal.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hospital record not found for this account"));
 
-        String accessToken = jwtService.generateAccessToken(validUser);
-        String refreshToken = jwtService.generateRefreshToken(validUser);
+        String accessToken = jwtService.generateAccessToken(principal);
+        String refreshToken = jwtService.generateRefreshToken(principal);
 
         HospitalSignInResponseDto body = HospitalSignInResponseDto.builder()
                 .accessToken(accessToken)

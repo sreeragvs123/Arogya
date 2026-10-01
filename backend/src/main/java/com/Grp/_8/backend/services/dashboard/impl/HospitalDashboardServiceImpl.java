@@ -3,17 +3,22 @@ package com.Grp._8.backend.services.dashboard.impl;
 
 import com.Grp._8.backend.dto.dashboard.hosptial.DoctorDetailResponseDto;
 import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashBoardDoctorSearchResponseDto;
+import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashBoardStaffSummaryDto;
 import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashboardMetricsDto;
+import com.Grp._8.backend.entities.enums.Department;
 import com.Grp._8.backend.entities.enums.DoctorStaffSection;
 import com.Grp._8.backend.entities.enums.DoctorStatus;
 import com.Grp._8.backend.entities.enums.VerificationStatus;
 import com.Grp._8.backend.entities.users.Doctor;
 import com.Grp._8.backend.entities.users.Hospital;
+import com.Grp._8.backend.entities.users.Staff;
+import com.Grp._8.backend.entities.users.Users;
 import com.Grp._8.backend.exceptions.DoctorHospitalMismatchException;
 import com.Grp._8.backend.exceptions.DoctorNotFoundException;
 import com.Grp._8.backend.exceptions.HospitalNotFoundException;
 import com.Grp._8.backend.repositories.users.DoctorRepository;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
+import com.Grp._8.backend.repositories.users.StaffRepository;
 import com.Grp._8.backend.services.dashboard.HospitalDashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,9 +26,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +39,9 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
 
     private final HospitalRepository hospitalRepository;
     private final DoctorRepository doctorRepository;
+    private final StaffRepository staffRepository;
 
-
-
+    @Override
     public HospitalDashboardMetricsDto getMetrics(Long Id) {
 
         Hospital hospital = hospitalRepository.findById(Id)
@@ -44,7 +52,7 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
         Long totalStaff = doctorRepository.countByHospital_Id(hospitalId);
         Long activeOnDuty = doctorRepository.countByHospital_IdAndStatus(hospitalId, DoctorStatus.ACTIVE);
         Long pendingReviews = doctorRepository.countByHospital_IdAndVerificationStatus(hospitalId, VerificationStatus.PENDING);
-        Long specialtyCount = doctorRepository.countDistinctSpecializationsByHospitalId(hospitalId);
+        Long specialtyCount = doctorRepository.countDistinctDepartmentsByHospitalId(hospitalId);
 
         return HospitalDashboardMetricsDto.builder()
                 .totalStaff(totalStaff)
@@ -54,8 +62,13 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
                 .build();
     }
 
-
-
+    @Override
+    @Transactional(readOnly = true)
+    public Page<HospitalDashBoardStaffSummaryDto> getAllStaff(Long hospitalId, int page, int size) {
+        Pageable pageable = createPageable(page, size);
+        return staffRepository.findAllStaff(hospitalId, pageable)
+                .map(this::mapToStaffSummary);
+    }
 
     @Override
     public Page<HospitalDashBoardDoctorSearchResponseDto> getDoctorsBySection(
@@ -75,7 +88,10 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
 
     @Override
     public List<String> getSpecializations(Long hospitalId) {
-        return doctorRepository.findDistinctSpecializationsByHospitalId(hospitalId);
+        return doctorRepository.findDistinctDepartmentsByHospitalId(hospitalId)
+                .stream()
+                .map(Department::name)
+                .toList();
     }
 
     @Override
@@ -88,14 +104,14 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
     ) {
         Pageable pageable = createPageable(page, size);
 
-        Page<Doctor> result =  doctorRepository.searchDoctorsInSection(
+        Page<Doctor> result = doctorRepository.searchDoctorsInSection(
                 hospitalId,
                 getStatusesForSection(section),
-                query.trim(),
+                query == null ? "" : query.trim(),
                 pageable
         );
 
-        return result.map(doctor -> mapToResponse(doctor));
+        return result.map(this::mapToResponse);
     }
 
     @Override
@@ -108,11 +124,18 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
     ) {
         Pageable pageable = createPageable(page, size);
 
+        Department department;
+        try {
+            department = Department.valueOf(specialization.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Page.empty(pageable);
+        }
+
         return doctorRepository
-                .findByHospital_IdAndStatusInAndSpecializationIgnoreCase(
+                .findByHospital_IdAndStatusInAndDepartment(
                         hospitalId,
                         getStatusesForSection(section),
-                        specialization.trim(),
+                        department,
                         pageable
                 )
                 .map(this::mapToResponse);
@@ -134,6 +157,7 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
             );
         };
     }
+
     @Override
     public DoctorDetailResponseDto getDoctorDetail(Long hospitalId, Long doctorId) {
         Doctor doctor = doctorRepository.findById(doctorId)
@@ -146,6 +170,8 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
         return mapToDetailResponse(doctor);
     }
 
+
+
     private DoctorDetailResponseDto mapToDetailResponse(Doctor doctor) {
         return DoctorDetailResponseDto.builder()
                 .doctorId(doctor.getId())
@@ -155,7 +181,7 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
                 .phoneNumber(doctor.getPhoneNumber())
                 .licenseNumber(doctor.getLicenseNumber())
                 .designation(doctor.getDesignation())
-                .specialization(doctor.getSpecialization())
+                .specialization(doctor.getDepartment().name())
                 .sex(doctor.getSex())
                 .dateOfBirth(doctor.getDateOfBirth())
                 .verificationStatus(doctor.getVerificationStatus())
@@ -171,6 +197,23 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
                 .build();
     }
 
+    private HospitalDashBoardStaffSummaryDto mapToStaffSummary(Staff staff) {
+        Users user = staff.getUserData();
+        return new HospitalDashBoardStaffSummaryDto(
+                staff.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getProfileImageUrl(),
+                user.getRole(),
+                staff.getDepartment(),
+                staff.getPhoneNumber(),
+                true,//TODO : Change the Force active Value
+                staff.getLastLoginAt(),
+                true
+        );
+    }
+
+
     private Pageable createPageable(int page, int size) {
         return PageRequest.of(
                 Math.max(page, 0),
@@ -185,12 +228,12 @@ public class HospitalDashboardServiceImpl implements HospitalDashboardService {
                 doctor.getUserData().getName(),
                 doctor.getUserData().getProfileImageUrl(),
                 doctor.getDesignation(),
-                doctor.getSpecialization(),
+                doctor.getDepartment().name(),
                 doctor.getLicenseNumber(),
                 doctor.getVerificationStatus(),
                 doctor.getHospital().getId(),
                 doctor.getHospital().getUserData().getName(),
-                doctor.getSpecialization(),
+                doctor.getDepartment().name(),   // wardOrDepartment
                 doctor.getStatus(),
                 doctor.getUserData().getEmail(),
                 doctor.getPhoneNumber(),

@@ -2,13 +2,17 @@ package com.Grp._8.backend.services.dashboard;
 
 import com.Grp._8.backend.dto.dashboard.hosptial.DoctorDetailResponseDto;
 import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashBoardDoctorSearchResponseDto;
+import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashBoardStaffSummaryDto;
 import com.Grp._8.backend.dto.dashboard.hosptial.HospitalDashboardMetricsDto;
 import com.Grp._8.backend.entities.enums.DoctorStaffSection;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 
 public interface HospitalDashboardService {
+
+    Page<HospitalDashBoardStaffSummaryDto> getAllStaff(Long hospitalId, int page, int size);
 
     Page<HospitalDashBoardDoctorSearchResponseDto> getDoctorsBySection(
             Long hospitalId,

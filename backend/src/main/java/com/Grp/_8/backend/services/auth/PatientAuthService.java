@@ -1,12 +1,17 @@
 package com.Grp._8.backend.services.auth;
 
 import com.Grp._8.backend.dto.auth.PatientLoginRequestDto;
+import com.Grp._8.backend.dto.auth.PatientLoginResponseDto;
 import com.Grp._8.backend.dto.auth.PatientSignUpResponseDto;
 import com.Grp._8.backend.dto.auth.PatientSignUpRequestDto;
+import com.Grp._8.backend.entities.enums.Role;
 import com.Grp._8.backend.entities.users.Patient;
+import com.Grp._8.backend.entities.users.UserPrincipal;
 import com.Grp._8.backend.entities.users.Users;
+import com.Grp._8.backend.exceptions.ResourceNotFoundException;
 import com.Grp._8.backend.repositories.users.PatientRepository;
 import com.Grp._8.backend.repositories.users.UserRepository;
+import com.Grp._8.backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -27,7 +32,7 @@ import java.util.Optional;
 public class PatientAuthService {
 
     private final UserRepository userRepository;
-    private final PatientRepository paitentRepository ;
+    private final PatientRepository patientRepository ;
     private final ModelMapper modelMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -50,34 +55,34 @@ public class PatientAuthService {
         Patient newPatient = new Patient();
         newPatient.setUserData(savedUser);
         newPatient.setIsActive(true);
-        paitentRepository.save(newPatient);
-
+        patientRepository.save(newPatient);
 
         return modelMapper.map(savedUser, PatientSignUpResponseDto.class);
 
     }
 
 
+    public Object[] login(PatientLoginRequestDto request) {
 
-    public String[] login(PatientLoginRequestDto request) {
-        String compositeKey = request.getUsername() + ":" + request.getRole();
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(compositeKey, request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
 
-        Users validUser = (Users) authentication.getPrincipal();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        String accessToken = jwtService.generateAccessToken(validUser);
-        String refreshToken = jwtService.generateRefreshToken(validUser);
-        String[] tokens = {accessToken,refreshToken};
+        if (principal.getRole() != Role.PATIENT || principal.getProfileId() == null) {
+            throw new BadCredentialsException("Invalid credentials");
+        }
 
-        return  tokens;
+        String accessToken = jwtService.generateAccessToken(principal);
+        String refreshToken = jwtService.generateRefreshToken(principal);
+
+        return new Object[]{new PatientLoginResponseDto(accessToken), refreshToken};
     }
 
     public String generateAccessTokenFromRefreshToken(String refreshToken) {
         String accessToken = jwtService.generateAcessTokenFromRefreshToken(refreshToken);
         return accessToken;
-
     }
 
 

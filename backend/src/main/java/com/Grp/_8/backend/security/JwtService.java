@@ -1,5 +1,6 @@
-package com.Grp._8.backend.services.auth;
+package com.Grp._8.backend.security;
 
+import com.Grp._8.backend.entities.users.UserPrincipal;
 import com.Grp._8.backend.entities.users.Users;
 import com.Grp._8.backend.exceptions.ResourceNotFoundException;
 import com.Grp._8.backend.repositories.users.UserRepository;
@@ -20,25 +21,27 @@ import java.util.Date;
 public class JwtService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
 
-    @Value("${jwt.access-token.expiration-ms}")
+    @Value("#{${jwt.access-token.expiration-minutes} * 60 * 1000}")
     private Long accessTokenExpirationMs;
 
-    @Value("${jwt.refresh-token.expiration-ms}")
+    @Value("#{${jwt.refresh-token.expiration-days} * 24 * 60 * 60 * 1000}")
     private Long refreshTokenExpirationMs;
 
     private SecretKey getSigningKey(){
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(Users user){
+    public String generateAccessToken(UserPrincipal userPrincipal){
         return Jwts.builder()
-                .subject(user.getId().toString())
-                .claim("username",user.getUsername())
-                .claim("role",user.getRole())
+                .subject(userPrincipal.getUserId().toString())
+                .claim("username", userPrincipal.getUsername())
+                .claim("role", userPrincipal.getRole().name())
+                .claim("profileId", userPrincipal.getProfileId())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+accessTokenExpirationMs))
                 .signWith(getSigningKey())
@@ -46,23 +49,26 @@ public class JwtService {
 
     }
 
-    public String generateRefreshToken(Users user){
+    public String generateRefreshToken(UserPrincipal userPrincipal){
         return Jwts.builder()
-                .subject(user.getId().toString())
+                .subject(userPrincipal.getUserId().toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    public Long getUserIdFromToken(String token){
-
-        Claims claim = Jwts.parser()
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
 
+    public Long getUserIdFromToken(String token){
+
+        Claims claim =  parseClaims(token);
         Long Id =  Long.valueOf(claim.getSubject());
         return Id;
 
@@ -71,10 +77,10 @@ public class JwtService {
     public String generateAcessTokenFromRefreshToken(String refreshToken){
 
         Long userId = getUserIdFromToken(refreshToken);
-        Users validUser = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User with id : "+userId+" not Found."));
-        String accessToken = generateAccessToken(validUser);
-
-        return accessToken;
+        Users validUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id : " + userId + " not Found."));
+        UserPrincipal principal = (UserPrincipal) userService.loadUserByUsername(validUser.getUsername());
+        return generateAccessToken(principal);
 
     }
 

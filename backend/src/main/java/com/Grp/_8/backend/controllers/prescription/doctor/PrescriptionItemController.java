@@ -1,8 +1,7 @@
-package com.Grp._8.backend.controllers.prescription;
+package com.Grp._8.backend.controllers.prescription.doctor;
 
-import com.Grp._8.backend.dto.prescription.VitalsUpdateRequestDto;
-import com.Grp._8.backend.services.prescription.VitalsService;
-import jakarta.validation.Valid;
+import com.Grp._8.backend.dto.prescription.PrescriptionItemsUpdateRequestDto;
+import com.Grp._8.backend.services.prescription.PrescriptionItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,15 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('DOCTOR')")
 @RequestMapping("/doctor/appointment")
 @RestController
-public class VitalsController {
+public class PrescriptionItemController {
 
-    private final VitalsService vitalsService;
+    private final PrescriptionItemService prescriptionItemService;
 
-    @PatchMapping("/{appointmentId}/vitals")
-    public ResponseEntity<Void> updateVitals(
+    @PatchMapping("/{appointmentId}/prescription-items")
+    public ResponseEntity<Void> updatePrescriptionItems(
             @PathVariable Long appointmentId,
-            @RequestBody @Valid VitalsUpdateRequestDto dto) {
-        vitalsService.updateVitals(appointmentId, dto);
+            @RequestBody PrescriptionItemsUpdateRequestDto dto) {
+        prescriptionItemService.updatePrescriptionItems(appointmentId, dto);
         return ResponseEntity.noContent().build();
     }
 }

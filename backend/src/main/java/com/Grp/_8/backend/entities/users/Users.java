@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -45,7 +46,6 @@ public class Users {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 
     @Enumerated(EnumType.STRING)
     private Role role;

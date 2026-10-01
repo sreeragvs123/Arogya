@@ -12,11 +12,13 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface HospitalRepository extends JpaRepository<Hospital, Long> {
+public interface    HospitalRepository extends JpaRepository<Hospital, Long> {
 
     Optional<Hospital> findById(Long id);
 
-    Optional<Long> findIdByUserData_Username(String username);
+
+    @Query("select h.id from Hospital h where h.userData.username = :username")
+    Optional<Long> findIdByUserData_Username(@Param("username") String username);
 
     @Query("Select id from Hospital h where h.userData.id = : id")
     Long findByUserId(@Param("userId") Long id);

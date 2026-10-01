@@ -38,16 +38,19 @@ public class PatientAuthController {
 
     @PostMapping("/logIn")
     public ResponseEntity<PatientLoginResponseDto> login(@RequestBody PatientLoginRequestDto loginRequest, HttpServletResponse response) {
-        String[] tokens = authService.login(loginRequest);
+        Object[] result = authService.login(loginRequest);
 
-        String accessToken = tokens[0];
-        String refreshToken = tokens[1];
+        PatientLoginResponseDto body = (PatientLoginResponseDto) result[0];
+        String refreshToken = (String) result[1];
 
-        Cookie cookie = new Cookie("refresh_token",tokens[1]);
+        Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
+        cookie.setSecure(true);      // HTTPS only; set false for local http testing
+        cookie.setPath("/");         // or the refresh endpoint path, e.g. "/auth/refresh"
+        cookie.setMaxAge(7 * 24 * 60 * 60);
 
-        return ResponseEntity.ok(new PatientLoginResponseDto(accessToken));
+        return ResponseEntity.ok(body);
     }
 
 

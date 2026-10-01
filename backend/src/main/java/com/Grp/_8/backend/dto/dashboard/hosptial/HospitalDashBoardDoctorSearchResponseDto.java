@@ -1,6 +1,7 @@
 package com.Grp._8.backend.dto.dashboard.hosptial;
 
 
+import com.Grp._8.backend.entities.enums.Department;
 import com.Grp._8.backend.entities.enums.Designation;
 import com.Grp._8.backend.entities.enums.DoctorStatus;
 import com.Grp._8.backend.entities.enums.VerificationStatus;

@@ -1,5 +1,6 @@
 package com.Grp._8.backend.dto.auth;
 
+import com.Grp._8.backend.entities.enums.Department;
 import com.Grp._8.backend.entities.enums.Designation;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -17,7 +18,7 @@ public class DoctorCreateRequestDto {
     @NotBlank
     private String temporaryPin;
     @NotBlank
-    private String specialization; // Clinical Department
+    private Department specialization; // Clinical Department
 
     @NotNull
     private Designation designation; // Designation / Rank

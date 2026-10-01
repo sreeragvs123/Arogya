@@ -47,6 +47,9 @@ public class Staff {
     @JoinColumn(nullable = false)
     private Hospital hospital;
 
+    @Column(nullable = false)
+    private Boolean onCall = false;
+
 
     private LocalDateTime lastLoginAt;
 

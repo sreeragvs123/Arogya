@@ -28,13 +28,12 @@ public class StaffAuthController {
         Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
+        cookie.setSecure(true);      // HTTPS only; set false for local http testing
+        cookie.setPath("/");         // or the refresh endpoint path, e.g. "/auth/refresh"
+        cookie.setMaxAge(7 * 24 * 60 * 60);
 
         return ResponseEntity.ok(responseDto);
     }
 
-    @PostMapping("/create/{hospitalId}")
-    public ResponseEntity<StaffCreateResponseDto> createStaff(@Valid @RequestBody StaffCreateRequestDto request, @PathVariable Long hospitalId) {
-        StaffCreateResponseDto response = staffAuthService.createStaff(request, hospitalId);
-        return ResponseEntity.ok(response);
-    }
+
 }

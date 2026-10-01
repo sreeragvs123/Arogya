@@ -24,4 +24,5 @@ public class DoctorDashBoardController {
         return ResponseEntity.ok(dashboardService.getSummary(id));
     }
 
+
 }

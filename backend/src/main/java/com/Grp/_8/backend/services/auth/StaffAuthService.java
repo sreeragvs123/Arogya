@@ -7,11 +7,13 @@ import com.Grp._8.backend.dto.auth.StaffSignInResponseDto;
 import com.Grp._8.backend.entities.enums.Role;
 import com.Grp._8.backend.entities.users.Hospital;
 import com.Grp._8.backend.entities.users.Staff;
+import com.Grp._8.backend.entities.users.UserPrincipal;
 import com.Grp._8.backend.entities.users.Users;
 import com.Grp._8.backend.exceptions.*;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
 import com.Grp._8.backend.repositories.users.StaffRepository;
 import com.Grp._8.backend.repositories.users.UserRepository;
+import com.Grp._8.backend.security.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -46,10 +48,10 @@ public class StaffAuthService {
                 new UsernamePasswordAuthenticationToken(compositeKey, request.getPassword())
         );
 
-        Users validUser = (Users) authentication.getPrincipal();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        Staff staff = staffRepository.findByUserData_Id(validUser.getId()).orElseThrow(
-                () -> new StaffNotFoundException("Staff Not Found with Id : " + validUser.getId())
+        Staff staff = staffRepository.findByUserData_Id(principal.getUserId()).orElseThrow(
+                () -> new StaffNotFoundException("Staff Not Found with Id : " + principal.getUserId())
         );
 
         if (!staff.getHospital().getId().equals(hospital.getId())) {
@@ -63,20 +65,19 @@ public class StaffAuthService {
         staff.setLastLoginAt(LocalDateTime.now());
         staffRepository.save(staff);
 
-        String accessToken = jwtService.generateAccessToken(validUser);
-        String refreshToken = jwtService.generateRefreshToken(validUser);
+        String accessToken = jwtService.generateAccessToken(principal);
+        String refreshToken = jwtService.generateRefreshToken(principal);
 
         StaffSignInResponseDto responseDto = StaffSignInResponseDto.builder()
                 .staffId(staff.getId())
-                .staffName(validUser.getName())
-                .role(validUser.getRole())
+                .staffName(staff.getUserData().getName())
+                .role(principal.getRole())
                 .department(staff.getDepartment())
                 .hospitalId(hospital.getId())
                 .accessToken(accessToken)
                 .build();
 
-        Object[] data = {responseDto, refreshToken};
-        return data;
+        return new Object[]{responseDto, refreshToken};
     }
 
     @Transactional

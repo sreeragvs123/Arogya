@@ -1,19 +1,16 @@
-    package com.Grp._8.backend.services.users;
+    package com.Grp._8.backend.security;
 
     import com.Grp._8.backend.entities.enums.Role;
     import com.Grp._8.backend.entities.users.UserPrincipal;
     import com.Grp._8.backend.entities.users.Users;
-    import com.Grp._8.backend.repositories.users.DoctorRepository;
-    import com.Grp._8.backend.repositories.users.PatientRepository;
-    import com.Grp._8.backend.repositories.users.StaffRepository;
-    import com.Grp._8.backend.repositories.users.UserRepository;
+    import com.Grp._8.backend.repositories.users.*;
     import lombok.RequiredArgsConstructor;
-    import org.modelmapper.ModelMapper;
-    import org.springframework.security.authentication.BadCredentialsException;
     import org.springframework.security.core.userdetails.UserDetails;
     import org.springframework.security.core.userdetails.UserDetailsService;
     import org.springframework.security.core.userdetails.UsernameNotFoundException;
     import org.springframework.stereotype.Service;
+
+    import static com.Grp._8.backend.entities.enums.Role.*;
 
 
     @Service
@@ -24,20 +21,25 @@
         private final StaffRepository staffRepository;
         private final DoctorRepository doctorRepository;
         private final PatientRepository patientRepository;
+        private final HospitalRepository hospitalRepository;
 
         @Override
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
             Users user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("Users not found with username: " + username));
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
 
             Long profileId = switch (user.getRole()) {
-                case STAFF -> staffRepository.findIdByUserData_Username(username).orElse(null);
-                case DOCTOR -> doctorRepository.findIdByUserData_Username(username).orElse(null);
+                case STAFF   -> staffRepository.findIdByUserData_Username(username).orElse(null);
+                case DOCTOR  -> doctorRepository.findIdByUserData_Username(username).orElse(null);
                 case PATIENT -> patientRepository.findIdByUserData_Username(username).orElse(null);
-                default -> null; // e.g. HOSPITAL, if that role has no Staff/Doctor/Patient row
+                case HOSPITAL -> hospitalRepository.findIdByUserData_Username(username).orElse(null);
+
+                default      -> null; // HOSPITAL has no profile row of these types
             };
 
-            return new UserPrincipal(user.getId(), user.getUsername(), user.getPassword(), user.getRole(), profileId);
+           return new UserPrincipal(user.getUsername(),user.getPassword(),user.getRole(),user.getId(),profileId);
         }
 
 

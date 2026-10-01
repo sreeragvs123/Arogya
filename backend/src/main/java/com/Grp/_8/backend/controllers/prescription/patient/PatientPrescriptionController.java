@@ -1,6 +1,8 @@
-package com.Grp._8.backend.controllers.prescription;
+package com.Grp._8.backend.controllers.prescription.patient;
 
 
+import com.Grp._8.backend.dto.prescription.PrescriptionSummaryResponseDto;
+import com.Grp._8.backend.services.prescription.PatientPrescriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

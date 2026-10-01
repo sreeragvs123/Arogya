@@ -1,7 +1,7 @@
 package com.Grp._8.backend.configs;
 
 
-import com.Grp._8.backend.filters.JwtFilters;
+import com.Grp._8.backend.security.JwtFilters;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,15 +31,12 @@ public class WebSecurityConfigs {
         httpSecurity
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new CorsConfiguration();
-                    config.setAllowedOriginPatterns(List.of("http://localhost:*")); // or exact port
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+                    config.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*")); // or exact port
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
                     return config;
                 }))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**","/hospital/**","/doctor/**").permitAll()
-                        .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(Session -> Session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilters, UsernamePasswordAuthenticationFilter.class);

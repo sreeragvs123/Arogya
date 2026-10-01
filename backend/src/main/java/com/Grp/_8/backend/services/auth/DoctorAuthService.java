@@ -5,6 +5,7 @@ import com.Grp._8.backend.dto.auth.DoctorSignInRequestDto;
 import com.Grp._8.backend.dto.auth.DoctorSignInResponseDto;
 import com.Grp._8.backend.entities.dashboard.doctor.DoctorDashboardSettings;
 import com.Grp._8.backend.entities.enums.DoctorStatus;
+import com.Grp._8.backend.entities.users.UserPrincipal;
 import com.Grp._8.backend.entities.users.Users;
 import com.Grp._8.backend.exceptions.DoctorHospitalMismatchException;
 import com.Grp._8.backend.exceptions.DoctorNotFoundException;
@@ -12,6 +13,7 @@ import com.Grp._8.backend.repositories.dashboard.doctor.DoctorDashboardSettingsR
 import com.Grp._8.backend.repositories.users.DoctorRepository;
 import com.Grp._8.backend.repositories.users.HospitalRepository;
 import com.Grp._8.backend.repositories.users.UserRepository;
+import com.Grp._8.backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,37 +49,36 @@ public class DoctorAuthService {
     public Object[] signIn(DoctorSignInRequestDto request) {
 
         Hospital hospital = hospitalRepository.findById(request.getHospitalId()).orElseThrow(
-                ()-> new HospitalNotFoundException("Hospital Not Found with Id :" + request.getHospitalId())
+                () -> new HospitalNotFoundException("Hospital Not Found with Id :" + request.getHospitalId())
         );
-
-
 
         String compositeKey = request.getUsername() + ":" + request.getRole();
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(compositeKey, request.getPassword())
         );
 
-        Users validUser = (Users) authentication.getPrincipal();
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        Doctor doctor = doctorRepository.findByUserData_Id(validUser.getId()).orElseThrow(
-                ()-> new DoctorNotFoundException("Doctor Not Found with Id : "+ validUser.getId())
+        Doctor doctor = doctorRepository.findByUserData_Id(principal.getUserId()).orElseThrow(
+                () -> new DoctorNotFoundException("Doctor Not Found with Id : " + principal.getUserId())
         );
 
-        if(!doctor.getHospital().getId().equals(hospital.getId())){
+        if (!doctor.getHospital().getId().equals(hospital.getId())) {
             throw new DoctorHospitalMismatchException("Doctor doesn't Belong to this Hospital");
         }
 
-        String accessToken = jwtService.generateAccessToken(validUser);
-        String refreshToken = jwtService.generateRefreshToken(validUser);
+        String accessToken = jwtService.generateAccessToken(principal);
+        String refreshToken = jwtService.generateRefreshToken(principal);
+
         DoctorSignInResponseDto responseDto = DoctorSignInResponseDto.builder()
-                .doctorName(validUser.getName())
-                .role(validUser.getRole())
+                .doctorName(doctor.getUserData().getName())
+                .role(principal.getRole())
                 .doctorId(doctor.getId())
+                .hospitalId(hospital.getId())
                 .accessToken(accessToken)
                 .build();
-        Object[] data = {responseDto,refreshToken};
 
-        return  data;
+        return new Object[]{responseDto, refreshToken};
     }
 
     public String generateAccessTokenFromRefreshToken(String refreshToken) {
@@ -116,7 +117,7 @@ public class DoctorAuthService {
         newDoctor.setHospital(hospital);
         newDoctor.setLicenseNumber(request.getLicenseNumber());
         newDoctor.setDesignation(request.getDesignation());
-        newDoctor.setSpecialization(request.getSpecialization());
+        newDoctor.setDepartment(request.getSpecialization());
         newDoctor.setPhoneNumber(request.getPhoneNumber());
         newDoctor.setPrescriptionAuthority(request.getPrescriptionAuthority());
         newDoctor.setLabImagingOrdering(request.getLabImagingOrdering());
@@ -140,7 +141,7 @@ public class DoctorAuthService {
                 .email(savedDoctor.getUserData().getEmail())
                 .phoneNumber(savedDoctor.getPhoneNumber())
                 .licenseNumber(savedDoctor.getLicenseNumber())
-                .specialization(savedDoctor.getSpecialization())
+                .specialization(savedDoctor.getDepartment().name())
                 .designation(savedDoctor.getDesignation())
                 .status(savedDoctor.getStatus())
                 .prescriptionAuthority(savedDoctor.getPrescriptionAuthority())
